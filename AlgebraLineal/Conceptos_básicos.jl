@@ -48,7 +48,7 @@ observe que $F$ es una matriz de tamaño $2\times 2$.
 """
 
 # ╔═╡ 9a15f141-ef47-4fc3-b6e3-5bb49ed4e47e
-md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre ella. Sea 
+md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre esta. Sea 
 
 $D=\begin{bmatrix} 1 & 2 & 3 & 4 \\ -1 & 4 & 1 & 4 \\ 0 & 0 & 1 & -2 \end{bmatrix}.$"""
 
