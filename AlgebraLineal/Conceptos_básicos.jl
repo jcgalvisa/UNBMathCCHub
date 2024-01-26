@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 2756200a-497c-44ac-be31-c4047bb2312f
 using PlutoUI
 
@@ -48,7 +58,7 @@ observe que $F$ es una matriz de tamaño $2\times 2$.
 """
 
 # ╔═╡ 9a15f141-ef47-4fc3-b6e3-5bb49ed4e47e
-md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre esta. Sea 
+md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre ella. Sea 
 
 $D=\begin{bmatrix} 1 & 2 & 3 & 4 \\ -1 & 4 & 1 & 4 \\ 0 & 0 & 1 & -2 \end{bmatrix}.$"""
 
@@ -489,6 +499,93 @@ Por ejemplo, verifiquemos la no igualdad de los anteriores productos matriciales
 # ╔═╡ cfbf482b-b544-42ad-bcfd-0a19c045cae2
 J*H != H*J
 
+# ╔═╡ 1c7da86e-fee8-4b0f-8096-3cbeeb4b9991
+md""" ### $\cdot$ Producto de Kronecker
+
+Sea $A$ una matriz de tamaño $m \times n$ y $B$ una matriz de tamaño $p \times q$, entonces el producto de Kronecker $A \otimes B$ es una matriz de bloque de tamaño $mp \times nq$ definida como:
+
+$A \otimes B = \begin{bmatrix}
+a_{11}B & \cdots & a_{1n}B \\
+\vdots & \ddots & \vdots \\
+a_{m1}B & \cdots & a_{mn}B
+\end{bmatrix}$
+
+donde $a_{ij}$ es el elemento en la fila $i$, columna $j$ de $A$.
+"""
+
+# ╔═╡ f168e458-c1d0-4c64-95da-33142ffaab2f
+md"""*Ejemplo:*
+
+Sea $A = \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}, B=\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix}$, entonces el producto de Kronecker $A \otimes B$ es el siguiente
+
+$A \otimes B = \begin{bmatrix}
+1 \cdot\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} & 2\cdot\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix}\\
+3\cdot\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} & 4\cdot\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} 
+\end{bmatrix} =\begin{bmatrix} 1\cdot5 & 1\cdot6 & 2\cdot5 & 2\cdot6\\
+  1\cdot7  & 1\cdot8 & 2\cdot7 & 2\cdot8\\
+ 3\cdot5 & 3\cdot6 & 4\cdot5 & 4\cdot6\\
+ 3\cdot7 & 3\cdot8 & 4\cdot7 & 4\cdot8\end{bmatrix}= \begin{bmatrix} 5 & 6 & 10 & 12\\
+  7  & 8 & 14 & 16\\
+ 15 & 18 & 20 & 24\\
+ 21 & 24 & 28 & 32\end{bmatrix}.$"""
+
+# ╔═╡ a1ffd274-0fe6-4fc8-98a0-f1908e3763c9
+md"""Esto se puede realizar con la función $\texttt{kron}$, primero definimos las matrices $A$ y $B$"""
+
+# ╔═╡ 33b0243a-64b4-4a2f-bcdf-d19dcf32671d
+begin
+	A₁₄ = [1 2; 3 4]
+	B₁₄ = [5 6; 7 8]
+end
+
+# ╔═╡ 4ade03c0-8bba-4e39-b1bb-4216621cb560
+md"""Y ahora realizamos el producto de Kronecker de $A$ con $B$."""
+
+# ╔═╡ 1e169308-7388-4490-91f0-1f92dc408229
+kron(A₁₄, B₁₄)
+
+# ╔═╡ dca9311b-8ee9-4eef-b658-df9011f9393a
+md"""**Nota:** El producto de Kronecker es no conmutativo, aquí se tiene un ejemplo de esto"""
+
+# ╔═╡ 168af4ed-8d9d-4076-8d1f-910ecbdd9daa
+kron(B₁₄, A₁₄)
+
+# ╔═╡ d82dab49-3cec-4269-94ae-e7b97d1a8b16
+kron(A₁₄, B₁₄) == kron(B₁₄, A₁₄)
+
+# ╔═╡ 93b7fbbf-f130-41f7-a126-26d2a423a3b2
+md"""*Ejemplo:* Si realizamos el producto de Kronecker con una matriz de unos el resultado será una matriz de bloque ampliada. Consideremos la matriz $A$ anterior y definamos la matriz $C$ de unos de tamaño $r\times r$, y realicemos el producto de Kronecker de $A$ con $C$."""
+
+# ╔═╡ 6e4bc8fc-38fd-46f7-a31d-519f166c60f7
+A₁₄ #Mostramos A
+
+# ╔═╡ 8c8e4794-f46a-4d05-b182-485ad85b5e8f
+@bind r Slider(1:20, show_value=true) #elegimos r
+
+# ╔═╡ 31f9367a-88d3-466b-a3bf-299b5c6df316
+C₁₄ = ones(r, r) #Creamos la matriz de unos de tamaño rxr
+
+# ╔═╡ 46617d7f-931a-4ce8-9f8a-05b726ef9a41
+kron(A₁₄, C₁₄) #Efectuamos el producto de Kronecker
+
 # ╔═╡ 4b10de39-8878-4298-869b-f7ef6585a132
 md""" ### $\cdot$ Transpuesta de una matriz
 
@@ -874,6 +971,20 @@ version = "17.4.0+0"
 # ╠═aff665ef-9406-45a9-860b-892b780c4635
 # ╟─ddebb105-dccc-4608-9b24-5c52b01ce4a1
 # ╠═cfbf482b-b544-42ad-bcfd-0a19c045cae2
+# ╟─1c7da86e-fee8-4b0f-8096-3cbeeb4b9991
+# ╟─f168e458-c1d0-4c64-95da-33142ffaab2f
+# ╟─a1ffd274-0fe6-4fc8-98a0-f1908e3763c9
+# ╠═33b0243a-64b4-4a2f-bcdf-d19dcf32671d
+# ╟─4ade03c0-8bba-4e39-b1bb-4216621cb560
+# ╠═1e169308-7388-4490-91f0-1f92dc408229
+# ╟─dca9311b-8ee9-4eef-b658-df9011f9393a
+# ╠═168af4ed-8d9d-4076-8d1f-910ecbdd9daa
+# ╠═d82dab49-3cec-4269-94ae-e7b97d1a8b16
+# ╟─93b7fbbf-f130-41f7-a126-26d2a423a3b2
+# ╠═6e4bc8fc-38fd-46f7-a31d-519f166c60f7
+# ╠═8c8e4794-f46a-4d05-b182-485ad85b5e8f
+# ╠═31f9367a-88d3-466b-a3bf-299b5c6df316
+# ╠═46617d7f-931a-4ce8-9f8a-05b726ef9a41
 # ╟─4b10de39-8878-4298-869b-f7ef6585a132
 # ╠═19fc8142-4a0b-4dda-8046-d57840ee9e7b
 # ╟─eedd241f-5e81-49e2-83ca-3c3cfff77555
