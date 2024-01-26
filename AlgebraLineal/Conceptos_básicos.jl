@@ -14,9 +14,7 @@ using LinearAlgebra
 PlutoUI.TableOfContents(title="Conceptos básicos", aside=true)
 
 # ╔═╡ 71f6b680-20cb-4ce2-9ae3-dbc1fbf96844
-md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
-
-El material presentado aquí fue tomado de [1, 2, 3]."""
+md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
 # ╔═╡ 63dc3073-9454-4077-820f-1afe5b3486fb
 md"""# Introducción a las matrices"""
@@ -45,12 +43,14 @@ Pero tal como se mencionó anteriormente, el siguiente arreglo de símbolos tamb
 $C = \begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}.$
 Al igual que lo es el siguiente arreglo de números complejos:
 
-$D = \begin{bmatrix} 2 + 3i & -1 - 2i \\ 4i & 1 \end{bmatrix}$
-observe que $D$ es una matriz de tamaño $2\times 2$.
+$F = \begin{bmatrix} 2 + 3i & -1 - 2i \\ 4i & 1 \end{bmatrix},$
+observe que $F$ es una matriz de tamaño $2\times 2$.
 """
 
 # ╔═╡ 9a15f141-ef47-4fc3-b6e3-5bb49ed4e47e
-md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre ella."""
+md"""Ahora, consideremos la siguiente matriz de tamaño $3\times 4$ y veamos algunas cosas sobre ella. Sea 
+
+$D=\begin{bmatrix} 1 & 2 & 3 & 4 \\ -1 & 4 & 1 & 4 \\ 0 & 0 & 1 & -2 \end{bmatrix}.$"""
 
 # ╔═╡ 651e717d-579d-40fe-a963-2a6d53abd825
 D=[1 2 3 4; -1 4 1 4; 0 0 1 -2] #Construimos la matriz
@@ -146,7 +146,7 @@ para obtener el menor $M_{24}$, lo podemos hacer de la siguiente forma:
 D₁=vcat(D[1:1, :], D[3:end, :]) #Elimina la fila 2
 
 # ╔═╡ 50895892-4420-4c43-93b5-7af2cc3c19c8
-M₂₃=hcat(D₁[:, 1:3]) #Del resultado anterior se elimina la columna 4
+M₂₄=hcat(D₁[:, 1:3]) #Del resultado anterior se elimina la columna 4
 
 # ╔═╡ 01bc6da9-91c3-44d8-bdf5-007c850fddad
 md"""Ahora hallemos el menor $M_{22}$ de la matriz $D$
@@ -159,7 +159,27 @@ Esto lo podemos hacer de la siguiente forma:"""
 D₂=vcat(D[1:1, :], D[3:end, :]) #Elimina la fila 1
 
 # ╔═╡ fd74b310-343f-4343-b416-c0c79245b790
-M₁₂=hcat(D₂[:, 1:1], D₂[:, 3:end]) #Del resultado anterior se elimina la columna 2
+M₂₂=hcat(D₂[:, 1:1], D₂[:, 3:end]) #Del resultado anterior se elimina la columna 2
+
+# ╔═╡ 7ddea5a7-47c0-4a5d-9a9f-cb7961892cd8
+md"""Podemos crear una función que nos ayude a calcular la matriz menor $M_{ij}$:"""
+
+# ╔═╡ 4a2811f4-1a7b-44cd-a00d-bbb6fc7eb8fb
+function Menor(Matriz,i,j)
+	Mᵢⱼ = Matriz[setdiff(1:end, i), setdiff(1:end, j)]
+end
+
+# ╔═╡ 76d160d9-2582-454a-bde1-0fadfeab85c2
+md"""Con nuestra nueva función calculemos nuevamente $M_{22}$ para la matriz $D$"""
+
+# ╔═╡ 56b90154-3a83-4cd9-9a98-08aa87d5e9ab
+Menor(D,2,2)
+
+# ╔═╡ e4907b7e-a9c1-4391-a155-61e8a24b8d8a
+md"""En efecto, se verifica la igualdad."""
+
+# ╔═╡ 0d48f6c8-68c5-4bdc-a563-f490f578b20f
+M₂₂==Menor(D,2,2)
 
 # ╔═╡ 5b15c17c-f3a2-494e-a28e-ad8a7220db83
 md"""Una matriz por bloques es una matriz que está compuesta por bloques más pequeños en lugar de elementos individuales, es decir,  una matriz por bloques tiene submatrices (bloques) en lugar de elementos individuales.
@@ -199,6 +219,39 @@ md"""Ensamblemos la matriz $E$"""
 # ╔═╡ f281cc2f-daef-4cf1-87ec-784739203d53
 E = [E₁₁ E₁₂; E₂₁ E₂₂]
 
+# ╔═╡ 5bfe837c-1ed4-4f1b-85dc-a454e633940f
+md"""**Nota:** $\texttt{let}$ y $\texttt{begin}$ son construcciones que se utilizan para agrupar múltiples expresiones o declaraciones en un solo bloque de código.
+
+Para crear variables locales y limitar su alcance a un bloque específico se pueden definir las variables dentro de un $\texttt{let}$ y estas solo serán accesibles dentro de ese bloque. A continuación vemos un ejemplo"""
+
+# ╔═╡ e7766586-64a3-4ccc-be2c-babce844aa72
+let
+	local₁ = [1 0]
+	local₂ = [2 3 6]
+end
+
+# ╔═╡ eb74257e-3bbd-42e2-b00b-ee2a3c11b600
+md"""Y si tratamos de usar alguna de estas variables Julia nos dira que no estan definidas."""
+
+# ╔═╡ bc28d6d9-1e4d-454f-8090-ba4d841a939b
+local₁
+
+# ╔═╡ 8c30e76d-9d8d-4408-b92f-2a1041942471
+md"""A diferencia de $\texttt{let}$, las variables definidas en un bloque $\texttt{begin}$ son visibles fuera del bloque. Por ejemplo, consideremos las siguientes variables"""
+
+# ╔═╡ f0dbe476-7ea9-4a63-9023-0afffce31870
+begin
+	def₁ = [2 3 4 5; 12 3 5 0]
+	def₂ = [0 3]
+	def₃ = [2; 4; 5]
+end
+
+# ╔═╡ 782795c9-593a-40fa-86b8-27cec874a5ac
+md"""Podemos acceder a cualquiera de estas variables simplemente llamándolas."""
+
+# ╔═╡ 03f7fd11-ebf8-4e78-866b-1f50cd674f31
+def₂
+
 # ╔═╡ 413a74dd-39fe-44a9-99ae-9891af29d53d
 md"""# Tipos de matrices"""
 
@@ -228,7 +281,7 @@ A₂=rand(4,4) #Genera aleatoriamente una matriz de tamaño 4x4
 md""" ### $\cdot$ Matriz diagonal
 
 Una matriz diagonal es una matriz cuadrada en la que todos los elementos fuera de la diagonal principal son cero. La diagonal principal es la secuencia de elementos que va desde la esquina superior izquierda hasta la esquina inferior derecha de la matriz.
-Es decir, una matriz cuadrada $A$ de orden $n \times n$ es diagonal si: $a_{ij} = 0 \quad \text{para } i \neq j$. Así, una matriz diagonal tiene la siguiente forma:
+Es decir, una matriz cuadrada $A$ de orden $n \times n$ es diagonal si: $a_{ij} = 0 \text{ para } i \neq j$. Así, una matriz diagonal tiene la siguiente forma:
 
 $\begin{bmatrix}  a_{11} & 0 & \cdots & 0 \\  0 & a_{22} & \cdots & 0 \\  \vdots & \vdots & \ddots & \vdots \\  0 & 0 & \cdots & a_{nn} \end{bmatrix}$
 
@@ -292,7 +345,7 @@ end
 A₇+B₇
 
 # ╔═╡ 759394ed-d2ea-4698-b5c8-67ed80bd0c03
-md"""Mostremos otro ejemplo, generemos dos matrices aleatorias de tamaño $5\times 2$ y haremos la resta."""
+md"""Mostremos otro ejemplo, generemos dos matrices aleatorias de tamaño $5\times 2$ y realicemos su resta."""
 
 # ╔═╡ ab73a8f1-5fe9-4a3c-9a8e-66622f83c1c6
 begin
@@ -428,6 +481,14 @@ J*H
 # ╔═╡ aff665ef-9406-45a9-860b-892b780c4635
 H*J
 
+# ╔═╡ ddebb105-dccc-4608-9b24-5c52b01ce4a1
+md"""Con el operador $\texttt{!=}$ podemos ver si dos valores son diferentes. Devuelve $\texttt{true}$ si los valores comparados no son iguales y $\texttt{false}$ si son iguales. Puede ser usado para comparar valores de cualquier tipo, incluyendo números, cadenas de texto, booleanos y matrices.
+
+Por ejemplo, verifiquemos la no igualdad de los anteriores productos matriciales."""
+
+# ╔═╡ cfbf482b-b544-42ad-bcfd-0a19c045cae2
+J*H != H*J
+
 # ╔═╡ 4b10de39-8878-4298-869b-f7ef6585a132
 md""" ### $\cdot$ Transpuesta de una matriz
 
@@ -455,9 +516,11 @@ md"""# Referencias"""
 # ╔═╡ d7e332be-fb7c-4de0-8eb6-ec60c035d1b3
 md"""[1] Martínez R., H. J., & Sanabria R., A. M. (2014). Álgebra Lineal. Programa Editorial Universidad del Valle.
 
-[2] Boyd, S., & Vandenberghe, L. (2021). Introduction to Applied Linear Algebra: Vectors, Matrices, and Least Squares - Julia Language Companion. Cambridge University Press.
+[2] Boyd, S., & Vandenberghe, L. (2018). Introduction to Applied Linear Algebra: Vectors, Matrices, and Least Squares. Cambridge University Press.
 
-[3] Grossman, S. I., & Flores Godoy, J. J. (2012). Álgebra Lineal (7a ed.). McGraw-Hill."""
+[3] Boyd, S., & Vandenberghe, L. (2021). Introduction to Applied Linear Algebra: Vectors, Matrices, and Least Squares - Julia Language Companion. Cambridge University Press.
+
+[4] Grossman, S. I., & Flores Godoy, J. J. (2012). Álgebra Lineal (7a ed.). McGraw-Hill."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -475,7 +538,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "df096654961dc96e3629b8ea2e427860c9eeccd0"
+project_hash = "3731524a0be8981c0b3969f8e7511b0d5e2849dc"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -757,10 +820,24 @@ version = "17.4.0+0"
 # ╟─01bc6da9-91c3-44d8-bdf5-007c850fddad
 # ╠═a1cf3408-0854-45d3-94c3-ea735a33531f
 # ╠═fd74b310-343f-4343-b416-c0c79245b790
+# ╟─7ddea5a7-47c0-4a5d-9a9f-cb7961892cd8
+# ╠═4a2811f4-1a7b-44cd-a00d-bbb6fc7eb8fb
+# ╟─76d160d9-2582-454a-bde1-0fadfeab85c2
+# ╠═56b90154-3a83-4cd9-9a98-08aa87d5e9ab
+# ╟─e4907b7e-a9c1-4391-a155-61e8a24b8d8a
+# ╠═0d48f6c8-68c5-4bdc-a563-f490f578b20f
 # ╟─5b15c17c-f3a2-494e-a28e-ad8a7220db83
 # ╠═d5540b51-1143-4fdb-8fb2-662156540ef2
 # ╟─2fb0a25a-0320-4645-b68e-64d051a3baf6
 # ╠═f281cc2f-daef-4cf1-87ec-784739203d53
+# ╟─5bfe837c-1ed4-4f1b-85dc-a454e633940f
+# ╠═e7766586-64a3-4ccc-be2c-babce844aa72
+# ╟─eb74257e-3bbd-42e2-b00b-ee2a3c11b600
+# ╠═bc28d6d9-1e4d-454f-8090-ba4d841a939b
+# ╟─8c30e76d-9d8d-4408-b92f-2a1041942471
+# ╠═f0dbe476-7ea9-4a63-9023-0afffce31870
+# ╟─782795c9-593a-40fa-86b8-27cec874a5ac
+# ╠═03f7fd11-ebf8-4e78-866b-1f50cd674f31
 # ╟─413a74dd-39fe-44a9-99ae-9891af29d53d
 # ╟─f450c7d8-29e0-47dd-9516-49306bf54450
 # ╠═8afc9c45-0681-479e-b3f4-75dac7461d15
@@ -795,6 +872,8 @@ version = "17.4.0+0"
 # ╟─77162bb3-2b02-4185-80c5-84ed8eca3030
 # ╠═f4dae8c7-a5bd-45a5-aebb-a8ad77ad97e1
 # ╠═aff665ef-9406-45a9-860b-892b780c4635
+# ╟─ddebb105-dccc-4608-9b24-5c52b01ce4a1
+# ╠═cfbf482b-b544-42ad-bcfd-0a19c045cae2
 # ╟─4b10de39-8878-4298-869b-f7ef6585a132
 # ╠═19fc8142-4a0b-4dda-8046-d57840ee9e7b
 # ╟─eedd241f-5e81-49e2-83ca-3c3cfff77555
