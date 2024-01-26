@@ -1,8 +1,18 @@
 ### A Pluto.jl notebook ###
-# v0.19.26
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
+
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
 
 # ╔═╡ c25927c0-9bb6-11ee-0858-3b487d9c079c
 using PlutoUI
@@ -17,9 +27,7 @@ using Plots
 PlutoUI.TableOfContents(title="Vectores", aside=true)
 
 # ╔═╡ 35154b6f-eca3-4c71-a79a-460476370343
-md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
-
-El material presentado aquí fue tomado de [1, 2, 3]."""
+md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
 # ╔═╡ 45d2c626-bb68-4c23-a9a9-5c2d825f4d00
 md"""# Introducción a los vectores"""
@@ -47,7 +55,7 @@ En las definiciones anteriores, $x_1$ se denomina la primera componente del vect
 md"""Ahora, cargamos la librería de álgebra lineal de Julia, que nos ayudará a visualizar algunos ejemplos y propiedades de los vectores."""
 
 # ╔═╡ 6950bf0a-d3f3-41cc-beba-54accb8c496d
-md"""En Julia, los vectores se representan mediante objetos de tipo Array unidimensional. Un vector se construye proporcionando la lista de elementos dentro de corchetes cuadrados, con los elementos separados por comas o punto y coma.  Para asignar un nombre al arreglo, se emplea el operador de asignación =."""
+md"""En Julia, los vectores se representan mediante objetos de tipo Array unidimensional. Un vector se construye proporcionando la lista de elementos dentro de corchetes cuadrados, con los elementos separados por comas o punto y coma.  Para asignar un nombre al arreglo, se emplea el operador de asignación $=$."""
 
 # ╔═╡ e2962a20-aed2-407d-bdd5-128a0ba72bf7
 x₁ = [-3.4, 0.3, 3.5, -9.2, 84]
@@ -59,10 +67,10 @@ x₂ = [-3.4; 0.3; 3.5; -9.2; 84]
 md"""La función length devuelve el tamaño (dimensión)."""
 
 # ╔═╡ efe10659-b1f9-428f-8f92-7c13c2266abb
-length(x₁)
+length(x₁) #tamaño del vector x₁
 
 # ╔═╡ 3c527dc7-b324-4de3-b5a9-2e2fb8cc316b
-length(x₂)
+length(x₂) #tamaño del vector x₂
 
 # ╔═╡ d73c06db-4389-4fc1-a843-0e5060eae6b0
 md"""
@@ -82,7 +90,7 @@ b = ( 1, 2 )
 c = [1, 2]
 
 # ╔═╡ e1d49429-c8ca-4e48-87d9-9b379e8bd423
-md"""La función typeof devuelve el tipo de variable."""
+md"""La función $\texttt{typeof}$ devuelve el tipo de variable."""
 
 # ╔═╡ 79618545-123b-435b-8b51-4ca1ef83aaf6
 typeof(a)
@@ -115,7 +123,7 @@ $\begin{bmatrix}
 5 \\
 10
 \end{bmatrix}.$
-Y lo podemos encontrar de la siguiente forma:"""
+Y lo podemos encontrar de la siguiente forma"""
 
 # ╔═╡ 10ecfd04-e124-4bbf-bcac-1ca21aedf27a
 x[3]
@@ -130,13 +138,25 @@ $\begin{bmatrix}
 5 \\
 \textcolor{red}{10}
 \end{bmatrix}.$
-Es el que se muestra a continuación:"""
+Es el que se muestra a continuación"""
 
 # ╔═╡ 2f9f6439-8253-4f07-a1b0-020ae70e0bba
 x[5]
 
 # ╔═╡ dcf91b6d-7e0a-49e8-a15b-865ba3037d83
 md"""Así, para recuperar un elemento específico se hace mediante la expresión $x[i]$, donde $i$ es el índice deseado."""
+
+# ╔═╡ 7b69f698-db81-48d8-99ed-6027bc13f5d0
+md"""También podemos crear un slide que permite al usuario seleccionar un valor en un rango determinado y vincula ese valor a un elemento específico del vector x que llamamos x_i. En este caso el slide va desde 1 hasta el tamaño del vector."""
+
+# ╔═╡ 43b20f85-994f-4dd4-9115-5b221853d8ae
+@bind x_i Slider(1:length(x), show_value=true)
+
+# ╔═╡ 3af8cad4-8dd4-4971-a67f-c14b32aa06b5
+md"""Y así con ayuda del slide podemos acceder a cada entrada del vector."""
+
+# ╔═╡ d9d6af91-4294-45d9-99c8-18ed9fd07cda
+x[x_i]
 
 # ╔═╡ e0a47b7a-f497-4c91-b76c-c44085feec7d
 md"""Mediante la función $\texttt{end}$, podemos acceder al último elemento del vector, ya que esta función se relaciona con el último índice del vector."""
@@ -157,7 +177,7 @@ $\begin{bmatrix}
 \textcolor{red}{5} \\
 10
 \end{bmatrix}.$
-Se puede hacer de la siguiente forma:"""
+Se puede hacer de la siguiente forma"""
 
 # ╔═╡ 7ac66c82-33e8-40d2-bcf5-7cf5fd297da7
 x[2:4]
@@ -184,13 +204,13 @@ md"""También podemos mostrar los elementos del arreglo en orden inverso. Por ej
 x[end:-1:2]
 
 # ╔═╡ b9796d13-6f6a-4e48-b215-0875c1da6f29
-md"""O mostrar los elementos x[2:4] en orden inverso:"""
+md"""O mostrar los elementos x[2:4] en orden inverso"""
 
 # ╔═╡ 4547fcff-3ebc-4971-959e-3e4d880a13fe
 x[4:-1:2]
 
 # ╔═╡ 0d58bc35-3f03-48ee-b89a-f8cb6fd1c1e3
-md"""La comparación de igualdad entre vectores se realiza mediante el operador relacional $\texttt{==}$. Cuando se aplica a dos vectores (arreglos), digamos $a$ y $b$, en Julia, la expresión $a == b$ dará como resultado $\texttt{true}$ si ambos vectores tienen la misma longitud y sus elementos son idénticos. En caso contrario, la expresión resultará en $\texttt{false}$.
+md"""La comparación de igualdad entre vectores se realiza mediante el operador relacional $==$. Cuando se aplica a dos vectores (arreglos), digamos $a$ y $b$, en Julia, la expresión $a == b$ dará como resultado $\texttt{true}$ si ambos vectores tienen la misma longitud y sus elementos son idénticos. En caso contrario, la expresión resultará en $\texttt{false}$.
 
 Por ejemplo, consideremos los siguientes vectores:
 """
@@ -209,13 +229,16 @@ x₄==x₅
 x₄==x₆
 
 # ╔═╡ e2ca30b7-029c-4fdd-ad7b-1bfc951358cc
-md"""Usando el operador ==, observamos que los vectores $x_4$ y $x_5$ son iguales, mientras que $x_4$ y $x_6$ son distintos. Luego por transitividad, se tiene que $x_5$ y $x_6$ son distintos."""
+md"""Usando el operador $==$, observamos que los vectores $x_4$ y $x_5$ son iguales, mientras que $x_4$ y $x_6$ son distintos. Luego por transitividad, se tiene que $x_5$ y $x_6$ son distintos."""
 
 # ╔═╡ 393c961b-b468-42d5-b2a5-9e66a6276240
-md"""También podemos comparar elemento a elemento si son iguales, con el operador $.==$, de la siguiente forma:"""
+md"""También podemos comparar elemento a elemento si son iguales, con el operador $.==$, de la siguiente forma"""
 
 # ╔═╡ 920a2b62-1f67-4782-974c-8812d4f8dd3b
 x₄.==x₆
+
+# ╔═╡ fac95099-3259-4987-82d4-08afe2a1e57d
+md"""Lo anterior nos muestra que todas las componentes son iguales, salvo la segunda."""
 
 # ╔═╡ 973bf704-adfd-41e0-a8e4-65cc00a52ca4
 md"""Al igual que Julia hace distinciones entre arreglos, también hace una distinción entre el vector de un elemento [2.7] y el número 2.7, observe:"""
@@ -228,6 +251,9 @@ y₂ = 2.7
 
 # ╔═╡ fb368f6f-43b2-4866-9b2a-c1b9260c8649
 y₁==y₂
+
+# ╔═╡ 87e68876-1e95-44e5-9995-fdf0809326d3
+md"""Pero podemos verificar la igualdad del primer elemento de $y_1$ y la variable $y_2$."""
 
 # ╔═╡ d60d75c1-d257-449f-bc6e-4ababbf1d122
 y₁[1]==y₂
@@ -256,7 +282,7 @@ $z_{1} = \begin{bmatrix} 1\\ 1\\  2\end{bmatrix}, \quad
 z_{2} = \begin{bmatrix} 2\\ 3 \end{bmatrix}, \quad
 z_{3} = \begin{bmatrix} 5\\ 8\\ 13 \end{bmatrix}$
 
-Implementemos esto:
+Implementemos esto, primero definimos los vectores $z_!, z_2$ y $z_3$
 """
 
 # ╔═╡ 29bc7ad8-4281-4d23-8cdc-74a63ea58e8f
@@ -270,7 +296,7 @@ end
 z = [z₁; z₂; z₃]
 
 # ╔═╡ 478e5242-a18b-45df-b6c4-94cce14f0682
-md"""Otra manera de ensamblar el vector es usando la función $\texttt{vcat}$."""
+md"""Otra manera de ensamblar el vector es usando la función $\texttt{vcat}$, esta función contatena los vectores de manera vertical."""
 
 # ╔═╡ 71702ea2-553c-476a-a29e-987db155e522
 vcat(z₁, z₂, z₃)
@@ -280,7 +306,7 @@ md"""Una lista de n-vectores puede expresarse como $(\mathbf{v}_1, \mathbf{v}_2,
 """
 
 # ╔═╡ 93078b0c-c68a-437a-8a61-1da0d0f54607
-md"""Por ejemplo, consideremos los siguientes vectores:"""
+md"""Por ejemplo, consideremos los siguientes vectores"""
 
 # ╔═╡ 5ccdcd5c-5b27-4302-bd74-5deb8dcfd0bb
 begin
@@ -302,7 +328,7 @@ md"""Podemos acceder a los vectores de la misma forma que lo hicimos con los ele
 list₁[2]
 
 # ╔═╡ 63efff5c-17ce-465e-97fa-c6223677e65d
-md"""O incluso acceder a un elemento de uno de los vectores del arreglo, de la siguiente forma:"""
+md"""O incluso acceder a un elemento de uno de los vectores del arreglo, de la siguiente forma"""
 
 # ╔═╡ 7b1f26b5-c056-469a-96b9-aeeebed2fd36
 list₁[2][1]
@@ -384,7 +410,7 @@ ones(6)
 
 # ╔═╡ 42411343-8eeb-4cab-adf3-cc4fa2f73e56
 md"""# Gráficas de vectores 
-Un paquete para crear gráficas en Julia es Plots.jl, lo importamos de la siguiente forma:
+Un paquete para crear gráficas en Julia es Plots.jl, lo importamos de la siguiente forma
 """
 
 # ╔═╡ e86441e6-e225-4f05-bb7d-b3b92dced60b
@@ -400,10 +426,13 @@ md"""Podemos graficar el vector de la siguiente manera:"""
 plot(t, seriestype=:scatter, legend = false, grid = true)
 
 # ╔═╡ 3779aae5-dee3-4840-b3f9-9cf6009a38bd
-md"""Consideremos ahora el siguiente vector de tamaño $25\times 1$, generado de manera aleatoria."""
+md"""Consideremos ahora un vector de tamaño $m\times 1$, donde $m$ varia desde 1 hasta 50, generado de manera aleatoria."""
+
+# ╔═╡ cd45633e-20a9-4df6-bcac-fd0da75d2a27
+@bind m Slider(1:50, show_value=true)
 
 # ╔═╡ 6829875c-c295-4495-bad8-09d83faebd58
-s = rand(25)
+s = rand(m)
 
 # ╔═╡ 181cad7f-b5d5-4b99-b1c6-234dc8c0c071
 md"""Realicemos la gráfica, para visualizar los datos."""
@@ -459,14 +488,17 @@ $\begin{align}v&=k\cdot u \\
 
 &= k\cdot \begin{bmatrix} u_{1}\\ u_{2}\\ \vdots \\ u_{n} \end{bmatrix}\\
 
-&= \begin{bmatrix} k\cdot u_{1}\\ k\cdot u_{2}\\ \vdots \\ k\cdot u_{n}  \end{bmatrix}\end{align}.$
+&= \begin{bmatrix} k\cdot u_{1}\\ k\cdot u_{2}\\ \vdots \\ k\cdot u_{n}  \end{bmatrix}\end{align}$
 De manera análoga se tiene para un vector de tamaño $1\times n$."""
 
 # ╔═╡ 364c8c6a-1d00-42f7-86e2-85afe82cf4c6
-md"""Ejemplo: Consideremos un vector de tamaño $3\times 1$:"""
+md"""Ejemplo: Consideremos un vector de tamaño $3\times 1$"""
 
 # ╔═╡ 70f7422f-3d0e-4aa7-8336-e02862c97f50
 u₃ = [0, 2, -1]
+
+# ╔═╡ 062e21dc-a3e1-4a1d-98b3-2299efcf2ceb
+md"""Multipliquemos el vector con algunos escalares"""
 
 # ╔═╡ 1897d792-feda-4f76-b6a4-8ebbff071f2c
 2.2*u₃ #Multiplicación con k=2.2
@@ -606,6 +638,9 @@ Ejemplo: Consideremos el siguiente vector de tamaño $4\times 1$
 # ╔═╡ 3cddc10f-c3b3-4ddf-842a-f7d8ac9b9824
 u₇ = [2, -1, 2.4, 0];
 
+# ╔═╡ fa11ad1d-02fe-4f3c-a386-fb1d448823a4
+md"""Calculemos la norma del vector de dos formas, usando la función $\texttt{norm}$ y usando la definición anterior $\|u\|=\sqrt{u^Tu}$."""
+
 # ╔═╡ aad4dd39-1bcb-4bce-b7a7-7c7bf877bc89
 norm(u₇) #usando la función norm
 
@@ -679,7 +714,7 @@ PlutoUI = "~0.7.54"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.0"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "5111ea6a7e9342bcbea251f23f4c1d4ed4ede4f6"
 
@@ -706,9 +741,9 @@ version = "0.1.8"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
+git-tree-sha1 = "9e2a6b69137e6969bab0152632dcb3bc108c8bdd"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
-version = "1.0.8+0"
+version = "1.0.8+1"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
@@ -717,24 +752,16 @@ uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
 
 [[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "e0af648f0692ec1691b5d094b8724ba1346281cf"
+deps = ["Compat", "LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "0d12ee16b3f62e4e33c3277773730a5b21a74152"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.18.0"
-weakdeps = ["SparseArrays"]
-
-    [deps.ChainRulesCore.extensions]
-    ChainRulesCoreSparseArraysExt = "SparseArrays"
+version = "1.20.0"
 
 [[deps.ChangesOfVariables]]
-deps = ["LinearAlgebra", "Test"]
+deps = ["InverseFunctions", "LinearAlgebra", "Test"]
 git-tree-sha1 = "2fba81a302a7be671aefe194f0525ef231104e7f"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 version = "0.1.8"
-weakdeps = ["InverseFunctions"]
-
-    [deps.ChangesOfVariables.extensions]
-    ChangesOfVariablesInverseFunctionsExt = "InverseFunctions"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -760,12 +787,6 @@ git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.10.0"
 
-    [deps.ColorVectorSpace.extensions]
-    SpecialFunctionsExt = "SpecialFunctions"
-
-    [deps.ColorVectorSpace.weakdeps]
-    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
@@ -773,19 +794,15 @@ uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
 
 [[deps.Compat]]
-deps = ["UUIDs"]
+deps = ["Dates", "LinearAlgebra", "UUIDs"]
 git-tree-sha1 = "886826d76ea9e72b35fcd000e535588f7b60f21d"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
 version = "4.10.1"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.2+0"
+version = "1.0.1+0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
@@ -798,14 +815,6 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "c53fc348ca4d40d7b371e71fd52251839080cbc9"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 version = "1.5.4"
-
-    [deps.ConstructionBase.extensions]
-    ConstructionBaseIntervalSetsExt = "IntervalSets"
-    ConstructionBaseStaticArraysExt = "StaticArrays"
-
-    [deps.ConstructionBase.weakdeps]
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "d05d9e7b7aedff4e5b51a029dced05cfb6125781"
@@ -831,7 +840,6 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
-version = "1.9.1"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -1052,14 +1060,6 @@ git-tree-sha1 = "f428ae552340899a935973270b8d98e5a31c49fe"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 version = "0.16.1"
 
-    [deps.Latexify.extensions]
-    DataFramesExt = "DataFrames"
-    SymEngineExt = "SymEngine"
-
-    [deps.Latexify.weakdeps]
-    DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-    SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
-
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
@@ -1131,20 +1131,14 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
+deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
-deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
+deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
 git-tree-sha1 = "7d6dd4e9212aebaeed356de34ccf262a3cd415aa"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 version = "0.3.26"
-weakdeps = ["ChainRulesCore", "ChangesOfVariables", "InverseFunctions"]
-
-    [deps.LogExpFunctions.extensions]
-    LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
-    LogExpFunctionsChangesOfVariablesExt = "ChangesOfVariables"
-    LogExpFunctionsInverseFunctionsExt = "InverseFunctions"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -1179,7 +1173,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+0"
+version = "2.28.0+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1197,7 +1191,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.10.11"
+version = "2022.2.1"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1218,7 +1212,7 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.21+4"
+version = "0.3.20+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1251,7 +1245,7 @@ version = "1.6.3"
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
-version = "10.42.0+0"
+version = "10.40.0+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1271,9 +1265,9 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.42.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.0"
+version = "1.8.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1292,20 +1286,6 @@ deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers"
 git-tree-sha1 = "ccee59c6e48e6f2edf8a5b64dc817b6729f99eb5"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.39.0"
-
-    [deps.Plots.extensions]
-    FileIOExt = "FileIO"
-    GeometryBasicsExt = "GeometryBasics"
-    IJuliaExt = "IJulia"
-    ImageInTerminalExt = "ImageInTerminal"
-    UnitfulExt = "Unitful"
-
-    [deps.Plots.weakdeps]
-    FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-    GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
-    IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
-    ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
-    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -1406,13 +1386,12 @@ uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
 version = "1.2.0"
 
 [[deps.SparseArrays]]
-deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
+deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.9.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -1426,20 +1405,15 @@ git-tree-sha1 = "1d77abd07f617c4868c33d4f5b9e1dbb2643c9cf"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.2"
 
-[[deps.SuiteSparse_jll]]
-deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
-uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "5.10.1+6"
-
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.3"
+version = "1.0.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.0"
+version = "1.10.1"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1452,13 +1426,10 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
+deps = ["Random", "Test"]
 git-tree-sha1 = "1fbeaaca45801b4ba17c251dd8603ef24801dd84"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.10.2"
-weakdeps = ["Random", "Test"]
-
-    [deps.TranscodingStreams.extensions]
-    TestExt = ["Test", "Random"]
 
 [[deps.Tricks]]
 git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
@@ -1484,15 +1455,10 @@ uuid = "1cfade01-22cf-5700-b092-accc4b62d6e1"
 version = "0.4.1"
 
 [[deps.Unitful]]
-deps = ["Dates", "LinearAlgebra", "Random"]
+deps = ["ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "Random"]
 git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.19.0"
-weakdeps = ["ConstructionBase", "InverseFunctions"]
-
-    [deps.Unitful.extensions]
-    ConstructionBaseUnitfulExt = "ConstructionBase"
-    InverseFunctionsUnitfulExt = "InverseFunctions"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
@@ -1688,7 +1654,7 @@ version = "1.5.0+0"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.13+0"
+version = "1.2.12+3"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1727,9 +1693,9 @@ uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
 version = "0.15.1+0"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl"]
+deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.7.0+0"
+version = "5.1.1+0"
 
 [[deps.libevdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1827,6 +1793,10 @@ version = "1.4.1+1"
 # ╟─a2ed4fb0-8ef5-49e0-b769-61ee43e19dff
 # ╠═2f9f6439-8253-4f07-a1b0-020ae70e0bba
 # ╟─dcf91b6d-7e0a-49e8-a15b-865ba3037d83
+# ╟─7b69f698-db81-48d8-99ed-6027bc13f5d0
+# ╠═43b20f85-994f-4dd4-9115-5b221853d8ae
+# ╟─3af8cad4-8dd4-4971-a67f-c14b32aa06b5
+# ╠═d9d6af91-4294-45d9-99c8-18ed9fd07cda
 # ╟─e0a47b7a-f497-4c91-b76c-c44085feec7d
 # ╟─d9e53517-82f6-4343-9c0e-c482999ff49f
 # ╠═6510f906-955a-4b23-9e40-8c66571b3f51
@@ -1845,10 +1815,12 @@ version = "1.4.1+1"
 # ╟─e2ca30b7-029c-4fdd-ad7b-1bfc951358cc
 # ╟─393c961b-b468-42d5-b2a5-9e66a6276240
 # ╠═920a2b62-1f67-4782-974c-8812d4f8dd3b
+# ╟─fac95099-3259-4987-82d4-08afe2a1e57d
 # ╟─973bf704-adfd-41e0-a8e4-65cc00a52ca4
 # ╠═de50d2da-862b-4e6e-959b-ce7e976eb3a6
 # ╠═92c3ef42-6916-469a-931e-f02b79b3a32c
 # ╠═fb368f6f-43b2-4866-9b2a-c1b9260c8649
+# ╟─87e68876-1e95-44e5-9995-fdf0809326d3
 # ╠═d60d75c1-d257-449f-bc6e-4ababbf1d122
 # ╟─749f932e-8dcc-4728-878e-f16720b9ea04
 # ╠═29bc7ad8-4281-4d23-8cdc-74a63ea58e8f
@@ -1884,6 +1856,7 @@ version = "1.4.1+1"
 # ╟─146f9bf8-cad2-4c38-adb8-3a4b13572c99
 # ╠═4df5b1d8-2d02-436b-86b6-585894b833ad
 # ╟─3779aae5-dee3-4840-b3f9-9cf6009a38bd
+# ╠═cd45633e-20a9-4df6-bcac-fd0da75d2a27
 # ╠═6829875c-c295-4495-bad8-09d83faebd58
 # ╟─181cad7f-b5d5-4b99-b1c6-234dc8c0c071
 # ╠═d43eb64b-da8b-434c-b72f-3d73d3c99736
@@ -1899,6 +1872,7 @@ version = "1.4.1+1"
 # ╟─0998d8ac-94b5-4c4b-ad19-1798c742ccab
 # ╟─364c8c6a-1d00-42f7-86e2-85afe82cf4c6
 # ╠═70f7422f-3d0e-4aa7-8336-e02862c97f50
+# ╟─062e21dc-a3e1-4a1d-98b3-2299efcf2ceb
 # ╠═1897d792-feda-4f76-b6a4-8ebbff071f2c
 # ╠═280d2a5a-ad13-42f6-a04d-61d1820090a6
 # ╠═8071d9a8-5093-4cb5-83a1-f0651a2ec885
@@ -1925,6 +1899,7 @@ version = "1.4.1+1"
 # ╟─655a8b4b-f01a-419c-98b3-93b70e0f8dc1
 # ╟─6abf9914-4337-420f-bfd9-0d30d55c14ad
 # ╠═3cddc10f-c3b3-4ddf-842a-f7d8ac9b9824
+# ╟─fa11ad1d-02fe-4f3c-a386-fb1d448823a4
 # ╠═aad4dd39-1bcb-4bce-b7a7-7c7bf877bc89
 # ╠═4438144e-b113-4612-9297-231283196534
 # ╟─88576eab-1677-428f-b2aa-1597905c8ba1
