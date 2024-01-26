@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.26
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -17,7 +17,7 @@ PlutoUI.TableOfContents(title="Independencia lineal", aside=true)
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
 # ╔═╡ 4a709378-cf2c-4072-9e46-46b4c7237c1b
-md"""Usaremos esta libreria"""
+md"""Usaremos esta librería"""
 
 # ╔═╡ 0097fe78-3013-4eaf-ae85-006d6c10c803
 md"""# Introducción"""
@@ -35,7 +35,7 @@ En caso de que los vectores no sean linealmente dependientes, se clasifican como
 """
 
 # ╔═╡ 158705aa-0e94-417a-a230-e50d538d606a
-md"""Para expresarlo de manera alternativa, $v_1, v_2, \ldots, v_n$ son linealmente independientes si la ecuación $c_1v_1 + c_2v_2 + \ldots + c_nv_n = 0$ se satisface únicamente cuando $c_1 = c_2 = \ldots = cn = 0$. En cambio, son linealmente dependientes si el vector cero en $V$ puede representarse como una combinación lineal de $v_1, v_2, \ldots, v_n$ con coeficientes no todos iguales a cero.
+md"""Para expresarlo de manera alternativa, $v_1, v_2, \ldots, v_n$ son linealmente independientes si la ecuación $c_1v_1 + c_2v_2 + \ldots + c_nv_n = 0$ se satisface únicamente cuando $c_1 = c_2 = \ldots = c_n = 0$. En cambio, son linealmente dependientes si el vector cero en $V$ puede representarse como una combinación lineal de $v_1, v_2, \ldots, v_n$ con coeficientes no todos iguales a cero.
 """
 
 # ╔═╡ 370e0299-7477-4054-9224-632f5c3d2c90
@@ -68,9 +68,7 @@ a_{11} & a_{12} & a_{1n} \\
 a_{21} & a_{22} & a_{2n} \\
 \vdots & \vdots & \vdots \\
 a_{m1} & a_{m2} & a_{mn} \\
-\end{pmatrix}$.
-
-Entonces las columnas de $A$ consideradas como vectores son linealmente dependientes si y sólo si el sistema, que se puede escribir como $Ac= 0$, tiene soluciones no triviales, donde $c=\begin{pmatrix}c_1\\c_2\\ \vdots\\c_n\end{pmatrix}$.
+\end{pmatrix}$. Entonces las columnas de $A$ consideradas como vectores son linealmente dependientes si y sólo si el sistema, que se puede escribir como $Ac= 0$, tiene soluciones no triviales, donde $c=\begin{pmatrix}c_1\\c_2\\ \vdots\\c_n\end{pmatrix}$.
 
 Sea $A$ una matriz de $n\times n$. Entonces $\text{det} A\neq 0$ si y sólo si las columnas de $A$ son linealmente independientes."""
 
@@ -178,7 +176,7 @@ Consideremos el siguiente conjunto de vectores $\left\{\begin{pmatrix} 0 \\ 0\\-
 a1 = [0,0,-1]; a2 = [1,1,0]/sqrt(2); a3 = [1,-1,0]/sqrt(2); #Definimos los vectores
 
 # ╔═╡ e338c272-3372-4eda-8491-298067134968
-md"""Verifiquemos que los vectores tenga norma 1"""
+md"""Verifiquemos que los vectores tengan norma 1"""
 
 # ╔═╡ 0a2cddc8-c6a7-4c7c-8cd2-5c748088ed02
 norm(a1), norm(a2), norm(a3)
@@ -193,7 +191,7 @@ a1'*a2, a1'*a3, a2'*a3
 md"""Como satisfacen las conidiciones mencionadas, dicho conjunto de vectores es ortonormal."""
 
 # ╔═╡ 68590ad2-5fa5-4138-9fa3-a843be78be82
-md""" Podemos transformar un conjunto de vectores linealmente independientes en un conjunto de vectores ortonormales. Así cualquier base en $\mathbb{R}^n$ se puede “convertir” en una base ortonormal, esto con el proceso de ortogonalización de Gram-Schmidt.
+md""" Podemos transformar un conjunto de vectores linealmente independientes en un conjunto de vectores ortonormales. Así cualquier base en $\mathbb{R}^n$ se puede “convertir” en una base ortonormal, esto con el proceso de ortonormalización de Gram-Schmidt.
 """
 
 # ╔═╡ b92bc7b3-f302-4099-b304-be5f12c8f737
@@ -392,7 +390,7 @@ PlutoUI = "~0.7.54"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.0"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "df096654961dc96e3629b8ea2e427860c9eeccd0"
 
@@ -421,7 +419,7 @@ version = "0.11.4"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.2+0"
+version = "1.0.1+0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -492,7 +490,7 @@ version = "1.10.2+0"
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
+deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.Logging]]
@@ -510,14 +508,14 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+0"
+version = "2.28.0+0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.10.11"
+version = "2022.2.1"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -526,7 +524,7 @@ version = "1.2.0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.21+4"
+version = "0.3.20+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -535,9 +533,9 @@ uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.1"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.0"
+version = "1.8.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -585,28 +583,22 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SparseArrays]]
-deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
+deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.9.0"
-
-[[deps.SuiteSparse_jll]]
-deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
-uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "5.10.1+6"
 
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.3"
+version = "1.0.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.0"
+version = "1.10.1"
 
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
@@ -632,12 +624,12 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.13+0"
+version = "1.2.12+3"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl"]
+deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.7.0+0"
+version = "5.1.1+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
