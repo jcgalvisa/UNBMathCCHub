@@ -16,7 +16,7 @@ begin
 end
 
 # ╔═╡ 2c50603c-0802-4ddf-be9a-ab7c1b5345c7
-PlutoUI.TableOfContents(title="Cadenas de Markov", aside=true)
+PlutoUI.TableOfContents(title="Sistemas de ecuaciones diferenciales", aside=true)
 
 # ╔═╡ 285dbec0-147d-4bb9-b176-a4f9a807b0e3
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
