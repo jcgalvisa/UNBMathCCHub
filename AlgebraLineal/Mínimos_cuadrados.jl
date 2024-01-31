@@ -145,7 +145,7 @@ y escribimos las $n$ ecuaciones anteriores como la ecuación matricial $b = Ax +
 
 $A = \begin{bmatrix} x_1^m & x_1^{m-1} & \ldots & 1 \\ x_2^m & x_2^{m-1} & \ldots & 1 \\ \vdots & \vdots & \ddots & \vdots \\ x_n^m & x_n^{m-1} & \ldots & 1 \end{bmatrix}, \quad x = \begin{bmatrix} a_m \\ a_{m-1} \\ \vdots \\ a_0 \end{bmatrix}, \quad d = \begin{bmatrix} d_1 \\ d_2 \\ \vdots \\ d_n \end{bmatrix}$
 
-entonces, una solución del sistema normal $A^TAx = A^Tb$ proporciona una solución por mínimos cuadrados de \(Ax = b\). Con esta solución, podemos garantizar que $\|d\| = \|b - Ax\|$ se minimiza, ya que $d$ se acerca al vector nulo.
+entonces, una solución del sistema normal $A^TAx = A^Tb$ proporciona una solución por mínimos cuadrados de $Ax = b$. Con esta solución, podemos garantizar que $\|d\| = \|b - Ax\|$ se minimiza, ya que $d$ se acerca al vector nulo.
 """
 
 # ╔═╡ 68fb33db-7f68-4ab5-bb03-c0dd919091de
