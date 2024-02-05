@@ -26,6 +26,11 @@ using Plots
 # ╔═╡ 4f8e6c97-84a8-44e6-9bc0-43801b66c354
 PlutoUI.TableOfContents(title="Vectores", aside=true)
 
+# ╔═╡ 11190bac-6570-402e-b68f-17cb565b3b2f
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ 35154b6f-eca3-4c71-a79a-460476370343
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -838,7 +843,6 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelimitedFiles]]
 deps = ["Mmap"]
-git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[deps.DocStringExtensions]]
@@ -1765,6 +1769,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─c25927c0-9bb6-11ee-0858-3b487d9c079c
 # ╟─4f8e6c97-84a8-44e6-9bc0-43801b66c354
+# ╟─11190bac-6570-402e-b68f-17cb565b3b2f
 # ╟─35154b6f-eca3-4c71-a79a-460476370343
 # ╟─45d2c626-bb68-4c23-a9a9-5c2d825f4d00
 # ╟─c29f4362-6c2c-43af-a3f3-1aa5254eaf38
