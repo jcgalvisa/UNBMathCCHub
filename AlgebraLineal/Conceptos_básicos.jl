@@ -23,6 +23,11 @@ using LinearAlgebra
 # ╔═╡ 42df22ae-471b-40f2-9f1c-ffdb7ae48caf
 PlutoUI.TableOfContents(title="Conceptos básicos", aside=true)
 
+# ╔═╡ 771b490e-f0cb-435e-9f2e-29cbbcd7810d
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ 71f6b680-20cb-4ce2-9ae3-dbc1fbf96844
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -635,7 +640,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "3731524a0be8981c0b3969f8e7511b0d5e2849dc"
+project_hash = "df096654961dc96e3629b8ea2e427860c9eeccd0"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -888,6 +893,7 @@ version = "17.4.0+0"
 # ╔═╡ Cell order:
 # ╟─2756200a-497c-44ac-be31-c4047bb2312f
 # ╟─42df22ae-471b-40f2-9f1c-ffdb7ae48caf
+# ╠═771b490e-f0cb-435e-9f2e-29cbbcd7810d
 # ╟─71f6b680-20cb-4ce2-9ae3-dbc1fbf96844
 # ╟─63dc3073-9454-4077-820f-1afe5b3486fb
 # ╟─b785eeba-828b-4bc2-a5bb-afba2b68a1cf
