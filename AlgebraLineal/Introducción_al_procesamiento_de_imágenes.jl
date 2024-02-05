@@ -36,6 +36,11 @@ end
 # ╔═╡ 42df22ae-471b-40f2-9f1c-ffdb7ae48caf
 PlutoUI.TableOfContents(title="Introducción al Procesamiento de Imágenes", aside=true)
 
+# ╔═╡ c3e4240c-9cd3-45d4-b4f7-5a61ef37b488
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ 36292bcc-042b-41f1-a021-aaa75a97bc6a
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -1784,6 +1789,7 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─42df22ae-471b-40f2-9f1c-ffdb7ae48caf
+# ╟─c3e4240c-9cd3-45d4-b4f7-5a61ef37b488
 # ╟─36292bcc-042b-41f1-a021-aaa75a97bc6a
 # ╟─925ae3f7-7d14-4964-80a1-339b8425c399
 # ╟─3226d21f-296c-4367-a1bb-a58f93ba133c
