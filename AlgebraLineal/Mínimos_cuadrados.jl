@@ -17,6 +17,11 @@ end
 # ╔═╡ c9f06b65-74a2-4b8d-8b27-c580a02d25e6
 PlutoUI.TableOfContents(title="Mínimos cuadrados", aside=true)
 
+# ╔═╡ b81c330f-dcf7-4dfe-9b87-5cd802dde242
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ cd328cd6-eee3-402a-b04d-1b72db08bb18
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -403,7 +408,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "487613bdcc4ec26c4ef3b1e127a79b72065bc529"
+project_hash = "fb182bfba92a37a4da83469e06e2a41b453adecb"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1652,6 +1657,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─020a4153-bcfe-4be3-a72c-0a5a40f23416
 # ╟─c9f06b65-74a2-4b8d-8b27-c580a02d25e6
+# ╟─b81c330f-dcf7-4dfe-9b87-5cd802dde242
 # ╟─cd328cd6-eee3-402a-b04d-1b72db08bb18
 # ╟─d732b26f-f0ec-47ca-9383-9a4930c444ed
 # ╠═b02f4a16-7a15-4520-a540-dde4f3876d1d
