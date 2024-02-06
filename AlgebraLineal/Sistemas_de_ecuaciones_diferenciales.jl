@@ -18,6 +18,11 @@ end
 # ╔═╡ 2c50603c-0802-4ddf-be9a-ab7c1b5345c7
 PlutoUI.TableOfContents(title="Sistemas de ecuaciones diferenciales", aside=true)
 
+# ╔═╡ b719f24e-6851-4613-b99c-47c76a7dd7e4
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ 285dbec0-147d-4bb9-b176-a4f9a807b0e3
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -375,7 +380,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "a51071a794269c95fdf0b5990fa5f6b5778493c2"
+project_hash = "9924556c59e8f9d1f9199dbdac60af4e42cc8391"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "41c37aa88889c171f1300ceac1313c06e891d245"
@@ -2137,6 +2142,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─b51c19ab-bd3b-41b6-a389-10ddf173e8e3
 # ╟─2c50603c-0802-4ddf-be9a-ab7c1b5345c7
+# ╟─b719f24e-6851-4613-b99c-47c76a7dd7e4
 # ╟─285dbec0-147d-4bb9-b176-a4f9a807b0e3
 # ╟─df4ac44b-dba7-4f3b-8ab0-85351202c43f
 # ╠═3ee8574b-f556-499e-9b1c-a5932a0ffb81
