@@ -13,6 +13,11 @@ using LinearAlgebra
 # ╔═╡ ad0e2661-ac54-4037-bda1-3e665dbecaf4
 PlutoUI.TableOfContents(title="Independencia lineal", aside=true)
 
+# ╔═╡ b47f513f-114d-4b96-b866-0090c9f0d107
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ 55a8d645-c175-4e72-9452-08bcaffa5ec1
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -645,6 +650,7 @@ version = "17.4.0+0"
 # ╔═╡ Cell order:
 # ╟─35c0a300-abed-11ee-1816-3d6ab9b18487
 # ╟─ad0e2661-ac54-4037-bda1-3e665dbecaf4
+# ╟─b47f513f-114d-4b96-b866-0090c9f0d107
 # ╟─55a8d645-c175-4e72-9452-08bcaffa5ec1
 # ╟─4a709378-cf2c-4072-9e46-46b4c7237c1b
 # ╠═79324bba-2c1a-498f-8bdf-a70e02106f86
