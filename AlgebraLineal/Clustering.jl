@@ -25,6 +25,11 @@ end
 # ╔═╡ 319ac194-3e32-4c9d-ac1a-198b9fcc234f
 PlutoUI.TableOfContents(title="Clustering", aside=true)
 
+# ╔═╡ 061014c9-ac70-4007-bf5a-1829939d3833
+md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
+
+Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
+
 # ╔═╡ e42bf648-7797-4fb8-a871-ec8953384813
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
@@ -415,9 +420,9 @@ version = "0.1.8"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
+git-tree-sha1 = "9e2a6b69137e6969bab0152632dcb3bc108c8bdd"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
-version = "1.0.8+0"
+version = "1.0.8+1"
 
 [[deps.CSV]]
 deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "PrecompileTools", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
@@ -1611,6 +1616,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─8495d410-af20-11ee-0e03-59f8e6fcbbca
 # ╟─319ac194-3e32-4c9d-ac1a-198b9fcc234f
+# ╟─061014c9-ac70-4007-bf5a-1829939d3833
 # ╟─e42bf648-7797-4fb8-a871-ec8953384813
 # ╟─99e2cc16-b2b7-436c-a1c1-9d26776c31aa
 # ╠═4bdbd2b9-1e4f-41cd-b29b-391d4e3f7b34
