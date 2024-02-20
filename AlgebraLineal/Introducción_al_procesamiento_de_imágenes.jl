@@ -34,7 +34,8 @@ begin
 end
 
 # ╔═╡ 42df22ae-471b-40f2-9f1c-ffdb7ae48caf
-PlutoUI.TableOfContents(title="Introducción al Procesamiento de Imágenes", aside=true)
+#PlutoUI.TableOfContents(title="Introducción al Procesamiento de Imágenes")
+#PlutoUI.TableOfContents()
 
 # ╔═╡ c3e4240c-9cd3-45d4-b4f7-5a61ef37b488
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
@@ -158,10 +159,10 @@ Podemos así recorrer la imagen para ver cada uno de los píxeles y el color res
 """
 
 # ╔═╡ 232b57b1-f647-4908-90ea-d0142900bf09
-@bind row_i Slider(1:size(imag)[1], show_value=true)
+@bind row_i RangeSlider(1:size(imag)[1], show_value=true)
 
 # ╔═╡ 90dac6b2-5ba9-4233-a0fa-07ad4acc6aab
-@bind col_i Slider(1:size(imag)[2], show_value=true)
+@bind col_i RangeSlider(1:size(imag)[2], show_value=true)
 
 # ╔═╡ 90b29342-ccf8-4a9f-9c92-5fed9caed771
 imag[row_i,col_i]
@@ -193,10 +194,10 @@ md"""Además, podemos exhibir una porción específica de la imagen al seleccion
 """
 
 # ╔═╡ c77469b0-6e9e-4eff-a126-5b3af58cf8e1
-@bind range_rows RangeSlider(1:size(imag)[1])
+@bind range_rows Slider(1:size(imag)[1])
 
 # ╔═╡ 65951ede-e9bc-46e9-b1fa-bf733e0b303a
-@bind range_cols RangeSlider(1:size(imag)[2])
+@bind range_cols Slider(1:size(imag)[2])
 
 # ╔═╡ bf51e486-8c40-45f8-a185-fbc4b8c803b6
 parte=imag[range_rows, range_cols]
@@ -234,7 +235,7 @@ md""" Una lista de píxeles. """
 md"""Una lista gradiente."""
 
 # ╔═╡ 506a4665-3d7c-4f2f-b36a-b94db48f1172
-@bind number_reds Slider(1:100, show_value=true)
+@bind number_reds Slider(1:100)
 
 # ╔═╡ d575d950-21cc-41d5-bd71-602554c2434b
 [RGB(red_value / number_reds, 0, 0) for red_value in 0:number_reds]
@@ -330,13 +331,16 @@ Para esto usaremos las siguientes librerías:"""
 md"""Escogemos es valor para $r$"""
 
 # ╔═╡ 89e8278e-ee87-4b7d-94a6-483904a83ca6
-@bind r Slider(1:40, show_value=true, default=10)
+@bind r Slider(1:40, default=10)
 
 # ╔═╡ c6c7fcf2-3e2d-4523-8dc0-ff9daf7656c7
 md"""y con la función $\texttt{kron}$ realizamos el producto de Kronecker de estas matrices. Obteniendo así la imagen ampliada."""
 
 # ╔═╡ 2afa28b6-a95a-43d1-bd6f-5d7890799ff3
 upsample_imag = kron(reduced_imag, fill(1,r,r))
+
+# ╔═╡ b192cfd1-dcdc-4a42-a811-9018564e6ac9
+r
 
 # ╔═╡ 1c259532-271f-4a43-98fd-2496f866ba5c
 md""" ### Operaciones de álgebra lineal"""
@@ -345,7 +349,7 @@ md""" ### Operaciones de álgebra lineal"""
 md"""Podemos reescalar de manera uniforme los píxeles, multiplicando la matriz asociada a la imagen por una constante."""
 
 # ╔═╡ e7e49673-17b6-4114-a891-0b9357e0dfbc
-@bind c Slider(0:0.1:10, show_value=true, default=1)
+@bind c Slider(0:0.1:10)
 
 # ╔═╡ 404a489e-f653-4e02-b01c-d17bf6a1ca25
 c.* imag
@@ -581,16 +585,6 @@ deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "c6d890a52d2c4d55d326439580c3b8d0875a77d9"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 version = "1.15.7"
-
-[[deps.ChangesOfVariables]]
-deps = ["LinearAlgebra", "Test"]
-git-tree-sha1 = "2fba81a302a7be671aefe194f0525ef231104e7f"
-uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.8"
-weakdeps = ["InverseFunctions"]
-
-    [deps.ChangesOfVariables.extensions]
-    ChangesOfVariablesInverseFunctionsExt = "InverseFunctions"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -941,12 +935,6 @@ git-tree-sha1 = "16c0cc91853084cb5f58a78bd209513900206ce6"
 uuid = "8197267c-284f-5f27-9208-e0e47529a953"
 version = "0.7.4"
 
-[[deps.InverseFunctions]]
-deps = ["Test"]
-git-tree-sha1 = "68772f49f54b479fa88ace904f6127f0a3bb2e46"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.12"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
@@ -1109,12 +1097,16 @@ deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
 git-tree-sha1 = "0a1b7c2863e44523180fdb3146534e265a91870b"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 version = "0.3.23"
-weakdeps = ["ChainRulesCore", "ChangesOfVariables", "InverseFunctions"]
 
     [deps.LogExpFunctions.extensions]
     LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
     LogExpFunctionsChangesOfVariablesExt = "ChangesOfVariables"
     LogExpFunctionsInverseFunctionsExt = "InverseFunctions"
+
+    [deps.LogExpFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -1843,7 +1835,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─42df22ae-471b-40f2-9f1c-ffdb7ae48caf
+# ╠═42df22ae-471b-40f2-9f1c-ffdb7ae48caf
 # ╟─c3e4240c-9cd3-45d4-b4f7-5a61ef37b488
 # ╟─36292bcc-042b-41f1-a021-aaa75a97bc6a
 # ╟─925ae3f7-7d14-4964-80a1-339b8425c399
@@ -1929,6 +1921,7 @@ version = "1.4.1+1"
 # ╠═89e8278e-ee87-4b7d-94a6-483904a83ca6
 # ╟─c6c7fcf2-3e2d-4523-8dc0-ff9daf7656c7
 # ╠═2afa28b6-a95a-43d1-bd6f-5d7890799ff3
+# ╠═b192cfd1-dcdc-4a42-a811-9018564e6ac9
 # ╟─1c259532-271f-4a43-98fd-2496f866ba5c
 # ╟─c977fbcf-4295-4ff5-9714-43c6ed288386
 # ╠═e7e49673-17b6-4114-a891-0b9357e0dfbc
