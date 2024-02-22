@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.19.39
 
 using Markdown
 using InteractiveUtils
@@ -47,7 +47,7 @@ La $i$-ésima fila de la matriz $A$ se representa como $(a_{i1}, a_{i2}, \ldots,
 """
 
 # ╔═╡ 6dac350c-58a9-41e1-8241-11ecd2704a34
-md"""Las matrices se utilizan en diversas áreas de las matemáticas y en aplicaciones prácticas, como la resolución de sistemas de ecuaciones lineales, transformaciones lineales, en el análisis de datos, procesamiento de imágenes."""
+md"""Las matrices se utilizan en diversas áreas de las matemáticas y en aplicaciones prácticas, como la resolución de sistemas de ecuaciones lineales, transformaciones lineales, en el análisis de datos, procesamiento de imágenes, etc."""
 
 # ╔═╡ 77ed0616-5a19-4c07-aaa8-121ac80f987a
 md"""Por ejemplo, una matriz real de tamaño $3\times 3$ es la que se muestra a continuación
@@ -229,7 +229,7 @@ begin
 end
 
 # ╔═╡ 2fb0a25a-0320-4645-b68e-64d051a3baf6
-md"""Ensamblemos la matriz $E$"""
+md"""Ensamblemos la matriz $E$:"""
 
 # ╔═╡ f281cc2f-daef-4cf1-87ec-784739203d53
 E = [E₁₁ E₁₂; E₂₁ E₂₂]
@@ -246,7 +246,7 @@ let
 end
 
 # ╔═╡ eb74257e-3bbd-42e2-b00b-ee2a3c11b600
-md"""Y si tratamos de usar alguna de estas variables Julia nos dira que no estan definidas."""
+md"""Y si tratamos de usar alguna de estas variables, Julia nos dirá que no están definidas."""
 
 # ╔═╡ bc28d6d9-1e4d-454f-8090-ba4d841a939b
 local₁
@@ -271,7 +271,7 @@ def₂
 md"""# Tipos de matrices"""
 
 # ╔═╡ f450c7d8-29e0-47dd-9516-49306bf54450
-md"""Usaremos las siguientes librerias para ejecutar los ejemplos presentados."""
+md"""Usaremos la siguiente librería para ejecutar los ejemplos presentados."""
 
 # ╔═╡ 6f4c7a27-1071-4979-9b6a-9eac50950e64
 md""" ### $\cdot$ Matriz cuadrada
@@ -287,7 +287,7 @@ Se presenta una matriz cuadrada $A_1$ de tamaño $3\times 3$."""
 A₁=[1 2 3; 4 5 6; 7 8 9]
 
 # ╔═╡ cff445ca-7554-47ee-b410-fbec0b552a7e
-md"""Otro ejemplo de una matriz cuadrada es la que se sigue a continuación (tamaño $4\times 4$), esta matriz es generada de manera aleatoria"""
+md"""Otro ejemplo de una matriz cuadrada es la que sigue a continuación (tamaño \(4 \times 4\)). Esta matriz es generada de manera aleatoria."""
 
 # ╔═╡ 06003fa7-8a62-4f5e-bf16-8e9d167193a6
 A₂=rand(4,4) #Genera aleatoriamente una matriz de tamaño 4x4
@@ -295,8 +295,7 @@ A₂=rand(4,4) #Genera aleatoriamente una matriz de tamaño 4x4
 # ╔═╡ 446244b7-5043-4928-b82e-de2ee7fc95a1
 md""" ### $\cdot$ Matriz diagonal
 
-Una matriz diagonal es una matriz cuadrada en la que todos los elementos fuera de la diagonal principal son cero. La diagonal principal es la secuencia de elementos que va desde la esquina superior izquierda hasta la esquina inferior derecha de la matriz.
-Es decir, una matriz cuadrada $A$ de orden $n \times n$ es diagonal si: $a_{ij} = 0 \text{ para } i \neq j$. Así, una matriz diagonal tiene la siguiente forma:
+Una matriz diagonal es una matriz cuadrada en la que todos los elementos fuera de la diagonal principal son cero. La diagonal principal es la secuencia de elementos que va desde la esquina superior izquierda hasta la esquina inferior derecha de la matriz. Es decir, una matriz cuadrada $A$ de orden $n \times n$ es diagonal si: $a_{ij} = 0$ para $i \neq j$. Así, una matriz diagonal tiene la siguiente forma:
 
 $\begin{bmatrix}  a_{11} & 0 & \cdots & 0 \\  0 & a_{22} & \cdots & 0 \\  \vdots & \vdots & \ddots & \vdots \\  0 & 0 & \cdots & a_{nn} \end{bmatrix}$
 
@@ -311,7 +310,7 @@ end
 # ╔═╡ 755968e9-e37c-49f5-a9cd-3b697f4a7870
 md""" ### $\cdot$ Matriz identidad
 
-La matriz identidad, denotada comúnmente por $I$ o $I_n$, donde $n$ es el tamaño de la matriz, es una matriz cuadrada especial que tiene unos en su diagonal principal y ceros en todos los demás elementos. Así, la matriz identidad de orden $n \times n$ se define como:
+La matriz identidad, denotada comúnmente por $I$ o $I_n$, donde $n$ es el tamaño de la matriz, es una matriz cuadrada especial que tiene unos en su diagonal principal y ceros en todos los demás elementos. Así, la matriz identidad de tamaño $n \times n$ se define como:
 
 $\begin{bmatrix}  1 & 0 & \cdots & 0 \\  0 & 1 & \cdots & 0 \\  \vdots & \vdots & \ddots & \vdots \\  0 & 0 & \cdots & 1 \end{bmatrix}$
 
@@ -347,9 +346,12 @@ $\begin{align}A+B &= \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21}
 
 &=\begin{bmatrix} c_{11} & c_{12} & \cdots & c_{1n} \\ c_{21} & c_{22} & \cdots & c_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ c_{m1} & c_{m2} & \cdots & c_{mn} \end{bmatrix}\\
 
-&=C\end{align}$
+&=C\end{align}$"""
 
-Ejemplo: Se generan dos matrices aleatorias de tamaño $3\times 4$ y se suman."""
+# ╔═╡ 79acaf98-9774-4e59-8309-5ad204653255
+md"""Ejemplo: 
+
+Generemos dos matrices aleatorias de tamaño $3\times 4$ y realicemos su suma."""
 
 # ╔═╡ 7b374f89-adb1-4328-8bd8-5adb1531459e
 begin
@@ -357,7 +359,7 @@ begin
 end
 
 # ╔═╡ 59baf0c7-fcdd-418c-8681-202b8c3f5482
-A₇+B₇
+A₇+B₇ #suma
 
 # ╔═╡ 759394ed-d2ea-4698-b5c8-67ed80bd0c03
 md"""Mostremos otro ejemplo, generemos dos matrices aleatorias de tamaño $5\times 2$ y realicemos su resta."""
@@ -368,7 +370,7 @@ begin
 end
 
 # ╔═╡ 5d996f53-1edd-44f5-8cef-b1926aa6497c
-A₈-B₈
+A₈-B₈ #resta
 
 # ╔═╡ da0b3214-9d7d-4b2a-9d18-980ba142d5d8
 md""" ### $\cdot$ Multiplicación por un escalar
@@ -379,9 +381,12 @@ $\begin{align}B&=k\cdot A \\
 
 &= k\cdot \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix}\\
 
-&= \begin{bmatrix} k\cdot a_{11} &k\cdot a_{12} & \cdots &k\cdot a_{1n} \\ k\cdot a_{21} &k\cdot a_{22} & \cdots &k\cdot a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\k\cdot a_{m1} &k\cdot a_{m2} & \cdots &k\cdot a_{mn} \end{bmatrix}\end{align}$
+&= \begin{bmatrix} k\cdot a_{11} &k\cdot a_{12} & \cdots &k\cdot a_{1n} \\ k\cdot a_{21} &k\cdot a_{22} & \cdots &k\cdot a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\k\cdot a_{m1} &k\cdot a_{m2} & \cdots &k\cdot a_{mn} \end{bmatrix}\end{align}$"""
 
-Ejemplo: Se genera una matriz aleatoria de tamaño $3\times 5$ y se realiza el producto con el escalar 2."""
+# ╔═╡ 644ba732-24e1-4156-9c22-0dd3790b30e9
+md"""Ejemplo: 
+
+Generemos una matriz aleatoria de tamaño $3\times 5$ y realicemos el producto con el escalar 2."""
 
 # ╔═╡ cd9ea07b-1bff-4f76-b6b8-722a7fe9d457
 A₉=rand(3,5)
@@ -390,15 +395,16 @@ A₉=rand(3,5)
 B₉=2*A₉
 
 # ╔═╡ 660f41ae-dfc8-4edd-9280-e00b721d255c
-md""" ### $\cdot$ Producto de matriz con vector
-Supongamos que tienes una matriz $A$ de tamaño $m \times n$ y un vector columna $v$ de tamaño $n \times 1$. La multiplicación de la matriz por el vector se realiza multiplicando cada fila de la matriz por el vector correspondiente y sumando los resultados. De la siguiente manera. Sea 
+md""" ### $\cdot$ Producto de una matriz con un vector
+Consideremos una matriz $A$ de tamaño $m \times n$ y un vector columna $v$ de tamaño $n \times 1$. La multiplicación de la matriz por el vector se realiza multiplicando cada fila de la matriz por el vector correspondiente y sumando los resultados. De la siguiente manera. Sea 
+
 $A =
 \begin{bmatrix}
 a_{11} & a_{12} & \ldots & a_{1n} \\
 a_{21} & a_{22} & \ldots & a_{2n} \\
 \vdots & \vdots & \ddots & \vdots \\
 a_{m1} & a_{m2} & \ldots & a_{mn}
-\end{bmatrix}$ y $v =
+\end{bmatrix}, \text{ y   } v =
 \begin{bmatrix}
 v_1 \\
 v_2 \\
@@ -406,7 +412,7 @@ v_2 \\
 v_n
 \end{bmatrix}.$
 
-Entonces, el producto de la matriz por el vector $(Av$) es un nuevo vector de tamaño $m \times 1$ definido como:
+Entonces, el producto de la matriz $A$ por el vector $v$, $(Av)$, es un nuevo vector de tamaño $m \times 1$ definido como:
 
 $\begin{align}A\cdot v &= \begin{bmatrix}
 a_{11} & a_{12} & \ldots & a_{1n} \\
@@ -425,10 +431,12 @@ a_{11}v_1 + a_{12}v_2 + \ldots + a_{1n}v_n \\
 a_{21}v_1 + a_{22}v_2 + \ldots + a_{2n}v_n \\
 \vdots \\
 a_{m1}v_1 + a_{m2}v_2 + \ldots + a_{mn}v_n
-\end{bmatrix}.\end{align}$
+\end{bmatrix}.\end{align}$"""
 
-Ejemplo: Se genera una matriz aleatoria de tamaño $3\times 5$ y se realiza el producto con un vector aleatorio de tamaño $5\times 1$.
-"""
+# ╔═╡ 91f99851-9957-475f-8d80-c3c4c8e68adb
+md"""Ejemplo: 
+
+Se genera una matriz aleatoria de tamaño $3\times 5$ y se realiza el producto con un vector aleatorio de tamaño $5\times 1$."""
 
 # ╔═╡ 9c59a4e8-2c8b-42cc-941e-b94c25db48a4
 begin
@@ -440,7 +448,7 @@ A₁₀*v
 
 # ╔═╡ 36c438e1-d975-4991-a897-c8a6bf7d9ffd
 md""" ### $\cdot$ Producto de matrices
-Dadas dos matrices $A$ de tamaño $m \times p$ y $B$ de tamaño $p \times n$, el producto $C = A \cdot B$ es otra matriz $m \times n$ donde cada elemento $c_{ij}$ se obtiene sumando el producto de los elementos correspondientes de la fila $i$ de $A$ y la columna $j$ de $B$: $c_{ij} = \sum_{k=1}^{p} a_{ik} \cdot b_{kj}$. Así
+Dadas dos matrices $A$ de tamaño $m \times p$ y $B$ de tamaño $p \times n$, el producto $C = A \cdot B$ es otra matriz $m \times n$ donde cada elemento $c_{ij}$ se obtiene sumando el producto de los elementos correspondientes de la fila $i$ de $A$ y la columna $j$ de $B$: $c_{ij} = \sum_{k=1}^{p} a_{ik} \cdot b_{kj}$. De la siguiente forma:
 
 $\begin{align}A\cdot B &= \begin{bmatrix}
 a_{11} & a_{12} & \ldots & a_{1p} \\
@@ -470,7 +478,9 @@ c_{m1} & c_{m2} & \ldots & c_{mn}
 
 &=C\end{align}$
 
-Ejemplo: Se genera una matriz aleatoria $A$ de tamaño $3\times 4$ y una matriz aleatoria $B$ de tamaño $4\times 2$ y se realiza el producto $A\cdot B$.
+Ejemplo: 
+
+Se genera una matriz aleatoria $A$ de tamaño $3\times 4$ y una matriz aleatoria $B$ de tamaño $4\times 2$ y se realiza el producto $A\cdot B$.
 """
 
 # ╔═╡ 409ccdfe-6308-4a73-a7f5-bc6838c23955
@@ -482,7 +492,7 @@ end
 A₁₁*B₁₁
 
 # ╔═╡ 0284b0da-694f-4ce9-ba50-316a9e440634
-md"""Nota: El producto de matrices es no conmutativo. Consideremos $J$ una matriz de tamaño $2\times 3$ y la matriz $H$ de tamaño $3\times 2$."""
+md"""**Nota:** El producto de matrices es no conmutativo. Consideremos $J$ una matriz de tamaño $2\times 3$ y $H$ una matriz de tamaño $3\times 2$."""
 
 # ╔═╡ 3a5350ea-8f5e-4112-9257-ba7a0cc21c33
 J,H=rand(2,3),rand(3,2)
@@ -568,7 +578,9 @@ md"""Y ahora realizamos el producto de Kronecker de $A$ con $B$."""
 kron(A₁₄, B₁₄)
 
 # ╔═╡ dca9311b-8ee9-4eef-b658-df9011f9393a
-md"""**Nota:** El producto de Kronecker es no conmutativo, aquí se tiene un ejemplo de esto"""
+md"""**Nota:** El producto de Kronecker es no conmutativo. 
+
+Consideremos las matrices definidas anteriormente. Ya hemos calculado $A \otimes B$ Ahora, realicemos $B \otimes A$ y verfiquemos que $A \otimes B \neq B \otimes A$."""
 
 # ╔═╡ 168af4ed-8d9d-4076-8d1f-910ecbdd9daa
 kron(B₁₄, A₁₄)
@@ -576,8 +588,13 @@ kron(B₁₄, A₁₄)
 # ╔═╡ d82dab49-3cec-4269-94ae-e7b97d1a8b16
 kron(A₁₄, B₁₄) == kron(B₁₄, A₁₄)
 
+# ╔═╡ 66cf788b-1ddc-41ab-a207-63febdfcfd42
+md"""En efecto, se verifica que el producto de Kronecker es no conmutativo."""
+
 # ╔═╡ 93b7fbbf-f130-41f7-a126-26d2a423a3b2
-md"""*Ejemplo:* Si realizamos el producto de Kronecker con una matriz de unos el resultado será una matriz de bloque ampliada. Consideremos la matriz $A$ anterior y definamos la matriz $C$ de unos de tamaño $r\times r$, y realicemos el producto de Kronecker de $A$ con $C$."""
+md"""*Ejemplo:* 
+
+Si realizamos el producto de Kronecker con una matriz de unos, el resultado será una matriz de bloque ampliada. Consideremos la matriz $A$ anterior y definamos la matriz $C$ de unos de tamaño $r\times r$, y realicemos el producto de Kronecker de $A$ con $C$."""
 
 # ╔═╡ 6e4bc8fc-38fd-46f7-a31d-519f166c60f7
 A₁₄ #Mostramos A
@@ -638,7 +655,7 @@ PlutoUI = "~0.7.54"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.5"
+julia_version = "1.10.1"
 manifest_format = "2.0"
 project_hash = "df096654961dc96e3629b8ea2e427860c9eeccd0"
 
@@ -667,7 +684,7 @@ version = "0.11.4"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.1+0"
+version = "1.1.0+0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -718,27 +735,32 @@ version = "0.21.4"
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "libblastrampoline_jll"]
+deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.Logging]]
@@ -756,14 +778,14 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.0+0"
+version = "2.28.2+1"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.2.1"
+version = "2023.1.10"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -772,7 +794,7 @@ version = "1.2.0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.20+0"
+version = "0.3.23+4"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -781,9 +803,9 @@ uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.8.0"
+version = "1.10.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -812,7 +834,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.Reexport]]
@@ -831,22 +853,29 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SparseArrays]]
-deps = ["LinearAlgebra", "Random"]
+deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+version = "1.10.0"
+
+[[deps.SuiteSparse_jll]]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
+uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.0"
+version = "1.0.3"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.1"
+version = "1.10.0"
 
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
@@ -872,28 +901,28 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.12+3"
+version = "1.2.13+1"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.1.1+0"
+version = "5.8.0+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
 # ╟─2756200a-497c-44ac-be31-c4047bb2312f
 # ╟─42df22ae-471b-40f2-9f1c-ffdb7ae48caf
-# ╠═771b490e-f0cb-435e-9f2e-29cbbcd7810d
+# ╟─771b490e-f0cb-435e-9f2e-29cbbcd7810d
 # ╟─71f6b680-20cb-4ce2-9ae3-dbc1fbf96844
 # ╟─63dc3073-9454-4077-820f-1afe5b3486fb
 # ╟─b785eeba-828b-4bc2-a5bb-afba2b68a1cf
@@ -956,15 +985,18 @@ version = "17.4.0+0"
 # ╠═4056d2ed-2039-46aa-940b-b2fb120033df
 # ╟─f46ee269-bb92-4ce8-9305-53d36abd7cfc
 # ╟─d2838702-dc29-4c40-aad7-32399f52582f
+# ╟─79acaf98-9774-4e59-8309-5ad204653255
 # ╠═7b374f89-adb1-4328-8bd8-5adb1531459e
 # ╠═59baf0c7-fcdd-418c-8681-202b8c3f5482
 # ╟─759394ed-d2ea-4698-b5c8-67ed80bd0c03
 # ╠═ab73a8f1-5fe9-4a3c-9a8e-66622f83c1c6
 # ╠═5d996f53-1edd-44f5-8cef-b1926aa6497c
 # ╟─da0b3214-9d7d-4b2a-9d18-980ba142d5d8
+# ╟─644ba732-24e1-4156-9c22-0dd3790b30e9
 # ╠═cd9ea07b-1bff-4f76-b6b8-722a7fe9d457
 # ╠═96a56893-71b2-4a63-b601-b77ac784998e
 # ╟─660f41ae-dfc8-4edd-9280-e00b721d255c
+# ╟─91f99851-9957-475f-8d80-c3c4c8e68adb
 # ╠═9c59a4e8-2c8b-42cc-941e-b94c25db48a4
 # ╠═2c7a27bc-8d0c-4029-97e8-480608e2e101
 # ╟─36c438e1-d975-4991-a897-c8a6bf7d9ffd
@@ -986,6 +1018,7 @@ version = "17.4.0+0"
 # ╟─dca9311b-8ee9-4eef-b658-df9011f9393a
 # ╠═168af4ed-8d9d-4076-8d1f-910ecbdd9daa
 # ╠═d82dab49-3cec-4269-94ae-e7b97d1a8b16
+# ╟─66cf788b-1ddc-41ab-a207-63febdfcfd42
 # ╟─93b7fbbf-f130-41f7-a126-26d2a423a3b2
 # ╠═6e4bc8fc-38fd-46f7-a31d-519f166c60f7
 # ╠═8c8e4794-f46a-4d05-b182-485ad85b5e8f
