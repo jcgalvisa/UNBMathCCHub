@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.19.39
 
 using Markdown
 using InteractiveUtils
@@ -21,14 +21,14 @@ Tu participación es fundamental para hacer de este curso una experiencia aún m
 # ╔═╡ 55a8d645-c175-4e72-9452-08bcaffa5ec1
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo."""
 
-# ╔═╡ 4a709378-cf2c-4072-9e46-46b4c7237c1b
-md"""Usaremos esta librería"""
-
 # ╔═╡ 0097fe78-3013-4eaf-ae85-006d6c10c803
 md"""# Introducción"""
 
+# ╔═╡ 4a709378-cf2c-4072-9e46-46b4c7237c1b
+md"""Usaremos esta librería"""
+
 # ╔═╡ f60001c4-b165-4ae3-a642-3d0464a6d2d7
-md"""La independencia lineal es un concepto esencial en álgebra lineal que destaca la relación entre vectores. Se refiere a la propiedad de un conjunto de vectores donde ninguno puede expresarse como combinación lineal de los demás de manera trivial. Esta noción, clave en la resolución de sistemas de ecuaciones y análisis estructural, será explorada en este trabajo, destacando su relevancia teórica y aplicaciones prácticas.
+md"""La independencia lineal es un concepto esencial en álgebra lineal que destaca la relación entre vectores. Se refiere a la propiedad de un conjunto de vectores donde ninguno puede expresarse como combinación lineal de los demás de manera trivial. Esta noción, clave en la resolución de sistemas de ecuaciones y análisis estructural.
 """
 
 # ╔═╡ 711861fd-da33-4f4c-9237-402139b704d2
@@ -136,7 +136,7 @@ md"""Calculemos su determinante"""
 det(A₃)
 
 # ╔═╡ e635b25a-a589-4628-8b01-0abe76d9101a
-md"""Como el determinante de la matriz es diferente de cero entonces las columnas son linealmente independientes. POr tanto dicho conjunto de vectores genera a $\mathbb{R}^2$."""
+md"""Como el determinante de la matriz es diferente de cero, entonces las columnas son linealmente independientes. Por tanto, dicho conjunto de vectores genera a $\mathbb{R}^2$."""
 
 # ╔═╡ 0ace1896-b6a3-4fde-bd82-bd1e789d3337
 md"""# Bases
@@ -160,7 +160,7 @@ A₄ = [1 0 0; 0 1 0; 0 0 1]
 det(A₄)
 
 # ╔═╡ b823582d-6105-437f-abdf-cf24b7810721
-md"""Y además dicho conjunto genera a $\mathbb{R}^3$. Por tanto es una base de $\mathbb{R}^3$, esta base es conocida como base canónica uya que es generada por los vectores canónicos del espacio"""
+md"""Y además dicho conjunto genera a $\mathbb{R}^3$, por tanto es una base de $\mathbb{R}^3$. Esta base es conocida como base canónica, ya que es generada por los vectores canónicos del espacio."""
 
 # ╔═╡ c3af4f4f-4117-4afe-bc42-7738d8c3bbb9
 md"""# Vectores ortonormales"""
@@ -193,10 +193,10 @@ md"""Por último veamos si son ortogonales entre si"""
 a1'*a2, a1'*a3, a2'*a3
 
 # ╔═╡ 3cb31960-52cd-43c2-89c1-9822da58df4e
-md"""Como satisfacen las conidiciones mencionadas, dicho conjunto de vectores es ortonormal."""
+md"""Como satisfacen las condiciones mencionadas, dicho conjunto de vectores es ortonormal."""
 
 # ╔═╡ 68590ad2-5fa5-4138-9fa3-a843be78be82
-md""" Podemos transformar un conjunto de vectores linealmente independientes en un conjunto de vectores ortonormales. Así cualquier base en $\mathbb{R}^n$ se puede “convertir” en una base ortonormal, esto con el proceso de ortonormalización de Gram-Schmidt.
+md""" Podemos transformar un conjunto de vectores linealmente independientes en un conjunto de vectores ortonormales. Así cualquier base en $\mathbb{R}^n$ se puede “convertir” en una base ortonormal, esto se realiza con el proceso de ortonormalización de Gram-Schmidt.
 """
 
 # ╔═╡ b92bc7b3-f302-4099-b304-be5f12c8f737
@@ -248,28 +248,27 @@ md"""**ALGORITMO Gram-Schmidt**:
 # ╔═╡ 5b344ec4-2312-41c5-b7bd-ae1f9cfef374
 md"""Programando el algoritmo, se obtiene la siguiente función"""
 
-# ╔═╡ e5f9f37f-59b2-40f2-917c-2f336f5a576d
+# ╔═╡ f313579d-e31e-44fc-8c1a-29e708825514
 function Gram_Schmidt(v)
     q = []
-    r11 = norm(v[1])
-	if r11==0
+	if norm(v[1])==0
 		return nothing
 	else
-		push!(q, v[1]/r11)
-		for j = 2:length(v)
-			for i = 1:j-1
-				rij = dot(v[j],q[i])
-				qtilde = v[j] - sum(rij * q[i] for k in 1:j-1)
-				rjj = norm(qtilde)
-				if rjj==0
-					return nothing
-				else
-					push!(q, qtilde/rjj)
-				end
-			end
+    for j = 1:length(v)
+        qtilde = v[j]
+        for i = 1:j-1
+			rij = dot(v[j],q[i])
+            qtilde -= rij * q[i]
 		end
+			rjj = norm(qtilde)
+			if rjj==0
+				return nothing
+			else
+				push!(q, qtilde/norm(qtilde))
+        	end
 	end
     return q
+	end
 end
 
 # ╔═╡ 691272c4-c627-48d3-bf26-6dc30868540a
@@ -287,12 +286,12 @@ u = Gram_Schmidt(v) #Se genera el nuevo conjunto de vectores
 md"""### Proceso de ortogonalización de Gram-Schmidt Modificado"""
 
 # ╔═╡ 969d8800-1e8d-46b8-a3cb-2039f8cd2788
-md""" Existen formulaciones alternativas del algoritmo que tienen mejores propiedades numéricas. La más conocida de ellas es el algoritmo de Gram-Schmidt Modificado, el algoritmo de Gram-Schmidt modificado busca mejorar la estabilidad numérica al evitar la proyección sobre todos los vectores anteriores en cada paso, reduciendo así los errores de redondeo. Dicho algoritmo es el siguiente"""
+md""" Existen formulaciones alternativas del algoritmo que tienen mejores propiedades numéricas. La más conocida de ellas es el algoritmo de Gram-Schmidt Modificado. Dicho algoritmo busca mejorar la estabilidad numérica al evitar la proyección sobre todos los vectores anteriores en cada paso, reduciendo así los errores de redondeo. Dicho algoritmo es el siguiente"""
 
 # ╔═╡ 19340c28-048d-4a05-89fa-22a9ec74c82e
 md"""**ALGORITMO Gram-Schmidt Modificado:**
 
-1. Definir $r_{11} := \|v_1\|$. Si $r_{11} = 0$, detenerse; de lo contrario, $q_1 := \frac{x_1}{r_{11}}$.
+1. Definir $r_{11} := \|v_1\|$. Si $r_{11} = 0$, detenerse; de lo contrario, $q_1 := \frac{v_1}{r_{11}}$.
 2. Para $j = 2, \ldots, m$:
 3. Definir $\hat{q} := v_j$.
 4. Para $i = 1, \ldots, j - 1$, hacer:
@@ -332,7 +331,16 @@ end
 md"""Trabajando con el ejemplo anterior se tiene lo siguiente"""
 
 # ╔═╡ 801a01c9-d082-4653-86ab-7f025fb80ffb
-Modified_Gram_Schmidt(v)
+u1 = Modified_Gram_Schmidt(v)
+
+# ╔═╡ ea1bfd30-5ac5-4049-b49f-406edb47f93e
+md"""Podemos hallar la diferencia de la solución usando el algoritmo de Gram-Schmidt clásico y el modificado. Esto de la siguiente manera."""
+
+# ╔═╡ 7c96682f-8470-4a9e-875e-1fa9c3991cd1
+norm(u-u1)
+
+# ╔═╡ 01f0e576-9fd8-4ab3-b9e3-49a80ad7c72c
+md"""Note que la norma de la diferencia es 0, por tanto ambas soluciones son iguales."""
 
 # ╔═╡ 20589af8-2c27-4abe-9cef-b41fe29013f8
 md"""**Matriz ortogonal:**
@@ -395,7 +403,7 @@ PlutoUI = "~0.7.54"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.5"
+julia_version = "1.10.1"
 manifest_format = "2.0"
 project_hash = "df096654961dc96e3629b8ea2e427860c9eeccd0"
 
@@ -424,7 +432,7 @@ version = "0.11.4"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.1+0"
+version = "1.1.0+0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -475,27 +483,32 @@ version = "0.21.4"
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "libblastrampoline_jll"]
+deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.Logging]]
@@ -513,14 +526,14 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.0+0"
+version = "2.28.2+1"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.2.1"
+version = "2023.1.10"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -529,7 +542,7 @@ version = "1.2.0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.20+0"
+version = "0.3.23+4"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -538,9 +551,9 @@ uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.1"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.8.0"
+version = "1.10.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -569,7 +582,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.Reexport]]
@@ -588,22 +601,29 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SparseArrays]]
-deps = ["LinearAlgebra", "Random"]
+deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+version = "1.10.0"
+
+[[deps.SuiteSparse_jll]]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
+uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.0"
+version = "1.0.3"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.1"
+version = "1.10.0"
 
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
@@ -629,22 +649,22 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.12+3"
+version = "1.2.13+1"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.1.1+0"
+version = "5.8.0+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
@@ -652,9 +672,9 @@ version = "17.4.0+0"
 # ╟─ad0e2661-ac54-4037-bda1-3e665dbecaf4
 # ╟─b47f513f-114d-4b96-b866-0090c9f0d107
 # ╟─55a8d645-c175-4e72-9452-08bcaffa5ec1
+# ╟─0097fe78-3013-4eaf-ae85-006d6c10c803
 # ╟─4a709378-cf2c-4072-9e46-46b4c7237c1b
 # ╠═79324bba-2c1a-498f-8bdf-a70e02106f86
-# ╟─0097fe78-3013-4eaf-ae85-006d6c10c803
 # ╟─f60001c4-b165-4ae3-a642-3d0464a6d2d7
 # ╟─711861fd-da33-4f4c-9237-402139b704d2
 # ╟─158705aa-0e94-417a-a230-e50d538d606a
@@ -703,7 +723,7 @@ version = "17.4.0+0"
 # ╟─f395839e-21d0-4b31-85b6-9a6293c0eece
 # ╟─9f0f52c0-5858-4bed-9f66-fe86bde5c42b
 # ╟─5b344ec4-2312-41c5-b7bd-ae1f9cfef374
-# ╠═e5f9f37f-59b2-40f2-917c-2f336f5a576d
+# ╠═f313579d-e31e-44fc-8c1a-29e708825514
 # ╟─691272c4-c627-48d3-bf26-6dc30868540a
 # ╠═769d1d28-f7bb-4e73-8673-fa4eb3106d66
 # ╠═99bc6fa2-5802-4911-a3ec-4c1eef038631
@@ -713,6 +733,9 @@ version = "17.4.0+0"
 # ╠═186e2a7c-d0b5-4f3f-b018-2f1730d862df
 # ╟─5f29a619-037a-4ae1-a016-7a5a018dd1c2
 # ╠═801a01c9-d082-4653-86ab-7f025fb80ffb
+# ╟─ea1bfd30-5ac5-4049-b49f-406edb47f93e
+# ╠═7c96682f-8470-4a9e-875e-1fa9c3991cd1
+# ╟─01f0e576-9fd8-4ab3-b9e3-49a80ad7c72c
 # ╟─20589af8-2c27-4abe-9cef-b41fe29013f8
 # ╟─0b7a3178-c725-4888-89d6-f586bc4c8376
 # ╟─acbb988d-4878-4418-a8c4-e0afd04390e4
