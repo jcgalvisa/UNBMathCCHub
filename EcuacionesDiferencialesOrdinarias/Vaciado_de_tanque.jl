@@ -4,848 +4,438 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 191f2f52-f7f5-4b1b-85d1-883d40afbc50
+# ╔═╡ 111cd94e-c363-4f8f-8c2f-66a5955c19ce
 using PlutoUI
 
-# ╔═╡ 39ed3381-b89d-40a0-ab27-764982180e55
-begin
-	using Plots, LinearAlgebra, Optim, DifferentialEquations
-	using HypertextLiteral, Distributions, Latexify, SpecialFunctions
-	using Random, Roots,Statistics
-end
+# ╔═╡ 5c772b84-e443-4fd7-af4f-09d18fee60d6
+using Plots, LinearAlgebra, Optim, DifferentialEquations
 
-# ╔═╡ 3d867eb9-6348-4f3b-813d-029884312c36
-using SymPy;
+# ╔═╡ ec0a7ef5-a7eb-4e63-bcdc-22616b2d1b11
+PlutoUI.TableOfContents(title="Vaciado de tanque", aside=true)
 
-# ╔═╡ 2cc6c5db-dae9-4056-8e86-c2cdd5413fd2
-PlutoUI.TableOfContents(title="Ajuste de parámetros", aside=true)
-
-# ╔═╡ 9a904b84-2c70-444d-a673-4327560d1226
+# ╔═╡ 9a519cdf-784b-4446-9bcd-404c547142ce
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ 3db89cf8-58b3-42e5-a1a7-a5ac40a78fdb
-md"""Elaborado por Juan Galvis, Carlos Nosa y Yessica Trujillo. 
-"""
+# ╔═╡ b0d7bc54-b642-41f7-a3f2-f4674cbc2d5d
+md"""Elaborado por Juan Galvis, Carlos Nosa y Yessica Trujillo."""
 
-# ╔═╡ c96c27e6-efbb-4ae4-ad1f-71a19af1a971
+# ╔═╡ 57907276-2e07-4774-9b8b-b5fa54f24f56
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ e263bad6-deb8-4dca-b147-57a9d4dd39bb
-md"""# Introducción  
-El ajuste de curvas o ajuste de datos consiste en buscar una relación entre ellos. Es decir, si tenemos datos correspondientes a dos variables, la idea es encontrar una relación que describa de manera precisa y concisa el comportamiento de dichos datos.
+# ╔═╡ 782b4a7d-a3e4-41b8-a3cf-d3dd9ed26f62
+md"""# Modelo del vaciado del tanque"""
 
-Para optimizar los valores de los parámetros del modelo, creamos una función que calcule el tamaño del desajuste entre los datos observados y los generados por los posibles modelos. Esta función recibe los datos y los valores válidos de los parámetros del modelo, y devuelve la norma del residuo. Podemos utilizar, por ejemplo, la medida de desajuste de mínimos cuadrados (norma Euclidiana). Posteriormente, empleamos una biblioteca de optimización para calcular el valor del parámetro óptimo aproximado.
+# ╔═╡ cd0848a1-6e89-447a-9793-3c4c03a33002
+md"""Se analizarán los datos recopilados de un experimento en video [1] para ilustrar y cuantificar cómo varía la altura (expresada en centímetros) de una columna de agua en un cilindro (de radio $r_1$) a medida que transcurre el tiempo (medido en segundos), considerando que dicho cilindro tiene un pequeño agujero circular (de radio $r_2$) en la parte inferior del cilindro por donde el agua se escapa. Este análisis también se realizará para el experimento del video [2].
+
+Modelemos el flujo de salida del agua del cilindro. Para esto consideremos el Principio de Bernoulli
+
+$P_1+\rho g h_1 +\frac{1}{2}\rho v_1^2 = P_2 +\rho g h_2 +\frac{1}{2}\rho v_2^2.$
+Donde $P_1, P_2$ denotan la presión en la altura inicial y la altura del agujero, respectivamente. $\rho$ denota la densidad del fluido. $h_1, h_2$ representan la altura inicial del liquido y la atura del agujero, respectivamente. $v_1$ denota la velocidad con la que baja el agua en el intante inicial y $v_2$ la velocidad con la que sale el agua por el agujero. $g$ representa la gravedad.
+
+Note que $P_1=P_2=P_{atm}$, donde $P_{atm}$ es la presión atmosférica, además $v_1=0$ y como el liquido con el que se esta trabajando es el agua, entonces $\rho=1$. Así
+
+$g h_1 =  g h_2 +\frac{1}{2}\rho v_2^2.$
+
+Dado que la gravedad $\textcolor{red}{no sé como decirlo}$, entonces midamos esto con ayuda del parámetro $\epsilon$, de esta forma se tiene que
+
+$(g+\epsilon) h_1 =  (g+\epsilon) h_2 +\frac{1}{2}\rho v_2^2.$
+Sea $v=v_2$, se sigue que
+
+$v=\sqrt{2(g+\epsilon)(h_1-h_2)}.$
+Esta igualdad es conocida como la Ley de Torricelli.
+
+Ahora bien, dado que en un pequeño intervalo de tiempo $\Delta t$ se tiene que
+
+$V(t+\Delta t)=V(t)-\pi r_2^2v\Delta t,$
+donde $V(t)$ denota el volumen del agua en el instante $t$, de esto se sigue que
+
+$\dfrac{V(t+\Delta t)-V(t)}{\Delta t}=-\pi r_2^2v,$
+así
+
+$\lim_{\Delta t\to 0}\dfrac{V(t+\Delta t)-V(t)}{\Delta t}=-\pi r_2^2v.$
+Luego
+
+$\frac{dV}{dt}=-\pi r_2^2v= -\pi r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}.$
+Dado que el volumen del agua en un instante $t$ esta dado por $V(t)=\pi r_1^2h(t)$, entonces derivando con respecto a $t$ se tiene que 
+
+$\frac{dV}{dt}=\dfrac{dV}{dh}\frac{dh}{dt}=\pi r_1^2\frac{dh}{dt},$
+así
+
+$-\pi r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}= \pi r_1^2\frac{dh}{dt},$
+esto es
+
+$\frac{dh}{dt}=-\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
+
+Para nuestros experimentos en este cuaderno vamos a considerar 
+
+$\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
+donde $\alpha$ es un número empírico que indica el porcentaje del caudal máximo que realmente atraviesa el orificio pequeño, la reducción debida a la fricción y la constricción en el orificio pequeño. $\alpha$, se llama descarga o coeficiente de contracción.
 """
 
-# ╔═╡ 33842891-3dbb-4b08-8160-346ffafe8619
-md"""# Ajuste mediante mínimos cuadrados"""
+# ╔═╡ fb7d06a2-66b5-459c-b701-0daba981b138
+md"""## Tanque 1
+Los datos recopilados del experimento del video [1] son los siguientes"""
 
-# ╔═╡ c4c29fc7-5611-4b30-b15e-90f3fb86450a
-md"""
-Consideremos el siguiente ejemplo, donde tenemos datos sobre el crecimiento de un tumor en ratones. Estos datos y más información se encuentran en el trabajo "Modeling Cancer Growth with Differential Equations" de Jue Wang, del Departamento de Matemáticas de Union College, Schenectady NY 12308, USA.
-"""
+# ╔═╡ debe5ded-5f5d-42db-bb08-d1002f8a537b
+tiempo₁ = [4*i for i in 1:22] #instantes de tiempo (medidos en segundos)
 
-# ╔═╡ ba732df6-5923-4e4e-8b2d-35fe0d35e398
-begin
-	# Datos tomados del documento,  
-	#Modeling Cancer Growth with Differential Equations
-	# de Jue Wang, Department of Mathematics
-	#Union College, Schenectady NY 12308 USA
-	#wangj@union.edu
-	
-	Datos=[
-	3.46	0.0158
-	4.58	0.0264
-	5.67	0.0326
-	6.64	0.0445
-	7.63	0.0646
-	8.41	0.0933
-	9.32	0.1454
-	10.27	0.2183
-	11.19	0.2842
-	12.39	0.4977
-	13.42	0.6033
-	15.19	0.8441
-	16.24	1.2163
-	17.23	1.447
-	18.18	2.3298
-	19.29	2.5342
-	21.23	3.0064
-	21.99	3.4044
-	24.33	3.2046
-	25.58	4.5241
-	26.43	4.3459
-	27.44	5.1374
-	28.43	5.5376
-	30.49	4.8946
-	31.34	5.066
-	32.34	6.1494
-	33.00	6.8548
-	35.20	5.9668
-	36.34	6.6945
-	37.29	6.6395
-	38.50	6.8971
-	39.67	7.2966
-	41.37	7.2268
-	42.58	6.8815
-	45.39	8.0993
-	46.38	7.2112
-	48.29	7.0694
-	49.24	7.4971
-	50.19	6.9974
-	51.14	6.7219
-	52.10	7.0523
-	54.00	7.1095
-	56.33	7.0694
-	57.33	8.0562
-	59.38	7.2268];
-	
-	tiempo=Datos[:,1];
-	volumen=Datos[:,2];
-	Datos
-end
+# ╔═╡ e4de0ac9-6a72-4e38-8399-2347f8801b62
+h1₁ = [11.8, 11.4, 10.9, 10.4, 10, 9.5, 9.1, 8.7, 8.3, 7.9, 7.5, 7.2, 6.8, 6.4, 6.1, 5.8, 5.4, 5.1, 4.7, 4.5, 4.3, 4] #altura del agua en cada instante de tiempo tomado
 
-# ╔═╡ f44497fb-d866-4649-bd62-f19f1d2bc811
+# ╔═╡ eb26d803-83f1-453f-bb47-1f28f4ab8743
+g=9.806 #gravedad
+
+# ╔═╡ 79d0d59f-104f-4541-abf6-ffdf1d7e2923
 md"""Visualicemos dichos datos."""
 
-# ╔═╡ 1394bd94-9e28-444a-b358-ea487ad06420
-scatter(tiempo,volumen,ls=:dash,label="Volumen",lw=4, xlabel = "Tiempo",yaxis="Volumen")
+# ╔═╡ 2201250e-985e-4062-9d81-c75ad71462b5
+scatter(tiempo₁,h1₁,ls=:dash,label="Altura h₁",lw=4, xlabel = "Tiempo",yaxis="Altura h₁")
 
-# ╔═╡ 1f0dba89-0aad-4ede-a4a6-d005aad2b897
-md"""## Modelo de von Bertalanffy"""
+# ╔═╡ dfbbafe2-0683-46f8-bd53-3e6d50372d3f
+md"""### Modelo 1: Modelo lineal
+Primero, ajustaremos los datos a un modelo de ecuaciones diferenciales lineal, de la siguiente forma
 
-# ╔═╡ 172eb728-c084-4311-b75a-6177a36fb847
+$\frac{dh}{dt}=-ah.$
+Consideremos dicho modelo con la condición inicial $h_4=h(4)=11.8$. Recordemos que deseamos hallar el valor óptimo de $a$."""
+
+# ╔═╡ 32b5af0d-d710-4b65-b4b3-0757d4aefa36
+md"""Creamos una función para dicho modelo:"""
+
+# ╔═╡ 82d22054-77bd-43c7-b68b-236251d0917e
+modelo₁(h₁,par₁,t₁)=-par₁[1]*h₁
+
+# ╔═╡ 2a3d6e11-4633-4305-9465-4a1427009e61
 md"""
-Para ilustrar el procedimiento, ajustaremos los datos a un modelo de ecuaciones diferenciales, el Modelo de von Bertalanffy, dicho modelo es usado para mostrar el crecimiento de tumores en el cuerpo. En lugar de crecer de manera constante, este modelo dice que el crecimiento del tumor se desacelera a medida que se hace más grande. 
-
-El modelo es el siguiente 
-
-$$V'= aV^\frac{2}{3}-bV,$$
-donde $V$ es el tamaño del tumor en el tiempo $t$, $a$ es la velocidad máxima de crecimiento y $b$ es la tasa de muerte celular o retroceso del tumor.
-
-Consideremos dicho modelo con la condición inicial $V_0=V(0)=0.0158$. Recordemos que deseamos hallar los valores óptimos de $a$ y $b$.
+Si queremos resolver la EDO para determinado valor del parámetro, usamos, 
 """
 
-# ╔═╡ 519ca1e3-ea1b-4d1b-af2d-d074531b502b
-md"""Creamos una función para el modelo de Bertalanffy:"""
-
-# ╔═╡ 1358c859-a74e-4738-bf50-4e4aca06770d
-modeloBF(V,par,t)=par[1]*V.^(2/3)-par[2]*V
-
-# ╔═╡ 21b98c71-3aa2-4438-ba4f-c830cfc6d709
-md"""
-Si queremos resolver la EDO para determinados valores de los parámetros, usamos, 
-"""
-
-# ╔═╡ 64281d01-c1dd-4f11-8397-21d01ecadd5f
+# ╔═╡ acedd068-e916-4b5f-8dfc-e8e88042cf51
 begin
-	tspan=(3.26,80)
-	V₀=0.0158
-	par=[1.0,1.0]
-	EDO=ODEProblem(modeloBF,V₀,tspan,par)
-	V=solve(EDO)
-	plot(V)
-#	VI=[V(t) for t in tiempo] # Evaluación de la solución en los tiempos dados (datos)
-#	scatter!(tiempo,VI)
+	tspan₁=(4,120)
+	h₀₁=11.8
+	par₁=[1.0]
+	EDO₁=ODEProblem(modelo₁,h₀₁,tspan₁,par₁)
+	h₁=solve(EDO₁)
+	plot(h₁)
 end
 
-# ╔═╡ 5ac22392-143f-4531-a611-d8533610d07c
+# ╔═╡ 99d301f8-493d-4435-93b6-5b1eeb58ab2c
 md"""
-Ahora podemos escribir la función residuo del modelo de EDO. Es decir, cacular la norma entre el pronostico de una EDO con parametros dados y los datos. 
+Ahora podemos escribir la función residuo del modelo de EDO. Es decir, cacular la norma entre el pronóstico de una EDO con parámetros dados y los datos. 
 """
 
-# ╔═╡ 043dd8fc-da87-453b-ae29-10d72b933e06
-function residuoBF(par,V,t)
-  
-  tspan=(3.26,80)
-  V₀=0.0158
-  EDO=ODEProblem(modeloBF,V₀,tspan,par)
-  VSOL=solve(EDO)
-  VI=[VSOL(t) for t in tiempo]
-  res=V-VI
+# ╔═╡ a0ad6bf3-3f62-4c68-9d57-f200625a0db3
+function residuo₁(par,h,t)
+  tspan=(4,120)
+  h₀=11.8
+  EDO=ODEProblem(modelo₁,h₀,tspan,par)
+  hSOL=solve(EDO)
+  hI=[hSOL(t) for t in tiempo₁]
+  res=h-hI
   nres=norm(res)
 return nres
 end
 
-# ╔═╡ 7161401c-f87a-4939-9fa9-479c24931f06
+# ╔═╡ 33200d26-207c-4a2a-bcd9-57d4c533e705
 md"""La función residuo arriba mide el desajuste (o tamaño del residuo) de la simulación de la EDO con respecto a los datos usando mínimos cuadrados, es decir, la norma euclidiana de la diferencia o residuo. 
-**Asumimos que nuestro modelo de observación mide directamente el tamaño del tumor.  Es decir, el desajuste se mide directamente con la diferencia del modelo contra los datos.**
 
+Por ejemplo, el desajuste de usar $a=1$ en el modelo es de:"""
 
-Por ejemplo el desajuste de usar $a=1$ y $b=1$ en el modelo es de:"""
+# ╔═╡ 6d011c93-ebee-4ac9-a507-485575138c22
+residuo₁([1],h1₁,tiempo₁)
 
-# ╔═╡ 1a3a16df-b51e-4125-a895-fcaa02ad2403
-residuoBF([1 1],volumen,tiempo)
-
-# ╔═╡ ea1b3ecc-fa84-4ee0-8609-91b0106362f3
+# ╔═╡ de6c5048-1b5a-4968-98b4-3dc71a4d079a
 md"""
-Como antes, escribimos una función solo del parámetro, 
+Note que dicho valor es grande, es necesario encontrar el valor óptimo para esto. Para esto, escribimos una función solo del parámetro, 
 """
 
-# ╔═╡ 5d4734ca-9c04-4c07-bc5b-6629b66a9c91
-rBF(par) = residuoBF(par, volumen, tiempo)
+# ╔═╡ 47bcc56e-8542-4dc7-b44f-a2a7eb2e5ade
+r₁(par₁) = residuo₁(par₁,h1₁,tiempo₁)
 
-# ╔═╡ d9bd8b60-858e-44fc-a510-cae1b865111e
+# ╔═╡ 10476727-4d44-48a7-abe2-2d418da7a05b
 md"""
-Y podemos optimizar el valor de los parámetros
+Y así podemos optimizar el valor del parámetro, tal como se sigue
 """
 
-# ╔═╡ 02be56ff-3585-4b7a-b0bc-ab42c43c773f
-oBF=Optim.optimize(rBF, [.01,.01], NelderMead())
+# ╔═╡ ac20f4b1-33f1-49b7-a11f-7071827f30ea
+o₁=Optim.optimize(r₁, [.01], NelderMead())
 
-# ╔═╡ c4a90f6b-ba92-41d6-ae4b-e16f303c1bdd
-oBF.minimizer
+# ╔═╡ 49388abe-2ed1-4d62-a3cf-32142e567f7c
+o₁.minimizer
 
-# ╔═╡ 3cf10c6c-05af-4508-b3f3-70de4d537acb
+# ╔═╡ 748e47d9-f4ff-4e7e-92d6-bd2a882e60f2
 md"""
 De esto se obtiene que da la EDO optima es
-$V'=  0.396V^\frac{2}{3}- 0.194V.$
+$\frac{dh}{dt}=-0.0118h$
 
-Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. Como antes, podemos visualizar el ajuste comparandolo con los datos. Para esto tenemos, 
+Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. Como antes, podemos visualizar el ajuste comparándolo con los datos. Para esto tenemos, 
 """
 
-# ╔═╡ 43eb9fc5-b762-4bd7-a540-ad35da34d7b9
-md"""## Modelo Logistic Growth
- 
-Teniendo en cuenta los datos sobre el crecimiento de un tumor en ratones. Ajustemos dichos datos siguiendo el modelo Logistic Growth.
-El modelo es el siguiente
+# ╔═╡ 1f5e77ef-c5e9-4254-934a-877f083cbdfe
+begin
+	om₁=o₁.minimizer
+	EDOoptima₁=ODEProblem(modelo₁,h₀₁,tspan₁,om₁)
+	hEDOoptima₁=solve(EDOoptima₁)
+	plot(hEDOoptima₁,lw=5,label="EDO optima")
+	scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
+end
 
-$V'= aV\left(1-\frac{V}{b}\right),$
+# ╔═╡ c1b3f054-9414-4c94-9c36-94fc429832cb
+md"""Ya conociendo al EDO y su solución podemos predecir la altura futura del líquido, por ejemplo la altura que nos da este modelo para $t=2m=120s$ es de:"""
 
-este modelo describe el crecimiento de poblaciones bajo ciertas condiciones. $V$ representa la población en el instante $t$, así $V'$ representa la tasa de cambio de la población con respecto al tiempo, $a$ es la tasa de crecimiento intrínseca de la población y $b$ es la capacidad de carga del entorno, es decir, el máximo tamaño de la población que el entorno puede soportar de manera sostenible. Así, la ecuación describe cómo la tasa de crecimiento de una población cambia a medida que la población se acerca a su capacidad máxima de carga en un entorno dado.
+# ╔═╡ ac721175-4961-437f-950e-bd670263581c
+hEDOoptima₁(120)
 
-Consideremos dicho modelo con la condición inicial $V_0=V(0)=0.0158$. Recordemos que deseamos hallar los valores óptimos de $a$ y $b$.
-"""
+# ╔═╡ 4d548fa3-33d9-4726-9103-a20f52e27262
+md"""### Modelo 2: Ley de Torricelli
+Recordemos la ecuación obtenida al modelar el problema
 
-# ╔═╡ 79990d4e-08e1-4c75-896e-f4d9b9e7fefc
-modeloLG(V,par,t)=par[1]*V*(1-V/par[2])
+$\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
+Recordemos que los parámetros que no conocemos son $\alpha$ y $\epsilon$. Estos serán los que deseamos ajustar. Consideremos dicho modelo con la condición inicial $h_4=h(4)=11.8$"""
 
-# ╔═╡ 280c6e4b-8db1-42c2-b157-dca7ed01965a
+# ╔═╡ 81d04d41-57c1-448f-a872-943354ab6452
+modelo(h,par,t)=-par[1]*(0.138906/4.17)^2*(2*(g+par[2]))^(1/2)*abs(h-0.5).^(1/2)
+
+# ╔═╡ 0285ca63-9265-4c07-a839-cca887999453
 md"""Si deseamos encontrar la solución de la ecuación diferencial ordinaria para ciertos valores específicos de los parámetros, empleamos"""
 
-# ╔═╡ d0290ed3-64bc-4b8b-9e4f-665e33c33014
+# ╔═╡ 720793b1-a885-444a-ae5f-42878995d4af
 begin
-	tspan₂=(3.26,80)
-	V0₂=0.0158
-	par₂=[1.0,1.0]
-	EDO₂=ODEProblem(modeloLG,V0₂,tspan₂,par₂)
-	V₂=solve(EDO₂)
-	plot(V₂)
+	tspan=(4,120)
+	h₀=11.8
+	par=[1.0,1.0]
+	EDO=ODEProblem(modelo,h₀,tspan,par)
+	h=solve(EDO)
+	plot(h)
 end
 
-# ╔═╡ 9cbe41df-cfd5-4e04-980e-c5bb60865a6d
-md"""La función residuo mide el desajuste (o tamaño del residuo) de la simulación de la ecuación diferencial ordinaria con respecto a los datos usando mínimos cuadrados, es decir, la norma euclidiana de la diferencia o residuo."""
+# ╔═╡ af63c011-fd75-4798-8f06-f1a59cb39be2
+md"""La función residuo mide el desajuste (o tamaño del residuo) entre la simulación de la ecuación diferencial ordinaria y los datos mediante mínimos cuadrados, representando la norma euclidiana de la diferencia o residuo."""
 
-# ╔═╡ 1bd9636d-5006-47db-835e-4bed32a33753
-function residuoLG(par₂,V₂,t₂)
-   	tspan₂=(3.26,80)
-  	V0₂=0.0158
- 	EDO₂=ODEProblem(modeloLG,V0₂,tspan₂,par₂)
-  	VSOL₂=solve(EDO₂)
-  	VI₂=[VSOL₂(t) for t in tiempo]
-  	res₂=V₂-VI₂
-  	nres₂=norm(res₂)
-	return nres₂
+# ╔═╡ 1c46896a-3412-4f2f-9e16-18e3cdfbd4f9
+function residuo(par,h,t)
+  tspan=(4,120)
+  h₀=11.8
+  EDO=ODEProblem(modelo,h₀,tspan,par)
+  hSOL=solve(EDO)
+  hI=[hSOL(t) for t in tiempo₁]
+  res=h-hI
+  nres=norm(res)
+return nres
 end
 
-# ╔═╡ 8ae541e7-951f-455e-8b33-f1966941a775
-md"""Por ejemplo el desajuste de usar $a=1$ y $b=1$ en el modelo es de:"""
+# ╔═╡ 2091595d-01cc-4ecc-9f40-982632f3591b
+md"""Por ejemplo el desajuste de usar $\alpha=1$ y $\epsilon=1$ en el modelo es de:"""
 
-# ╔═╡ 471bd66e-5032-4de9-b99a-e38eb675f641
-residuoLG([1 1],volumen,tiempo)
+# ╔═╡ c26e3dcb-8b5c-4702-8e80-7be52dcecc52
+residuo([1 1],h1₁,tiempo₁)
 
-# ╔═╡ 6502f975-7542-405f-8013-d0662bfcff32
+# ╔═╡ 682f1730-1a36-4cb4-b79b-27bf444cb7ba
 md"""Ahora, usemos optimización para calcular el valor del parámetro óptimo aproximado. Para esto creamos una función solo del parámetro,"""
 
-# ╔═╡ d98fa069-d933-4ee4-94a6-7f33512c39cf
-rLG(par₂) = residuoLG(par₂, volumen, tiempo)
+# ╔═╡ 3ba4e4c5-b989-4ff0-a675-9af89ad9fefb
+r(par) = residuo(par,h1₁,tiempo₁)
 
-# ╔═╡ 63aa2cc1-8f73-4efb-91c7-a1a73321dc6e
+# ╔═╡ 2476cb5f-0920-4b3c-bc8f-adc9c6213eab
 md"""y, optimizamos su valor"""
 
-# ╔═╡ afd8e5f0-9088-4364-98e6-e2573c207f31
-oLG=Optim.optimize(rLG, [.01,.01], NelderMead())
+# ╔═╡ c8f4ac55-99f1-4e29-b977-1762548277a2
+o=Optim.optimize(r, [.01, .01], NelderMead())
 
-# ╔═╡ 57422995-5a2f-4990-a90a-48571ebc0db5
-oLG.minimizer
+# ╔═╡ 86046108-786f-42d3-a0e5-4941f7b71662
+o.minimizer
 
-# ╔═╡ 819d0789-c0c2-40ab-87ab-c9ad7c87538d
-md"""Obteniendo así que los valores optimos para $a$ y $b$ son $0.297$ y $7.012$, respectivamente. 
+# ╔═╡ b8b3ecd9-c540-47e4-8272-626795a526e1
+md"""Obteniendo así que los valores optimos para $\alpha$ y $\epsilon$ son $6.8085$ y $1.3328$, respectivamente. 
 
 Luego 
-$V'= 0.3V\left(1-\frac{V}{7.01}\right).$
+
+$\frac{dh}{dt}=-6.8085\frac{r_2^2\sqrt{2(g+1.3328)(h_1-h_2)}}{r_1^2}.$
 Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. """
 
-# ╔═╡ 565b66b9-ed1b-4013-a6c0-77038dd09530
+# ╔═╡ 756dead4-057a-407f-b2d6-f789eff70db3
 begin
-	oLGm=oLG.minimizer
-	EDOoptima₂=ODEProblem(modeloLG,V0₂,tspan,oLGm)
-	VEDOoptima₂=solve(EDOoptima₂)
-	plot(VEDOoptima₂,lw=5,label="EDO optima")
-	scatter!(tiempo,volumen,ls=:dash,label="Volumen",lw=4, xlabel = "Tiempo",yaxis="Volumen",legend=:bottomright)
+	om=o.minimizer
+	EDOoptima=ODEProblem(modelo,h₀,tspan,om)
+	hEDOoptima=solve(EDOoptima)
+	plot(hEDOoptima,lw=5,label="EDO optima")
+	scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
 end
 
-# ╔═╡ 681946a2-a574-4a3d-aa94-87fad31aa6a8
-md""" # Estimación de parámetros usando técnicas bayesianas"""
+# ╔═╡ b08bb916-3eb9-4644-9db2-597f059a325c
+md"""Ya conociendo al EDO y su solución podemos predecir la altura futura del líquido, por ejemplo la altura que nos da este modelo para $t=2m=120s$ es de:"""
 
-# ╔═╡ b1c5a491-c18e-4f1c-af08-b9988813bebe
-md""" ## Introducción a la estimación de parámetros
+# ╔═╡ 21718ee0-2e6c-4a3f-9685-5e6ecaf37767
+hEDOoptima(120)
 
+# ╔═╡ 9f6158ec-4177-4b31-b5ac-be003a11eded
+md"""En el modelo 1 vimos que dicha predicción de la altura del líquido pasados los 2 minutos fue de 2.97cm y ahora con el modelo 2 obtuvimos que es 2.17cm, según se observa en el video [1] la altura es de 2.2 cm. De esto se observa que el modelo 2 es más preciso."""
 
-A continuación, se introducirán algunos conceptos importantes relacionados con probabilidad y estadística que son necesarios para el entendimiento de los ejemplos realizados para  el modelo logístico. Para ello, se supondrá que el lector tiene ya algunos conocimientos previos de probabilidad.
+# ╔═╡ 6d261e42-80b1-4fb3-9ed9-a205ec54ebca
+md"""## Tanque 2
 
-En primer lugar, recordemos algunas de las nociones básicas definidas en el curso de probabilidad. Estas se desarrollarán desde los eventos probabilísticos para dar una primera idea, y después se procederá a dar su definición desde las variables aleatorias.
+Los datos recopilados del experimento del video [2] son los siguientes:"""
 
-**$\bullet$ Probabilidad condicional:** Sea $(\Omega,\mathfrak{F},P)$ un espacio de probabilidad, si $A,B\in\mathfrak{F}$ tales que $P(B)>0$ entonces se define la probabilidad de $A$ bajo la condición de $B$ como:
+# ╔═╡ 6f922c3c-cbbd-4679-bb5c-f1cf27573583
+tiempo₃ = [19+4*i for i in 1:25] #instantes de tiempo (medidos en segundos)
 
-$$P(A|B):=\frac{P(A\cap B)}{P(B)}$$
+# ╔═╡ 872b5009-34a4-43c8-915a-bd13e02b6161
+h1₃ = [12.6, 12.3, 12, 11.8, 11.6, 11.4, 11.2, 10.9, 10.7, 10.5, 10.3, 10.1, 9.9, 9.7, 9.5, 9.3, 9.1, 8.9, 8.7, 8.5, 8.3, 8.2, 8, 7.8, 7.6] #altura del agua en cada instante de tiempo tomado
 
-Es decir, se mide la probabilidad que tiene un evento $A$ dado que se ha observado la ocurrencia de un evento $B$.
+# ╔═╡ 2d868fc0-73d9-45a0-b339-1694c4472279
+md"""Visualicemos dichos datos."""
 
-*Ejemplo:* 
+# ╔═╡ 16212813-da76-4782-81d4-4769e7bdd5fa
+scatter(tiempo₃,h1₃,ls=:dash,label="Altura h₁",lw=4, xlabel = "Tiempo",yaxis="Altura h₁")
 
-Suponga que se quiere estudiar la probabilidad de que una persona fume dado que tiene menos de 25 años, para ello se realiza lo siguiente: """
+# ╔═╡ e260f73c-9573-4ede-901d-815e81f03a10
+md"""### Modelo 1: Ley de Torricelli
+Ajustaremos los datos a un modelo de ecuaciones diferenciales que ya dedujimos anteriormente
 
-# ╔═╡ 261d27e2-6240-4047-afa7-f2f9a4af396c
-begin
-##Generamos una muestra aleatoria.
-	
-num_muestra=1000
-edad=rand(10:80,num_muestra) #Edades de las personas.
-fuman=rand([true,false],num_muestra) #Si fuman o no.
+$\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
+Recordemos que los parámetros que no conocemos son $\alpha$ y $\epsilon$. Estos serán los que deseamos ajustar. Con la condición inicial $h_{23}=h(23)=12.6$"""
 
-#Se cuentan el número de personas que fuman y que tienen menos de 25 años y se hallan las probabilidades.
-	
-p_25yfum=count(x->x[1]<25 && x[2]==true,zip(edad,fuman))/num_muestra
-p_25=sum(edad.<25)/num_muestra
+# ╔═╡ 99fb6e02-d4b7-4b63-a5fc-5c9a47c0cd5c
+md"""Creamos una función para dicho modelo:"""
 
-#Se halla la probabilidad condicional.
+# ╔═╡ 7fc1f072-e7a9-462c-af21-aa4d78ed56d0
+modelo₃(h₃,par₃,t₃)=-par₃[1]*(0.099219/4.17)^2*(2*(g+par₃[2]))^(1/2)*abs(h₃-0.5).^(1/2)
 
-pfum_dado_25=p_25yfum/p_25	
-println("Entonces la probabilidad de que una persona fume dado que tiene menos de 25 años es $pfum_dado_25. ")	
-
-end
-
-# ╔═╡ 913ad931-b08c-47df-ae0d-5d1f6f216453
-md""" **$\bullet$ Regla de Bayes:** Sea $\{A_1,A_2,\cdots,A_n\}$ un conjunto de eventos mutuamente excluyentes que conforman una partición del conjunto $\Omega$, tales que $P(A_i)>0$ y sea $B$ un evento tal que $P(B)>0$, entonces se tiene que:
-
-$$P(A_i|B):=\frac{P(A_i)\cdot P(B|A_i)}{\sum_{i=1}^{n}P(B|A_i)\cdot P(A_i)}$$
-
-En este punto, pasamos a definir lo que sigue basándonos en las variables aleatorias. Con este proposito, recordemos que un vector aleatorio es simplemente un vector de variables aleatorias definidas sobre el mismo espacio de probabilidad. Con esto en mente se define lo siguiente.
-
-**$\bullet$ Función de densidad conjunta de un vector aleatorio (bajo independencia):**  Sea $\textbf{X}=(X_1,X_2,\cdots,X_n)$ un vector aleatorio, si dicho vector aleatorio está conformado por variables aleatorias independientes dos a dos, se tiene que su función de densidad conjunta está dada por:
-
-$$f_{\textbf{X}}(\textbf{x})=f_{X_1}(x_1)\cdot f_{X_2}(x_2)\cdots f_{X_n}(x_n)$$ 
-
-En donde $f_{X_{i}}(x_i)$ denota la función de densidad  de la variables aleatorias $X_i$.
-
-En general, se notará a la función den densidad conjunta de un vector aleatorio discreto como $p_{\textbf{X}}(\textbf{x})$ y de un vector aleatorio continuo como $f_{\textbf{X}}(\textbf{x})$. Además, recuerde que la función de densidad conjunta no solo está definida para vectores con variables aleatorias independientes; sin embargo, para los propositos de este notebook, se realiza dicha suposición.
-
-*Ejemplo:* 
-
-Tome un vector aleatorio de $3$ variables que son independientes dos a dos, suponga que la primera variable se distribuye normal estandar, la segunda se distribuye de manera exponencial con parámetro $\lambda$ y la tercera tiene una distribución beta con parámetros $\alpha,\beta$.
-
-Entonces su función de densidad conjunta está dada por:
-"""
-
-# ╔═╡ 10c4a587-b0db-4a73-b42f-14c9621815e0
-begin
-@syms x y z
-
-#Se definen los parámetros de las distribuciones	
-λ=rand()
-α=rand()*10
-β=rand()*10
-
-#funciones de densidad	
-f_X=1/sqrt(2*π)*exp((-1/2)*(x^2))
-f_Y=λ*exp(-λ*y)
-f_Z=(z^(α-1)*(1-z)^(β-1))/beta(α,β)
-
-
-#funcion de densidad conjunta	
-fconj=f_X*f_Y*f_Z
-str1="f(X,Y,Z)=$fconj"
-latex_Ex=latexify(str1)
-	
-end
-
-# ╔═╡ ab3bc822-3432-4598-8191-01e20f63ca1c
-md""" 
-Teniendo en cuenta las definiciones anteriores, podemos introducir la noción de función de densidad condicional para las  variables aleatorias $X$ y $Y$. Este concepto se fundamentará principalmente en lo previamente establecido sobre probabilidad condicional. Nótese así que, esta es solo una generalización a las variables aleatorias.
-
-**$\bullet$ Función de densidad condicional:** 
-
-Sean $X$ y $Y$ dos variables aleatorias, si estas son variables aleatorias discretas, se define la función de densidad condicional de $X$ dado $Y=y$ (claramente $y$ se encuentra dentro del rango de $Y$, es decir, $P(Y=y)>0$) como se sigue,
-
-$$f_{X|Y}(x|y)=P(X=x|Y=y)=\frac{P(X=X,Y=y)}{P(Y=y)}$$
-
-Donde, se entiende que $P(X=x,Y=y)$ es la función de densidad conjunta de $X,Y$.
-
-Ahora, para el caso en el que $X$ y $Y$ son variables aleatorias continuas, se define la función de densidad condicional de $X$ dado $Y=y$ como
-
-$$f_{X|Y}(x|y)=\frac{f(x,y)}{f_{Y}(y)}$$
-
-En donde, se entiende que $f(x,y)$ es la función de densidad conjunta de $X,Y$ y $f_{Y}(y)$ es la función de densidad de la variable aleatoria $Y$.
-
-Siendo así, también se puede generalizar la regla de Bayes para funciones de densidad condicionales como se realizaba en el caso de los eventos probabilisticos.
-
-**$\bullet$ Regla de Bayes:**
-
-La función de densidad condicional de la variable aleatoria $Y$ dado $X=x$ está dada por 
-
-$$f_{X|Y}(x|y)=\frac{f(y,x)}{f_{Y}(y)}$$ 
-
-Pero, también se tiene que 
-
-$$f_{Y|X}(y|x)=\frac{f(x,y)}{f_{X}(x)}\hspace{3mm}\Rightarrow \hspace{3mm} f(x,y)=f_{Y|X}(y|x)f_{X}(x)$$
-
-Adicionalmente, observe que $f_{Y}(y)$ se puede escribir como una función de densidad marginal mediante:
-
-$$f_{Y}(y)=\int_{-\infty}^{\infty} f(x,y)dx$$ 
-
-Por lo tanto, al reemplazar en la definición dada anteriormente, se obtiene que 
-
-$$f_{X|Y}(x|y)=\frac{f_{Y|X}(y|x)f_{X}(x)}{\int_{-\infty}^{\infty}f_{Y|X}(y|x)f_{X}(x)}$$
-
-Para visualizarlo de mejor manera, observe el siguiente ejemplo. Suponga que quiere hallar la función de densidad condicional  $P(X_1| X_2=0.4)$  en donde el vector aleatorio tiene función de densidad conjunta normal-bivariada.
-"""
-
-# ╔═╡ c8922fad-0123-42ea-94d7-81379b4ff3ad
-begin
-# Se definen los parámetros, la media y la matriz de covarianza
-μ₁=rand(0:10)
-μ₂=rand(0:10)	
-media = [μ₁, μ₂]
-covarianza = [2 1; 1 3]
-
-# Distribuciones
-distribucion_bivariante = MvNormal(media, covarianza)
-dist_marginal=Normal(μ₂,3)	
-
-# Función de densidad conjunta
-pdf_conjunta(x1, x2) = pdf(distribucion_bivariante, [x1, x2])
-
-# Función de densidad condicional f(X1 | X2 = 0.4)
-function densidad_condicional(x1)
-	pdf_conjunta(x1, 0.4) / pdf(dist_marginal,0.4)
-end 
-
-# Crear un rango de valores para X1
-rango_x1 = range(-5, stop=10, length=100)
-
-# Calcular la función de densidad condicional para cada valor de x_1
-pdf_condicional = [densidad_condicional(x1) for x1 in rango_x1]
-
-# Graficar la función de densidad condicional
-plot(rango_x1, pdf_condicional, xlabel="X1", ylabel="f(X1 | X2=0.4)", label="Densidad condicional", legend=:topleft)
-
-end
-
-# ╔═╡ dafdb4f3-f49e-4645-b58c-16eb63954b1b
-md"""En este punto, concluye la introducción necesaria, que junto con algunas bases previas vistas en el curso de probabilidad, proporcionan el fundamento necesario para entender la siguiente parte: la estimación de los parámetros. En este contexto, entra en juego la estadística, en este caso, nos interesa la estimación de ciertos parámetros $\theta$ de manera puntual, por esto, se enuncian las siguientes definiciones.
-
-**$\bullet$ Función de verosimilitud**
-
-Sean $X_1,X_2,X_3,\cdots,X_n$ una sucesión de variables aleatorias identicamente distribuidas, pero no necesariamente independientes. La función de verosimilitud es una función del vector de parámetros relacionada con la función de densidad conjunta de la muestra mediante la siguiente expresión:
-
-$$L(\theta|x)=\left\{\begin{matrix}f_{X}(x,\theta) &\text{ Si \textbf{X} es continuo}\\ p_{X}(x,\theta)=p_{x}(x,\theta) &\text{ Si \textbf{X} es discreto}\\\end{matrix}\right.$$
-
-Ahora, recordemos que una muestra aleatoria no es más que una sucesión de variables aleatorias independientes dos a dos, definidas en el mismo espacio de probabilidad e identicamente distribuidas. Así, se puede definir la función de verosimilitud de la muestra como se sigue,
-
-$$L(\theta|x_1,x_2,\cdots,x_n)=\prod_{i=1}^{n}f_{X_{i}}(x_i,\theta)$$
-
-Adicionalmente, observe que si se conocen los datos muestrales $x_i$ entonces la probabilidad condicional $P(x|\theta)$ puede ser considerada como una función de $\theta$, esta función se toma precisamente como la función de verosimilitud de $\theta$ dado $x$ que se escribe como $L(\theta|x)$  y por tanto se puede usar la regla de bayes, en donde se tendrá que:
-
-$$P(\theta|x)= \frac{ L(x|\theta)\cdot P_{\Theta}(\theta)}{\int_{\theta}L(x|\theta)\cdot P_{\Theta}(\theta)}$$
-
-Así;
-
-$$P(\theta|x)\propto L(x|\theta)\cdot P_{\Theta}(\theta)$$
-
-
-¡Ahora si! Se entra en el campo de la estimación. El siguiente método es bastante frecuente en la estadistica frecuentista, puesto que el estimador generado tiene unas propiedades bastante deseables, estas son; la consistencia, la eficiencia y una distribución normal asintótica. Esto quiere decir que a medida que aumenta el tamaño de la muestra, el estimador tiende a acercarse al valor verdadero del parámetro con una varianza mínima.
-
-**$\bullet$ Estimanción frecuentista (Máximo verosimil-MLE):** Se dice que un estimador $\hat{\theta}=\hat{\theta}(X_1,\cdots,X_n)$ del parámetro $\theta$ es el estimador máximo verosimil si $\hat{\theta}(x_1,\cdots,x_n)$ es el valor que máximiza a la función $L(\theta,x_1,\cdots,x_n)$. En este caso, por propiedades de la función logaritmo, se suele máximizar la log-verosimilitud, que es simplemente la aplicación del logaritmo a la función $L(\theta)$. 
-
-Suponga que tenemos una muestra y que se tiene la creencia que esta se distribuye de forma normal, entonces queremos estimar el valor de los parámetros asociados a esta, es decir, la media ($\mu$) y la varianza($\sigma$), para estimarlos utilizaremos el MLE , no es dificil ver que en este caso $\hat{\mu}_{MLE}=\bar{x}$ y que $\hat{\sigma}_{MLE}=s$ (tome el vector aleatorio de variables aleatorias normales e independientes, halle su función de densidad conjunta, apliquele logaritmo y seguido a esto derive con respecto a $\mu$ e iguale a $0$, haga el mismo proceso con $\sigma$). 
-
-"""
-
-# ╔═╡ 1f733c09-b663-49df-a68f-fc5ecf5f06c5
-begin
-#Datos de la muestra	
-Random.seed!(123)  
-muestra₁= rand(100) 	
-
-# Función de log-verosimilitud para una distribución normal
-
-@syms mu, sigma	
-
-n=length(muestra₁)
-suma_cuadrados = sum((x - mu)^2 for x in muestra₁)
-log_verosimil=-n/2 * log(2π) - n/2 * log(sigma^2) - 1/(2*sigma^2) *suma_cuadrados
-
-# Puntos criticos candidatos para máximo.	
-log_x=diff(log_verosimil,mu)
-log_y=diff(log_verosimil,sigma)	
-
-puntos_criticos = solve([log_x, log_y], [mu, sigma])	
-
-println("Estimador MLE para para los parámetros: ", puntos_criticos) 
-	
-end
-
-# ╔═╡ 8612f130-8559-41ae-bf4f-c7b22800bce5
-md"""Podemos comparar dichas estimaciones con los valores de la media muestral y la desviación estandar muestral para darnos cuenta que en efecto, estos son los valores de los  parámetros."""
-
-# ╔═╡ 3f42f911-825d-458e-a4a1-2bffc0bd3b46
-begin
-#Ya conociamos que los MLE son la media y la desviación estandar muestrales:
-function estimador_maxverosimil(datos)
-    mu_hat= mean(datos)
-    sigma_hat = std(datos)
-    return mu_hat, sigma_hat
-end
-
-# Calcular los estimadores de máxima verosimilitud para la muestra de datos
-mu_mle, sigma_mle = estimador_maxverosimil(muestra₁)
-
-# Mostrar los resultados
-println("Estimador MLE para la media (mu): ", mu_mle)
-println("Estimador MLE para la desviación estándar (sigma): ", sigma_mle)
-end
-
-# ╔═╡ c33e2bfb-798c-4e15-a9ba-0e1404f6eb34
+# ╔═╡ af76fe39-8cbf-4992-8a02-6d387e80882c
 md"""
-Sin embargo, el enfoque utilizado en los ejemplos predecesores, no es unicamente el enfoque frecuentista de la estimación. De hecho también se realizan estimaciones con el enfoque Bayesiano, así se pasa a definir el segundo estimador.
-
-
-**$\bullet$ Enfoque Bayesiano:**
-
-Sea $X_1,X_2,\cdots,X_n$ una muestra aleatoria de una población con función de densidad $f(X,\Theta)$ y función de densidad conocida (a priori) $f_{\Theta}(\theta)$. El estimador bayesiano para la imagen de $\theta$ bajo una función $g$, respecto a la función a priori de $\theta$ está dado por:
-
-$$E[g(\theta)|X_1,\cdots,X_n]=\frac{\int_{-\infty}^{\infty}g(\theta)L(x|\theta)f_{\Theta}(\theta)}{\int_{-\infty}^{\infty}L(x|\theta)f_{\Theta}(\theta)}$$
-
-Finalizamos así esta pequeña introducción a la estimación de parámetros.
+Si queremos resolver la EDO para determinados valorres de los parámetros, usamos, 
 """
 
-# ╔═╡ 97435cc8-95ca-45eb-abeb-8fee0db7d651
-md"""## Modelo de Von Bertanlanffy
+# ╔═╡ 8f9bd1b5-2aa1-4086-8b4c-6a14319bacae
+begin
+	tspan₃=(23,240)
+	h₀₃=12.6
+	par₃=[1.0, 1.0]
+	EDO₃=ODEProblem(modelo₃,h₀₃,tspan₃,par₃)
+	h₃=solve(EDO₃)
+	plot(h₃)
+end
 
-Recordemos que el modelo es el siguiente 
-
-$$V'= aV^\frac{2}{3}-bV,$$
-donde $V$ es el tamaño del tumor en el tiempo $t$, $a$ es la velocidad máxima de crecimiento y $b$ es la tasa de muerte celular o retroceso del tumor.
-
-La condición inicial del problema es $V_0=V(0)=0.0158$. Recordemos que deseamos hallar los valores óptimos de $a$ y $b$."""
-
-# ╔═╡ baeb53bb-cc5a-4e34-a560-8ee87198bfab
+# ╔═╡ 1b627267-1c73-425a-b5c1-d267d543e6c5
 md"""
-La solución exacta a este problema de valor inicial es:
-
-$$V(t) = f(V_0,t,a,b),$$
-es decir, una función que depende del valor inicial $V_0$, de $t$ y de los parámetros $a$ y $b$.
-
-El problema inverso en cuestión intenta hallar los valores de $a$ y $b$ con base a observaciones...$\textcolor{red}{falta}$
+Al igual que en los ejemplos anteriores, podemos escribir la función residuo del modelo de la EDO.
 """
 
-# ╔═╡ 4851cddc-4f29-426e-a940-b0f955dd2152
-md"""La siguiente función resuelve ecuaciones diferenciales ordinarias usando el método de Euler."""
-
-# ╔═╡ 9f379a94-fab6-4e9f-8a6c-45326f9ba041
-begin
-	function MetEuler(f, p, y0, t0, tn, h)
-	    # f: función que define la EDO dy/dt = f(t, y; p)
-	    # y0: condición inicial
-	    # t0: tiempo inicial
-	    # tn: tiempo final
-	    # h: tamaño del paso
-	    # p: parámetros de la función f
-	
-	    # Número de pasos
-	    n_steps = Int((tn - t0) / h)
-	    
-	    t_values = zeros(n_steps + 1)
-	    y_values = zeros(n_steps + 1)
-	
-	    # Condiciones iniciales
-	    t_values[1] = t0
-	    y_values[1] = y0
-	
-	    # Método de Euler
-	    for i in 1:n_steps
-	        t_values[i + 1] = t_values[i] + h
-	        y_values[i + 1] = y_values[i] + h * f(t_values[i], y_values[i],p)
-	    end
-	
-	    return t_values, y_values
-	end
-	
-	function MetEulerT(f, p, y0, t)
-	    # f: función que define la EDO dy/dt = f(t, y; p)
-	    # y0: condición inicial
-	    # t: arreglo que para el tiempo
-	    # p: parámetros de la función f
-	
-	    # Número de pasos
-	    n_steps = size(t)[1]-1
-	    
-	    t_values = t
-	    y_values = zeros(n_steps + 1)
-	
-	    # Condiciones iniciales
-	    y_values[1] = y0
-	
-	    # Método de Euler
-	    for i in 1:n_steps
-	        h = t[i+1]-t[i]
-	        y_values[i + 1] = y_values[i] + h * f(t_values[i], y_values[i],p)
-	    end
-	
-	    return y_values
-	end
-	
-	#Lado derecho de la ecuación diferencial
-	function rhs_ED(t,x,p)
-	    a = p[1]
-	    b = p[2]
-	    return a*(abs(x)^(2/3))-b*x
-	end
-	#Punto inicial del volumen
-	V0=0.0158
-	#Solución numérica
-	function sol_num_ED(p)
-	    a = p[1]
-	    b = p[2]
-	    return MetEulerT(rhs_ED, [a, b], V0, tiempo)
-	end
+# ╔═╡ 2196ba17-c498-4c94-9b8b-f4f021b5792b
+function residuo₃(par,h,t)
+  tspan=(23,240)
+  h₀=11.8
+  EDO=ODEProblem(modelo₃,h₀,tspan,par)
+  hSOL=solve(EDO)
+  hI=[hSOL(t) for t in tiempo₃]
+  res=h-hI
+  nres=norm(res)
+return nres
 end
 
-# ╔═╡ 4c41dfed-ca3e-4515-a0e7-40e7489d1faf
-begin
-#	tspan=(3.26,80)
-#	V0=0.0158
-	oBFm=oBF.minimizer
-	EDOoptima=ODEProblem(modeloBF,V0,tspan,oBFm)
-	VEDOoptima=solve(EDOoptima)
-	plot(VEDOoptima,lw=5,label="EDO optima")
-	scatter!(tiempo,volumen,ls=:dash,label="Volumen",lw=4, xlabel = "Tiempo",yaxis="Volumen",legend=:bottomright)
-end
+# ╔═╡ fcb24785-71de-4c45-ae0b-86ff9d3dac43
+md"""La función residuo arriba mide el desajuste (o tamaño del residuo) de la simulación de la EDO con respecto a los datos usando mínimos cuadrados, es decir, la norma euclidiana de la diferencia o residuo. 
 
-# ╔═╡ f24cc905-c0af-482c-8add-eddb80607dc1
-#Energía
-	function energiaEDO(p) #log de la posterior
-	    a = p[1]
-	    b = p[2]
-	    #logverosimilitud gaussiana
-	    log_likelihood = -0.5 .* sum((volumen - sol_num_ED(p)).^2)
-	    
-	    #log a priori
-	    log_priori = logpdf(Normal(0.5,1), a) + logpdf(Normal(0.5,1), b)
-	
-	    return  log_likelihood*(10^(-2)) + log_priori*(10^(-2)) + log(100)
-	end
+Por ejemplo, el desajuste de usar $\alpha=1$ y $\epsilon=1$ en el modelo es de:"""
 
-# ╔═╡ 9a0dd382-0e83-46c0-85b9-efe10dba5a75
-md""" En este ejemplo se supone que $(a,b)\in[0,1]\times [0,100]$. Para que en el algoritmo de Metropolis-Hastings sea 'más sencillo' ejecutar el camino aleatorio que seguirán los parámetros serán los siguientes: """
+# ╔═╡ 3645e94f-fa05-4c73-a182-9b9fc1cc89b9
+residuo₃([1 1],h1₃,tiempo₃)
 
-# ╔═╡ a482eac4-ac19-437a-905d-441064c6c678
-function support₂(pa)
-	    # soporte de los parametros ""
-	    rt = true
-	    rt &= (0.0 < pa[1] < 1.0)
-	    rt &= (0.0 < pa[2] < 1.0)
-	    return rt
-	end
-
-# ╔═╡ f4468684-2f96-42b0-96a0-90639f0e4ebe
-md"""Los contornos de la función de energía son mostrados a continuación."""
-
-# ╔═╡ ad5879a7-e89d-4fd8-b31a-770e5419260c
-begin
-	f₂(x, y) = energiaEDO((x,y))
-	
-	x_range0 = 0.01:0.05:1
-	y_range0 = 0.01:0.05:1
-	
-	# Inicializar matrices para la malla
-	mesh_x0 = zeros(length(x_range0), length(y_range0))
-	mesh_y0 = zeros(length(x_range0), length(y_range0))
-	# Llenar las matrices de la malla con valores de x e y
-	for i in 1:length(x_range0)
-	    for j in 1:length(y_range0)
-	        mesh_x0[i, j] = x_range0[i]
-	        mesh_y0[i, j] = y_range0[j]
-	    end
-	end
-	# Evaluar la función en cada punto de la malla
-	z_values0 = f₂.(mesh_y0, mesh_x0)
-	# Crear el gráfico de contornos
-	contour(x_range0, y_range0, exp.(z_values0), levels=500, color=:viridis, xlabel="a", ylabel="b", title="Contornos de energía")	     
-end
-
-# ╔═╡ 04edbbc3-041d-45ea-b770-46eb127419aa
-md""" **$\bullet$ Metropolis Hasting Random Walk**
-
-En el siguiente fragmento de código se ejecuta el algoritmo de MH. Se hace una pequeña modificación para tener en cuenta la condición del soporte en que deben estar los parámetros $a$ y $b$."""
-
-# ╔═╡ 6acfd215-a4e3-4f1b-b2c4-91461377e706
-begin
-	function MHRW0(np,logenergia,soporte,puntoincial,sd=0.1,iteraciones=10000)
-    #np es el número de parámetros a estimar
-    #Se usa logenergia para controlar posibles errores numéricos 
-    #log energía solo debe depender del vector de parámetros 
-    #sd: desviación estándar del camino aleatorio
-    samples = rand(np) 
-    probabilities = [exp(logenergia(samples[:,end]))]
-
-    Alpha = [0] # tasa de aceptación
-    #sd: desviación estándar del camino aleatorio
-
-    # MHRW
-    for i in 1:iteraciones
-        # Construcción de nuevas muestras con un camino aleatorio normal
-        theta = samples[:,end]+ sd*randn(np)
-        # Condición del soporte
-        if soporte(theta) == false
-            alpha = 0
-            p2 = exp(logenergia(samples[:,end]))
-        else
-            p1 = exp(logenergia(theta))
-            p2 = exp(logenergia(samples[:,end]))
-            alpha = min(1, p1/p2)
-        end 
-
-        
-        Alpha = hcat(Alpha,alpha)
-        u = rand()
-        #Selección de muestras
-        if u < alpha
-            samples = hcat(samples, theta)
-            probabilities = hcat(probabilities,p1)
-        else
-            samples = hcat(samples, samples[:,end])
-            probabilities = hcat(probabilities,p2)
-        end
-    end
-    #Sistematic sampling
-    initial_position = floor(100*rand())
-    leap = 20
-    samples_ss = samples[:, Int(initial_position):leap:end]
-    probabilities_ss = probabilities[Int(initial_position):leap:end];
-
-    #Estimations
-    max_prob, position_ss = findmax(probabilities_ss)
-    Max_likelihood = samples_ss[:, position_ss]
-    Mean = mean(samples_ss, dims=2)
-    return (Max_likelihood,max_prob,Mean,samples_ss,probabilities_ss,Alpha)
-	end
-end
-
-# ╔═╡ 8d550296-d82e-4949-9421-01354d63425e
-begin
-	Max_likelihood0,max_prob0,Mean0,samples0,probabilities0,Alpha0 = MHRW0(2,energiaEDO,support₂,rand(2),0.005,20000);
-	@show Max_likelihood0
-	@show Mean0 ;
-end
-
-# ╔═╡ a50b3a49-4b81-4843-bfaa-e6273a2835a4
-md"""A continuación se muestran las gráficas."""
-
-# ╔═╡ 7c231cf4-d2e6-4819-86f7-d7b0231d45f9
-begin
-	p10 = histogram(samples0[1,:],bins=50,label=false,color="red",xlim=(0,1),title="Histograma para m")
-	p10 = plot!([Mean0[1], Mean0[1]], [0,100],linewidth=2,color="orange", label="Media Condicional")
-	p10 = plot!([Max_likelihood0[1], Max_likelihood0[1]], [0,100],linewidth=2,color="green", label="Max a Posteriori")
-	
-	p20 = histogram(samples0[2,:],bins=50,label=false,color="blue",xlim=(0,1),title="Histograma para k")
-	p20 = plot!([Mean0[2], Mean0[2]], [0,100],linewidth=2,color="orange", label="Media condicional")
-	p20 = plot!([Max_likelihood0[2], Max_likelihood0[2]], [0,100],linewidth=2,color="green", label="Max a Posteriori")
-	
-	p30 = plot(samples0[1,:],color="red",label = false,title="Camino aleatorio para r",ylim=(0,1))
-	
-	p40 = plot(samples0[2,:],color="blue",label = false,title="Camino aleatorio para k",ylim=(0,1))
-	
-	p50 = plot(log.(probabilities0), label=false , title="Log-Verosimilitud")
-	
-	p60 = contour(x_range0, y_range0, exp.(z_values0), levels=200, color=:viridis, xlabel="m", ylabel="k",title="Camino aleatorio")
-	p60 = plot!(samples0[1,:],samples0[2,:],label=false)
-	
-	p70 = plot(tiempo, volumen ,label=false, title = "Datos de partida")
-	
-	p80 = plot(tiempo,sol_num_ED(samples0[end-1,:]),
-	    color="gray82",title="MHRW",label="Muestras",z=1,size=(1000, 600),ylim= (0,10))
-	for j=1:10:(size(samples0)[2]-1)
-	   p80 = plot!(tiempo,sol_num_ED((samples0[:,j][1],samples0[:,j][2])),color="gray82",label=false,z=1)
-	end
-	p80 = plot!(tiempo, volumen,label="Datos")
-	p80 = plot!(tiempo, sol_num_ED((Max_likelihood0[1],Max_likelihood0[2])),color="green",label="X_MAP")
-	p80 = plot!(tiempo, sol_num_ED((Mean0[1],Mean0[2])),color="orange",label="X_CM")
-	
-	
-	plot(p10,p20,p30,p40,p50,p60,p70,p80, layout=(4,2),size=(1100,1600))
-end
-
-# ╔═╡ cc64d3c8-fa47-4aac-8bed-29365e9d2505
-md"""Note que en la gráfica "Camino aleatorio" el camino no se estabilizó, por tanto, el algoritmo no es estable en este caso. """
-
-# ╔═╡ 1a52f2b3-9aaf-402d-8d4c-b1a6b1a65e45
+# ╔═╡ 80fd39d0-4add-4240-9e67-782480b53e20
 md"""
-# Referencias
+Observe que este valor es considerablemente grande, por lo tanto, es crucial encontrar el valor óptimo.
+"""
 
-[1] Driscoll, T. A., & Braun, R. J. (Year). Fundamentals of Numerical Computation. Retrieved from https://tobydriscoll.net/fnc-julia/frontmatter.html
+# ╔═╡ eeb7d348-6835-4b6c-9bf2-fd39c01ddb4b
+r₃(par₃) = residuo₃(par₃,h1₃,tiempo₃)
 
-[2] Sullivan, E. (2020). Numerical Methods: An Inquiry-Based Approach With Python.
+# ╔═╡ 14642c41-6f15-4c2c-8b8c-8830057793e9
+md"""
+Ahora, optimicemos el valor de los parámetros, de la siguiente forma:
+"""
 
-[3] Bulirsch, R., Stoer, J., & Stoer, J. (2002). Introduction to Numerical Analysis (Vol. 3). Heidelberg: Springer.
+# ╔═╡ 4c94e07b-238e-466b-88f2-586970471e46
+o₃=Optim.optimize(r₃, [.01,.01], NelderMead())
 
-[4] Stewart, G. W. (1996). Afternotes on Numerical Analysis. Society for Industrial and Applied Mathematics.
+# ╔═╡ 379165b1-da00-4e6e-8e63-3934e449ebd0
+o₃.minimizer
 
-[5] Quarteroni, A., Saleri, F., & Gervasio, P. (2006). Scientific Computing with MATLAB and Octave (Vol. 3). Berlin: Springer.
+# ╔═╡ ac5b21f5-83b5-44c6-90fe-3d7ba1add307
+md"""Obteniendo así que los valores optimos para $\alpha$ y $\epsilon$ son $5.0699$ y $1.0067$, respectivamente. 
 
-[6] Last name, Initials. (Year). Machine Learning and Data Mining [Lecture Notes]. Retrieved from http://www.dgp.toronto.edu/~hertzman/411notes.pdf
+Así la ecuación diferencial que se ajusta a nuestros datos es
 
-[7] Last name, Initials. (Year). Deep Learning [Lecture Slides]. Retrieved from https://www.deeplearningbook.org/lecture_slides.html
+$\frac{dh}{dt}=-5.0699\frac{r_2^2\sqrt{2(g+1.0067)(h_1-h_2)}}{r_1^2}.$
+Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. """
 
-[8] Mayorga, A. J. H. (2004). Inferencia estadística. Universidad Nacional de Colombia.
+# ╔═╡ 0eea2afa-a557-4750-bad3-fac30265402a
+begin
+	om₃=o₃.minimizer
+	EDOoptima₃=ODEProblem(modelo₃,h₀₃,tspan₃,om₃)
+	hEDOoptima₃=solve(EDOoptima₃)
+	plot(hEDOoptima₃,lw=5,label="EDO optima")
+	scatter!(tiempo₃,h1₃,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
+end
 
-[9] Blanco Castañeda, L. (2004). Probabilidad. Universidad Nacional de Colombia.
+# ╔═╡ e57d285a-637e-4438-ae97-5078347f6caa
+md"""Ya conociendo al EDO y su solución podemos predecir la altura del líquido luego  de 4 minutos, observe que este es de"""
 
-[10] Kaipio, J., & Somesalo, E. (2004). Statistical and Computational Inverse Problems. Springer.
+# ╔═╡ 542f825c-23b0-4d60-a20a-7f29ff998367
+hEDOoptima₃(240)
 
-[11] Häggström, O. (2002). Finite Markov Chains and Algorithmic Applications. Cambridge University Press."""
+# ╔═╡ 71f936a0-f08f-4fec-a601-a659823d7772
+md"""Según se observa en el video la altura del líquido al pasar 4 minutos es de 3.4cm, por tanto el modelo no es tan preciso."""
+
+# ╔═╡ 3ba2c93c-bfd7-4dff-9fb0-aee3200386b4
+md"""# Referencias
+
+[1] SIMIODE. (2014, Mayo 31). SIMIODE Torricelli's Law 7Over64 Inch Diameter Small Hole Collection Video [Video]. YouTube. https://www.youtube.com/watch?v=xDyDSPydN_E
+
+[2] SIMIODE. (2014, Mayo 31). SIMIODE Torricelli's Law 5Over64 Inch Diameter Small Hole Collection Video [Video]. YouTube. https://www.youtube.com/watch?v=CZvTGLzJI_A
+
+[3] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons.
+
+[4] Bryan, K. (2021). Differential Equations: A Toolbox to Modeling the World. SIMIODE.
+
+[5] Driscoll, T. A., & Braun, R. J. (Year). Fundamentals of Numerical Computation. Retrieved from https://tobydriscoll.net/fnc-julia/frontmatter.html
+
+[6] Sullivan, E. (2020). Numerical Methods: An Inquiry-Based Approach With Python.
+
+[7] Bulirsch, R., Stoer, J., & Stoer, J. (2002). Introduction to Numerical Analysis (Vol. 3). Heidelberg: Springer.
+
+[8] Stewart, G. W. (1996). Afternotes on Numerical Analysis. Society for Industrial and Applied Mathematics.
+
+[9] Quarteroni, A., Saleri, F., & Gervasio, P. (2006). Scientific Computing with MATLAB and Octave (Vol. 3). Berlin: Springer.
+
+[10] Last name, Initials. (Year). Machine Learning and Data Mining [Lecture Notes]. Retrieved from http://www.dgp.toronto.edu/~hertzman/411notes.pdf
+
+[11] Last name, Initials. (Year). Deep Learning [Lecture Slides]. Retrieved from https://www.deeplearningbook.org/lecture_slides.html
+
+[12] Mayorga, A. J. H. (2004). Inferencia estadística. Universidad Nacional de Colombia.
+
+[13] Blanco Castañeda, L. (2004). Probabilidad. Universidad Nacional de Colombia.
+
+[14] Kaipio, J., & Somesalo, E. (2004). Statistical and Computational Inverse Problems. Springer.
+
+[15] Häggström, O. (2002). Finite Markov Chains and Algorithmic Applications. Cambridge University Press."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
 DifferentialEquations = "~7.10.0"
-Distributions = "~0.25.107"
-HypertextLiteral = "~0.9.5"
-Latexify = "~0.16.2"
 Optim = "~1.9.2"
 Plots = "~1.39.0"
 PlutoUI = "~0.7.58"
-Roots = "~2.1.2"
-SpecialFunctions = "~2.3.1"
-SymPy = "~2.0.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -854,24 +444,18 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "71cbc2c94e0fa561dc05d106344f1ca650cc8a54"
+project_hash = "8a98b017e2fdd005159996f6bf227edf1b2f8306"
 
 [[deps.ADTypes]]
-git-tree-sha1 = "41c37aa88889c171f1300ceac1313c06e891d245"
+git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
 uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "0.2.6"
+version = "0.2.7"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
 git-tree-sha1 = "0f748c81756f2e5e6854298f11ad8b2dfae6911a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.0"
-
-[[deps.Accessors]]
-deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Requires", "Test"]
-git-tree-sha1 = "c0d491ef0b135fd7d63cbc6404286bc633329425"
-uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-version = "0.1.36"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -1019,11 +603,6 @@ git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
 
-[[deps.CommonEq]]
-git-tree-sha1 = "6b0f0354b8eb954cdba708fb262ef00ee7274468"
-uuid = "3709ef60-1bee-4518-9f2f-acd86f176c50"
-version = "0.2.1"
-
 [[deps.CommonSolve]]
 git-tree-sha1 = "0eee5eb66b1cf62cd6ad1b460238e60e4b09400c"
 uuid = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -1046,11 +625,6 @@ deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "1.0.1+0"
 
-[[deps.CompositionsBase]]
-git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
-uuid = "a33af91c-f02d-484b-be07-31d278c5ca2b"
-version = "0.1.2"
-
 [[deps.ConcreteStructs]]
 git-tree-sha1 = "f749037478283d372048690eb3b5f92a79432b34"
 uuid = "2569d6c7-a4a2-43d3-a901-331e8e4be471"
@@ -1058,15 +632,9 @@ version = "0.2.3"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
-git-tree-sha1 = "9c4708e3ed2b799e6124b5673a712dda0b596a9b"
+git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
-version = "2.3.1"
-
-[[deps.Conda]]
-deps = ["Downloads", "JSON", "VersionParsing"]
-git-tree-sha1 = "51cab8e982c5b598eea9c8ceaced4b58d9dd37c9"
-uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-version = "1.10.0"
+version = "2.4.1"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -1321,9 +889,9 @@ version = "0.1.3"
 
 [[deps.Functors]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "166c544477f97bbadc7179ede1c1868e0e9b426b"
+git-tree-sha1 = "8ae30e786837ce0a24f5e2186938bf3251ab94b2"
 uuid = "d9f16b24-f501-4c13-a1f2-28368ffc5196"
-version = "0.4.7"
+version = "0.4.8"
 
 [[deps.Future]]
 deps = ["Random"]
@@ -1367,9 +935,9 @@ version = "0.21.0+0"
 
 [[deps.Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "e94c92c7bf4819685eb80186d51c43e71d4afa17"
+git-tree-sha1 = "359a1ba2e320790ddbe4ee8b4d54a305c0ea2aff"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.76.5+0"
+version = "2.80.0+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1390,9 +958,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "db864f2d91f68a5912937af80327d288ea1f3aee"
+git-tree-sha1 = "995f762e0182ebc50548c434c171a5bb6635f8e4"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.3"
+version = "1.10.4"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -1618,10 +1186,10 @@ uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
 version = "1.17.0+0"
 
 [[deps.Libmount_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "9c30530bf0effd46e15e0fdcf2b8636e78cbbd73"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "dae976433497a2f841baadea93d27e68f1a12a97"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.35.0+0"
+version = "2.39.3+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -1954,12 +1522,6 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 deps = ["Printf"]
 uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
-[[deps.PyCall]]
-deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
-git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
-uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-version = "1.96.4"
-
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
 git-tree-sha1 = "37b7bb7aabf9a085e0044307e1717436117f2b3b"
@@ -2050,12 +1612,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "6ed52fdd3382cf21947b15e8870ac0ddbff736da"
 uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
 version = "0.4.0+0"
-
-[[deps.Roots]]
-deps = ["Accessors", "ChainRulesCore", "CommonSolve", "Printf"]
-git-tree-sha1 = "754acd3031a9f2eaf6632ba4850b1c01fe4460c1"
-uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "2.1.2"
 
 [[deps.RuntimeGeneratedFunctions]]
 deps = ["ExprTools", "SHA", "Serialization"]
@@ -2258,18 +1814,6 @@ git-tree-sha1 = "04777432d74ec5bc91ca047c9e0e0fd7f81acdb6"
 uuid = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 version = "5.2.1+0"
 
-[[deps.SymPy]]
-deps = ["CommonEq", "CommonSolve", "LinearAlgebra", "PyCall", "SpecialFunctions", "SymPyCore"]
-git-tree-sha1 = "8d727c118eb31ffad73cce569b7bb29eef5fb9ad"
-uuid = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
-version = "2.0.1"
-
-[[deps.SymPyCore]]
-deps = ["CommonEq", "CommonSolve", "Latexify", "LinearAlgebra", "Markdown", "RecipesBase", "SpecialFunctions"]
-git-tree-sha1 = "4c5a53625f0e53ce1e726a6dab1c870017303728"
-uuid = "458b697b-88f0-4a86-b56b-78b75cfb3531"
-version = "0.1.16"
-
 [[deps.SymbolicIndexingInterface]]
 deps = ["DocStringExtensions"]
 git-tree-sha1 = "f8ab052bfcbdb9b48fad2c80c873aa0d0344dfe5"
@@ -2383,11 +1927,6 @@ git-tree-sha1 = "7209df901e6ed7489fe9b7aa3e46fb788e15db85"
 uuid = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
 version = "0.21.65"
 
-[[deps.VersionParsing]]
-git-tree-sha1 = "58d6e80b4ee071f5efd07fda82cb9fbe17200868"
-uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
-version = "1.3.0"
-
 [[deps.VertexSafeGraphs]]
 deps = ["Graphs"]
 git-tree-sha1 = "8351f8d73d7e880bfc042a8b6922684ebeafb35c"
@@ -2426,9 +1965,9 @@ version = "1.1.34+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "37195dcb94a5970397ad425b95a9a26d0befce3a"
+git-tree-sha1 = "31c421e5516a6248dfb22c194519e37effbf1f30"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.6.0+0"
+version = "5.6.1+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Libdl", "Pkg"]
@@ -2692,78 +2231,80 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─191f2f52-f7f5-4b1b-85d1-883d40afbc50
-# ╟─2cc6c5db-dae9-4056-8e86-c2cdd5413fd2
-# ╟─9a904b84-2c70-444d-a673-4327560d1226
-# ╟─3db89cf8-58b3-42e5-a1a7-a5ac40a78fdb
-# ╟─c96c27e6-efbb-4ae4-ad1f-71a19af1a971
-# ╠═39ed3381-b89d-40a0-ab27-764982180e55
-# ╠═3d867eb9-6348-4f3b-813d-029884312c36
-# ╟─e263bad6-deb8-4dca-b147-57a9d4dd39bb
-# ╟─33842891-3dbb-4b08-8160-346ffafe8619
-# ╟─c4c29fc7-5611-4b30-b15e-90f3fb86450a
-# ╟─ba732df6-5923-4e4e-8b2d-35fe0d35e398
-# ╟─f44497fb-d866-4649-bd62-f19f1d2bc811
-# ╠═1394bd94-9e28-444a-b358-ea487ad06420
-# ╟─1f0dba89-0aad-4ede-a4a6-d005aad2b897
-# ╟─172eb728-c084-4311-b75a-6177a36fb847
-# ╟─519ca1e3-ea1b-4d1b-af2d-d074531b502b
-# ╠═1358c859-a74e-4738-bf50-4e4aca06770d
-# ╟─21b98c71-3aa2-4438-ba4f-c830cfc6d709
-# ╠═64281d01-c1dd-4f11-8397-21d01ecadd5f
-# ╟─5ac22392-143f-4531-a611-d8533610d07c
-# ╠═043dd8fc-da87-453b-ae29-10d72b933e06
-# ╟─7161401c-f87a-4939-9fa9-479c24931f06
-# ╠═1a3a16df-b51e-4125-a895-fcaa02ad2403
-# ╟─ea1b3ecc-fa84-4ee0-8609-91b0106362f3
-# ╠═5d4734ca-9c04-4c07-bc5b-6629b66a9c91
-# ╟─d9bd8b60-858e-44fc-a510-cae1b865111e
-# ╠═02be56ff-3585-4b7a-b0bc-ab42c43c773f
-# ╠═c4a90f6b-ba92-41d6-ae4b-e16f303c1bdd
-# ╟─3cf10c6c-05af-4508-b3f3-70de4d537acb
-# ╠═4c41dfed-ca3e-4515-a0e7-40e7489d1faf
-# ╟─43eb9fc5-b762-4bd7-a540-ad35da34d7b9
-# ╠═79990d4e-08e1-4c75-896e-f4d9b9e7fefc
-# ╟─280c6e4b-8db1-42c2-b157-dca7ed01965a
-# ╠═d0290ed3-64bc-4b8b-9e4f-665e33c33014
-# ╟─9cbe41df-cfd5-4e04-980e-c5bb60865a6d
-# ╠═1bd9636d-5006-47db-835e-4bed32a33753
-# ╟─8ae541e7-951f-455e-8b33-f1966941a775
-# ╟─471bd66e-5032-4de9-b99a-e38eb675f641
-# ╟─6502f975-7542-405f-8013-d0662bfcff32
-# ╠═d98fa069-d933-4ee4-94a6-7f33512c39cf
-# ╟─63aa2cc1-8f73-4efb-91c7-a1a73321dc6e
-# ╠═afd8e5f0-9088-4364-98e6-e2573c207f31
-# ╠═57422995-5a2f-4990-a90a-48571ebc0db5
-# ╟─819d0789-c0c2-40ab-87ab-c9ad7c87538d
-# ╠═565b66b9-ed1b-4013-a6c0-77038dd09530
-# ╟─681946a2-a574-4a3d-aa94-87fad31aa6a8
-# ╟─b1c5a491-c18e-4f1c-af08-b9988813bebe
-# ╠═261d27e2-6240-4047-afa7-f2f9a4af396c
-# ╟─913ad931-b08c-47df-ae0d-5d1f6f216453
-# ╠═10c4a587-b0db-4a73-b42f-14c9621815e0
-# ╟─ab3bc822-3432-4598-8191-01e20f63ca1c
-# ╠═c8922fad-0123-42ea-94d7-81379b4ff3ad
-# ╟─dafdb4f3-f49e-4645-b58c-16eb63954b1b
-# ╠═1f733c09-b663-49df-a68f-fc5ecf5f06c5
-# ╟─8612f130-8559-41ae-bf4f-c7b22800bce5
-# ╠═3f42f911-825d-458e-a4a1-2bffc0bd3b46
-# ╟─c33e2bfb-798c-4e15-a9ba-0e1404f6eb34
-# ╟─97435cc8-95ca-45eb-abeb-8fee0db7d651
-# ╠═baeb53bb-cc5a-4e34-a560-8ee87198bfab
-# ╟─4851cddc-4f29-426e-a940-b0f955dd2152
-# ╠═9f379a94-fab6-4e9f-8a6c-45326f9ba041
-# ╠═f24cc905-c0af-482c-8add-eddb80607dc1
-# ╟─9a0dd382-0e83-46c0-85b9-efe10dba5a75
-# ╠═a482eac4-ac19-437a-905d-441064c6c678
-# ╟─f4468684-2f96-42b0-96a0-90639f0e4ebe
-# ╠═ad5879a7-e89d-4fd8-b31a-770e5419260c
-# ╟─04edbbc3-041d-45ea-b770-46eb127419aa
-# ╠═6acfd215-a4e3-4f1b-b2c4-91461377e706
-# ╠═8d550296-d82e-4949-9421-01354d63425e
-# ╟─a50b3a49-4b81-4843-bfaa-e6273a2835a4
-# ╟─7c231cf4-d2e6-4819-86f7-d7b0231d45f9
-# ╟─cc64d3c8-fa47-4aac-8bed-29365e9d2505
-# ╟─1a52f2b3-9aaf-402d-8d4c-b1a6b1a65e45
+# ╟─111cd94e-c363-4f8f-8c2f-66a5955c19ce
+# ╟─ec0a7ef5-a7eb-4e63-bcdc-22616b2d1b11
+# ╟─9a519cdf-784b-4446-9bcd-404c547142ce
+# ╟─b0d7bc54-b642-41f7-a3f2-f4674cbc2d5d
+# ╟─57907276-2e07-4774-9b8b-b5fa54f24f56
+# ╠═5c772b84-e443-4fd7-af4f-09d18fee60d6
+# ╟─782b4a7d-a3e4-41b8-a3cf-d3dd9ed26f62
+# ╟─cd0848a1-6e89-447a-9793-3c4c03a33002
+# ╟─fb7d06a2-66b5-459c-b701-0daba981b138
+# ╠═debe5ded-5f5d-42db-bb08-d1002f8a537b
+# ╠═e4de0ac9-6a72-4e38-8399-2347f8801b62
+# ╠═eb26d803-83f1-453f-bb47-1f28f4ab8743
+# ╟─79d0d59f-104f-4541-abf6-ffdf1d7e2923
+# ╠═2201250e-985e-4062-9d81-c75ad71462b5
+# ╟─dfbbafe2-0683-46f8-bd53-3e6d50372d3f
+# ╟─32b5af0d-d710-4b65-b4b3-0757d4aefa36
+# ╠═82d22054-77bd-43c7-b68b-236251d0917e
+# ╟─2a3d6e11-4633-4305-9465-4a1427009e61
+# ╠═acedd068-e916-4b5f-8dfc-e8e88042cf51
+# ╟─99d301f8-493d-4435-93b6-5b1eeb58ab2c
+# ╠═a0ad6bf3-3f62-4c68-9d57-f200625a0db3
+# ╟─33200d26-207c-4a2a-bcd9-57d4c533e705
+# ╠═6d011c93-ebee-4ac9-a507-485575138c22
+# ╟─de6c5048-1b5a-4968-98b4-3dc71a4d079a
+# ╠═47bcc56e-8542-4dc7-b44f-a2a7eb2e5ade
+# ╟─10476727-4d44-48a7-abe2-2d418da7a05b
+# ╠═ac20f4b1-33f1-49b7-a11f-7071827f30ea
+# ╠═49388abe-2ed1-4d62-a3cf-32142e567f7c
+# ╟─748e47d9-f4ff-4e7e-92d6-bd2a882e60f2
+# ╠═1f5e77ef-c5e9-4254-934a-877f083cbdfe
+# ╟─c1b3f054-9414-4c94-9c36-94fc429832cb
+# ╠═ac721175-4961-437f-950e-bd670263581c
+# ╟─4d548fa3-33d9-4726-9103-a20f52e27262
+# ╠═81d04d41-57c1-448f-a872-943354ab6452
+# ╟─0285ca63-9265-4c07-a839-cca887999453
+# ╠═720793b1-a885-444a-ae5f-42878995d4af
+# ╟─af63c011-fd75-4798-8f06-f1a59cb39be2
+# ╠═1c46896a-3412-4f2f-9e16-18e3cdfbd4f9
+# ╟─2091595d-01cc-4ecc-9f40-982632f3591b
+# ╠═c26e3dcb-8b5c-4702-8e80-7be52dcecc52
+# ╟─682f1730-1a36-4cb4-b79b-27bf444cb7ba
+# ╠═3ba4e4c5-b989-4ff0-a675-9af89ad9fefb
+# ╟─2476cb5f-0920-4b3c-bc8f-adc9c6213eab
+# ╠═c8f4ac55-99f1-4e29-b977-1762548277a2
+# ╠═86046108-786f-42d3-a0e5-4941f7b71662
+# ╟─b8b3ecd9-c540-47e4-8272-626795a526e1
+# ╠═756dead4-057a-407f-b2d6-f789eff70db3
+# ╟─b08bb916-3eb9-4644-9db2-597f059a325c
+# ╠═21718ee0-2e6c-4a3f-9685-5e6ecaf37767
+# ╟─9f6158ec-4177-4b31-b5ac-be003a11eded
+# ╟─6d261e42-80b1-4fb3-9ed9-a205ec54ebca
+# ╠═6f922c3c-cbbd-4679-bb5c-f1cf27573583
+# ╠═872b5009-34a4-43c8-915a-bd13e02b6161
+# ╟─2d868fc0-73d9-45a0-b339-1694c4472279
+# ╠═16212813-da76-4782-81d4-4769e7bdd5fa
+# ╟─e260f73c-9573-4ede-901d-815e81f03a10
+# ╟─99fb6e02-d4b7-4b63-a5fc-5c9a47c0cd5c
+# ╠═7fc1f072-e7a9-462c-af21-aa4d78ed56d0
+# ╟─af76fe39-8cbf-4992-8a02-6d387e80882c
+# ╠═8f9bd1b5-2aa1-4086-8b4c-6a14319bacae
+# ╟─1b627267-1c73-425a-b5c1-d267d543e6c5
+# ╠═2196ba17-c498-4c94-9b8b-f4f021b5792b
+# ╟─fcb24785-71de-4c45-ae0b-86ff9d3dac43
+# ╠═3645e94f-fa05-4c73-a182-9b9fc1cc89b9
+# ╟─80fd39d0-4add-4240-9e67-782480b53e20
+# ╠═eeb7d348-6835-4b6c-9bf2-fd39c01ddb4b
+# ╟─14642c41-6f15-4c2c-8b8c-8830057793e9
+# ╠═4c94e07b-238e-466b-88f2-586970471e46
+# ╠═379165b1-da00-4e6e-8e63-3934e449ebd0
+# ╟─ac5b21f5-83b5-44c6-90fe-3d7ba1add307
+# ╠═0eea2afa-a557-4750-bad3-fac30265402a
+# ╟─e57d285a-637e-4438-ae97-5078347f6caa
+# ╠═542f825c-23b0-4d60-a20a-7f29ff998367
+# ╟─71f936a0-f08f-4fec-a601-a659823d7772
+# ╟─3ba2c93c-bfd7-4dff-9fb0-aee3200386b4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

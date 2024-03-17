@@ -109,6 +109,17 @@ begin
 	scatter!([3], [94], color="blue", label="u₃")
 end
 
+# ╔═╡ 820d3202-728c-4706-8ae9-0cdcb3d59110
+md"""El campo de vectores la solución general de la EDO es el siguiente:"""
+
+# ╔═╡ 1c8a64c2-9912-4d75-afd8-716e6a6d3bdc
+begin
+	F(y, t) =  -0.063 * ( y - 72)
+	plot(legend=false)
+	vectorfieldplot!((t,y) -> [1, F(y,t)], xlims=(0, 6), ylims=(85, 100))
+	plot!(x, y, title="Solución", label="u(t)", linewidth=2) #solcuión del pvi
+end
+
 # ╔═╡ 83b04957-cdc8-466e-945f-9ac669218fc1
 md"""# Modelo de crecimiento exponencial
 
@@ -192,6 +203,17 @@ end
 # ╔═╡ f7ff41e8-4671-4510-92e6-6803349c16d5
 md"""De esto se observa que luego de 26 meses los amigos del propietario podran pescar en el estanque."""
 
+# ╔═╡ 5a546318-dd9e-417b-aa6c-768a576f3c5f
+md"""El campo de vectores la solución general de la EDO es el siguiente:"""
+
+# ╔═╡ 75a584e7-e772-4161-8ba0-a8ca632cfd19
+begin
+	F₂(N, t) =  (log(2)/6) * N
+	plot(legend=false)
+	vectorfieldplot!((t,y) -> [1, F₂(y,t)], xlims=(0, 30), ylims=(0, 10000))
+	plot!(x₂, y₂, title="Solución", label="N(t)", linewidth=2) #solución del pvi
+end
+
 # ╔═╡ 1233c5ec-7994-4505-b265-3f6781a4c76c
 md"""# Modelo de crecimiento logístico
 
@@ -263,6 +285,17 @@ begin
 	plot(x₃, y₃, title="Solución", label="N(t)", linewidth=2)
 	scatter!([t_s], [900], color="red", label="N₆")
 	scatter!([0], [100], color="blue", label="N₀")
+end
+
+# ╔═╡ 9b9917e5-26c4-4e27-a433-188c06d5b274
+md"""El campo de vectores la solución general de la EDO es el siguiente:"""
+
+# ╔═╡ a3d20b00-2111-45d5-82ec-ea7b18acecdb
+begin
+	F₃(N, t) =  0.1*(1-N/1000)*N
+	plot(legend=false)
+	vectorfieldplot!((t,y) -> [1, F₃(y,t)], xlims=(0, 50), ylims=(100, 1000))
+	plot!(x₃, y₃, title="Solución", label="N(t)", linewidth=2) #solución del pvi
 end
 
 # ╔═╡ 3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
@@ -792,9 +825,9 @@ version = "4.5.1+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e5edc369a598dfde567269dc6add5812cfa10cd5"
+git-tree-sha1 = "0a04a1318df1bf510beb2562cf90fb0c386f58c4"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.39.3+0"
+version = "2.39.3+1"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "libblastrampoline_jll"]
@@ -1447,9 +1480,9 @@ version = "1.18.0+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "1ea2ebe8ffa31f9c324e8c1d6e86b4165b84a024"
+git-tree-sha1 = "d7015d2e18a5fd9a4f47de711837e980519781a4"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.43+0"
+version = "1.6.43+1"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
@@ -1515,6 +1548,8 @@ version = "1.4.1+1"
 # ╠═530ad7da-8776-4a63-8229-50c1ee2f6b78
 # ╟─8ed603e8-e67b-4561-b281-7de113d7d785
 # ╠═491288ee-9c34-4b0f-a226-997384e07b81
+# ╟─820d3202-728c-4706-8ae9-0cdcb3d59110
+# ╠═1c8a64c2-9912-4d75-afd8-716e6a6d3bdc
 # ╟─83b04957-cdc8-466e-945f-9ac669218fc1
 # ╟─a5b9e427-b488-490e-a6b0-de8c45329858
 # ╟─0d5df730-726d-4aab-8020-7f177ca74930
@@ -1530,6 +1565,8 @@ version = "1.4.1+1"
 # ╟─dacf0d1f-efa1-4271-9116-15a53b9c94cf
 # ╠═dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
 # ╟─f7ff41e8-4671-4510-92e6-6803349c16d5
+# ╟─5a546318-dd9e-417b-aa6c-768a576f3c5f
+# ╠═75a584e7-e772-4161-8ba0-a8ca632cfd19
 # ╟─1233c5ec-7994-4505-b265-3f6781a4c76c
 # ╟─f9710b1a-2d51-41f2-b076-a1f38199fadb
 # ╟─12eb6304-96ae-46fd-9c88-c5af1324991b
@@ -1542,6 +1579,8 @@ version = "1.4.1+1"
 # ╠═45cf7bd9-e94b-447c-87fe-961933fe1d71
 # ╟─858c4ac1-a38a-418b-b0a1-9f6f4b90a8e3
 # ╠═28da7f1b-0355-4f2a-a5a6-039034954d42
+# ╟─9b9917e5-26c4-4e27-a433-188c06d5b274
+# ╠═a3d20b00-2111-45d5-82ec-ea7b18acecdb
 # ╟─3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
