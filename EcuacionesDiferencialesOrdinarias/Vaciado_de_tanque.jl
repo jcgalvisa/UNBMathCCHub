@@ -4,30 +4,30 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 111cd94e-c363-4f8f-8c2f-66a5955c19ce
+# ╔═╡ 3a89574c-06c9-45b2-8e7e-54a550c26db0
 using PlutoUI
 
-# ╔═╡ 5c772b84-e443-4fd7-af4f-09d18fee60d6
-using Plots, LinearAlgebra, Optim, DifferentialEquations
+# ╔═╡ a5d1beba-f053-4c35-a5c9-686c6cc67302
+using Plots, LinearAlgebra, Optim, DifferentialEquations, Distributions, Statistics
 
-# ╔═╡ ec0a7ef5-a7eb-4e63-bcdc-22616b2d1b11
+# ╔═╡ 920785ba-c91c-4697-84f6-5abdbab026a6
 PlutoUI.TableOfContents(title="Vaciado de tanque", aside=true)
 
-# ╔═╡ 9a519cdf-784b-4446-9bcd-404c547142ce
+# ╔═╡ 24244d99-613e-47fb-b53b-2dc21536a568
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ b0d7bc54-b642-41f7-a3f2-f4674cbc2d5d
+# ╔═╡ 6815c72f-7456-4756-b228-36bb634157c8
 md"""Elaborado por Juan Galvis, Carlos Nosa y Yessica Trujillo."""
 
-# ╔═╡ 57907276-2e07-4774-9b8b-b5fa54f24f56
+# ╔═╡ 622563c7-4137-4af5-82bb-c57e854bfaa0
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ 782b4a7d-a3e4-41b8-a3cf-d3dd9ed26f62
+# ╔═╡ 19597282-84ea-4bcb-8611-1092535b1b9d
 md"""# Modelo del vaciado del tanque"""
 
-# ╔═╡ cd0848a1-6e89-447a-9793-3c4c03a33002
+# ╔═╡ 89502336-92b1-443b-a74e-519a533f7b17
 md"""Se analizarán los datos recopilados de un experimento en video [1] para ilustrar y cuantificar cómo varía la altura (expresada en centímetros) de una columna de agua en un cilindro (de radio $r_1$) a medida que transcurre el tiempo (medido en segundos), considerando que dicho cilindro tiene un pequeño agujero circular (de radio $r_2$) en la parte inferior del cilindro por donde el agua se escapa. Este análisis también se realizará para el experimento del video [2].
 
 Modelemos el flujo de salida del agua del cilindro. Para esto consideremos el Principio de Bernoulli
@@ -39,7 +39,7 @@ Note que $P_1=P_2=P_{atm}$, donde $P_{atm}$ es la presión atmosférica, además
 
 $g h_1 =  g h_2 +\frac{1}{2}\rho v_2^2.$
 
-Dado que la gravedad $\textcolor{red}{no sé como decirlo}$, entonces midamos esto con ayuda del parámetro $\epsilon$, de esta forma se tiene que
+Dado que la aceleración de la gravedad no es constante sobre la superficie de la Tierra, entonces midamos este cambio respecto al valor estándar con ayuda del parámetro $\epsilon$, de esta forma se tiene que
 
 $(g+\epsilon) h_1 =  (g+\epsilon) h_2 +\frac{1}{2}\rho v_2^2.$
 Sea $v=v_2$, se sigue que
@@ -75,44 +75,44 @@ $\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
 donde $\alpha$ es un número empírico que indica el porcentaje del caudal máximo que realmente atraviesa el orificio pequeño, la reducción debida a la fricción y la constricción en el orificio pequeño. $\alpha$, se llama descarga o coeficiente de contracción.
 """
 
-# ╔═╡ fb7d06a2-66b5-459c-b701-0daba981b138
+# ╔═╡ df6d5ba4-574c-44d2-8135-f9366fc4c1bb
 md"""## Tanque 1
-Los datos recopilados del experimento del video [1] son los siguientes"""
+Los datos recopilados del experimento del video [1] son los siguientes:"""
 
-# ╔═╡ debe5ded-5f5d-42db-bb08-d1002f8a537b
+# ╔═╡ 8409dd37-6f53-4caf-a239-bcaa0c0b79d4
 tiempo₁ = [4*i for i in 1:22] #instantes de tiempo (medidos en segundos)
 
-# ╔═╡ e4de0ac9-6a72-4e38-8399-2347f8801b62
+# ╔═╡ f800da38-ef07-48f1-a5b3-de2df7812de0
 h1₁ = [11.8, 11.4, 10.9, 10.4, 10, 9.5, 9.1, 8.7, 8.3, 7.9, 7.5, 7.2, 6.8, 6.4, 6.1, 5.8, 5.4, 5.1, 4.7, 4.5, 4.3, 4] #altura del agua en cada instante de tiempo tomado
 
-# ╔═╡ eb26d803-83f1-453f-bb47-1f28f4ab8743
+# ╔═╡ d24cc858-c8b0-46a7-9bc5-316d7e1d922c
 g=9.806 #gravedad
 
-# ╔═╡ 79d0d59f-104f-4541-abf6-ffdf1d7e2923
+# ╔═╡ 1e258c09-aee0-483d-ac5e-9194cdf15455
 md"""Visualicemos dichos datos."""
 
-# ╔═╡ 2201250e-985e-4062-9d81-c75ad71462b5
+# ╔═╡ 62bd4ba4-25c9-4f91-9d47-e3e7cffea47f
 scatter(tiempo₁,h1₁,ls=:dash,label="Altura h₁",lw=4, xlabel = "Tiempo",yaxis="Altura h₁")
 
-# ╔═╡ dfbbafe2-0683-46f8-bd53-3e6d50372d3f
+# ╔═╡ d09015b3-1920-4820-89a9-da863486f386
 md"""### Modelo 1: Modelo lineal
 Primero, ajustaremos los datos a un modelo de ecuaciones diferenciales lineal, de la siguiente forma
 
 $\frac{dh}{dt}=-ah.$
 Consideremos dicho modelo con la condición inicial $h_4=h(4)=11.8$. Recordemos que deseamos hallar el valor óptimo de $a$."""
 
-# ╔═╡ 32b5af0d-d710-4b65-b4b3-0757d4aefa36
+# ╔═╡ 56dc1e4e-3d8d-4311-83b0-322ce014ceff
 md"""Creamos una función para dicho modelo:"""
 
-# ╔═╡ 82d22054-77bd-43c7-b68b-236251d0917e
+# ╔═╡ acf0c3b9-2dd6-430d-b96f-9f4d187db0b7
 modelo₁(h₁,par₁,t₁)=-par₁[1]*h₁
 
-# ╔═╡ 2a3d6e11-4633-4305-9465-4a1427009e61
+# ╔═╡ 7d4b102f-63ab-43fe-a92b-cd2d4040a908
 md"""
 Si queremos resolver la EDO para determinado valor del parámetro, usamos, 
 """
 
-# ╔═╡ acedd068-e916-4b5f-8dfc-e8e88042cf51
+# ╔═╡ 244bdf17-b4d3-45f2-8fee-ee0494b5123e
 begin
 	tspan₁=(4,120)
 	h₀₁=11.8
@@ -122,12 +122,17 @@ begin
 	plot(h₁)
 end
 
-# ╔═╡ 99d301f8-493d-4435-93b6-5b1eeb58ab2c
+# ╔═╡ 10490e62-3803-49d0-a927-469ac0a6049d
+md"""
+#### Estimación de parámetros por medio de optimización
+"""
+
+# ╔═╡ d8a47a14-6f91-4ff8-801e-6353205babe9
 md"""
 Ahora podemos escribir la función residuo del modelo de EDO. Es decir, cacular la norma entre el pronóstico de una EDO con parámetros dados y los datos. 
 """
 
-# ╔═╡ a0ad6bf3-3f62-4c68-9d57-f200625a0db3
+# ╔═╡ a92f1359-3e09-429c-8874-43abe19d9c05
 function residuo₁(par,h,t)
   tspan=(4,120)
   h₀=11.8
@@ -139,34 +144,34 @@ function residuo₁(par,h,t)
 return nres
 end
 
-# ╔═╡ 33200d26-207c-4a2a-bcd9-57d4c533e705
+# ╔═╡ a5446a93-693b-480c-9420-f6228b4401c7
 md"""La función residuo arriba mide el desajuste (o tamaño del residuo) de la simulación de la EDO con respecto a los datos usando mínimos cuadrados, es decir, la norma euclidiana de la diferencia o residuo. 
 
 Por ejemplo, el desajuste de usar $a=1$ en el modelo es de:"""
 
-# ╔═╡ 6d011c93-ebee-4ac9-a507-485575138c22
+# ╔═╡ 4c4ded08-363c-4374-9b49-5a6925dda469
 residuo₁([1],h1₁,tiempo₁)
 
-# ╔═╡ de6c5048-1b5a-4968-98b4-3dc71a4d079a
+# ╔═╡ b7b6b4a2-edef-460b-bc0b-c9f469c02371
 md"""
 Note que dicho valor es grande, es necesario encontrar el valor óptimo para esto. Para esto, escribimos una función solo del parámetro, 
 """
 
-# ╔═╡ 47bcc56e-8542-4dc7-b44f-a2a7eb2e5ade
+# ╔═╡ f80df167-98b4-41bf-be80-b85236f07546
 r₁(par₁) = residuo₁(par₁,h1₁,tiempo₁)
 
-# ╔═╡ 10476727-4d44-48a7-abe2-2d418da7a05b
+# ╔═╡ 6c34ebc3-2a75-4007-b7bf-292294c407b8
 md"""
 Y así podemos optimizar el valor del parámetro, tal como se sigue
 """
 
-# ╔═╡ ac20f4b1-33f1-49b7-a11f-7071827f30ea
+# ╔═╡ 644f4678-dd01-49bd-9e9e-356047d8422a
 o₁=Optim.optimize(r₁, [.01], NelderMead())
 
-# ╔═╡ 49388abe-2ed1-4d62-a3cf-32142e567f7c
+# ╔═╡ 1c6718e7-bbb8-4076-822b-338b2a92a536
 o₁.minimizer
 
-# ╔═╡ 748e47d9-f4ff-4e7e-92d6-bd2a882e60f2
+# ╔═╡ 1ef3b914-e503-4852-8448-dab30abca49d
 md"""
 De esto se obtiene que da la EDO optima es
 $\frac{dh}{dt}=-0.0118h$
@@ -174,7 +179,7 @@ $\frac{dh}{dt}=-0.0118h$
 Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. Como antes, podemos visualizar el ajuste comparándolo con los datos. Para esto tenemos, 
 """
 
-# ╔═╡ 1f5e77ef-c5e9-4254-934a-877f083cbdfe
+# ╔═╡ c7137e9c-fbd9-483e-bd27-14721eb342fd
 begin
 	om₁=o₁.minimizer
 	EDOoptima₁=ODEProblem(modelo₁,h₀₁,tspan₁,om₁)
@@ -183,26 +188,118 @@ begin
 	scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
 end
 
-# ╔═╡ c1b3f054-9414-4c94-9c36-94fc429832cb
+# ╔═╡ 4fb8d205-130c-4fde-88ef-ed4d7b014cb5
 md"""Ya conociendo al EDO y su solución podemos predecir la altura futura del líquido, por ejemplo la altura que nos da este modelo para $t=2m=120s$ es de:"""
 
-# ╔═╡ ac721175-4961-437f-950e-bd670263581c
+# ╔═╡ 23857984-54a6-4850-b125-6325a9d81616
 hEDOoptima₁(120)
 
-# ╔═╡ 4d548fa3-33d9-4726-9103-a20f52e27262
+# ╔═╡ f7875145-9938-4a42-99fe-744949792ce3
+md"""
+#### Estimación de parámetros por medio de inferencia bayesiana
+"""
+
+# ╔═╡ 03c781d5-395c-41f1-9a4e-f784663167d2
+md"""
+En primer lugar creamos la función que ejecuta el algoritmo de Metropolis-Hastings Random Walk (MHRW).
+"""
+
+# ╔═╡ 94aa1b15-cd3f-4b57-a8a5-880e5ec79768
+function MHRW0(np,logenergia,soporte,puntoincial,sd=0.1,iteraciones=10000)
+    #np es el número de parámetros a estimar
+    #Se usa logenergia para controlar posibles errores numéricos 
+    #log energía solo debe depender del vector de parámetros 
+    #sd: desviación estándar del camino aleatorio
+    samples = rand(np) 
+    probabilities = [exp(logenergia(samples[:,end]))]
+
+    Alpha = [0] # tasa de aceptación
+    #sd: desviación estándar del camino aleatorio
+
+    # MHRW
+    for i in 1:iteraciones
+        # Construcción de nuevas muestras con un camino aleatorio normal
+        theta = samples[:,end]+ sd*randn(np)
+        # Condición del soporte
+        if soporte(theta) == false
+            alpha = 0
+            p2 = exp(logenergia(samples[:,end]))
+        else
+            p1 = exp(logenergia(theta))
+            p2 = exp(logenergia(samples[:,end]))
+            alpha = min(1, p1/p2)
+        end 
+
+        
+        Alpha = hcat(Alpha,alpha)
+        u = rand()
+        #Selección de muestras
+        if u < alpha
+            samples = hcat(samples, theta)
+            probabilities = hcat(probabilities,p1)
+        else
+            samples = hcat(samples, samples[:,end])
+            probabilities = hcat(probabilities,p2)
+        end
+    end
+    #Sistematic sampling
+    initial_position = floor(100*rand())
+    leap = 20
+    samples_ss = samples[:, Int(initial_position):leap:end]
+    probabilities_ss = probabilities[Int(initial_position):leap:end];
+
+    #Estimations
+    max_prob, position_ss = findmax(probabilities_ss)
+    Max_likelihood = samples_ss[:, position_ss]
+    Mean = mean(samples_ss, dims=2)
+    return (Max_likelihood,max_prob,Mean,samples_ss,probabilities_ss,Alpha)
+end
+
+# ╔═╡ 4c561238-d187-439d-9598-ba3f94046206
+md"""
+En este caso se está asumiendo que $\frac{dh}{dt}=-ah$, con la condición inicial $h_4=h(4)=11.8$. Sea $H1_1(t;a)$ la solución a este problema que cambia a lo largo del tiempo $t$ y tiene como parámetro a un valor fijo de $a$.
+
+Vamos a suponer que los datos tomados $\{z_{\ell}\}_{\ell=1}^{22}$ a lo largo del tiempo $\{t_{\ell}\}_{\ell=1}^{22}$ son realizaciones aleatorias de una distribución $Normal(\mu,\sigma^2)$ con media $\mu$ y varianza $\sigma^2 \mu^2$. Como queremos comparar el ajuste del modelo $H1_1$ en los datos $\{z_{\ell}\}_{\ell=1}^{22}$ asumimos que la $\mu= H1_1(t;a)$ y $\sigma^2=1$, por lo tanto,
+
+$z_\ell \sim Gamma(H1_1(t_\ell;a),1)$
+
+con $E[z_{\ell}] = H1_1(t_\ell;a)$ y $Var[z_\ell] = H1_1(t_\ell;a)^2$. Por otra parte, para el modelo a priori del parámetro $a$ suponemos que $a$ sigue una distribución $Normal(0,1)$. Con lo dicho anteriormente creamos la función de la energía.
+"""
+
+# ╔═╡ 2c082ef8-4c74-4a2d-8683-398c02f1c5d5
+md"""
+Nótese que esta función de log-energía alcanza un máximo, por ende es posible aplicar el algoritmo MHRW.
+"""
+
+# ╔═╡ 2b5f6c4d-8b36-489f-9e78-d33d504e5add
+md"""
+En este caso obtenemos los valores de máximo a posteriori (MAP) y de media condicional (CM) para el parámetro $a$.
+"""
+
+# ╔═╡ ea822ea2-84e8-4a04-b7d9-0756342df25c
+md"""
+La distribución del parámetro $a$ muestra a continuación.
+"""
+
+# ╔═╡ 4f81497c-bde7-4063-b79c-fd855e087087
+md"""
+Con cada una de las muestras obtenidas del valor de $a$ ajustamos el modelo a los datos.
+"""
+
+# ╔═╡ 865765c1-9d6a-4c53-9c90-71175275039b
 md"""### Modelo 2: Ley de Torricelli
 Recordemos la ecuación obtenida al modelar el problema
 
 $\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
 Recordemos que los parámetros que no conocemos son $\alpha$ y $\epsilon$. Estos serán los que deseamos ajustar. Consideremos dicho modelo con la condición inicial $h_4=h(4)=11.8$"""
 
-# ╔═╡ 81d04d41-57c1-448f-a872-943354ab6452
+# ╔═╡ c4fa3de9-a6fe-476b-a1b8-1821c9325255
 modelo(h,par,t)=-par[1]*(0.138906/4.17)^2*(2*(g+par[2]))^(1/2)*abs(h-0.5).^(1/2)
 
-# ╔═╡ 0285ca63-9265-4c07-a839-cca887999453
+# ╔═╡ a934af87-adbf-4ac8-a03a-a312142953c0
 md"""Si deseamos encontrar la solución de la ecuación diferencial ordinaria para ciertos valores específicos de los parámetros, empleamos"""
 
-# ╔═╡ 720793b1-a885-444a-ae5f-42878995d4af
+# ╔═╡ d68497bf-cb9a-4b89-b389-22c1c8db443c
 begin
 	tspan=(4,120)
 	h₀=11.8
@@ -212,10 +309,72 @@ begin
 	plot(h)
 end
 
-# ╔═╡ af63c011-fd75-4798-8f06-f1a59cb39be2
+# ╔═╡ 76745e6d-1edf-4a84-a809-5ecf25dd0776
+begin
+	function H1₁(a)
+		EDO=ODEProblem(modelo₁,h₀,tspan,a)
+	  	hSOL=solve(EDO)
+	  	hI=[hSOL(t) for t in tiempo₁]
+		return hI
+	end
+	
+	function soporte11(a)
+		if 0<=a[1]<=0.1
+			return true
+		else
+			return false
+		end
+	end
+
+	function logenergiaH11(a)
+		alpha1 = abs.(H1₁(a))
+		log_likelihood = mean(logpdf.(Gamma.(alpha1,1), h1₁))
+		log_prior = sum(logpdf(Normal(0,1), a))
+		return 1E1*(log_likelihood + log_prior)
+	end
+end
+
+# ╔═╡ 34b8d249-f4bf-4905-83d6-71358bd70726
+plot(-0.02:0.001:0.05,logenergiaH11.(-0.02:0.001:0.05),title="Log-Energía", label=false)
+
+# ╔═╡ 83c1ba16-a3db-40ea-9b9a-5a816af5993f
+r1 = MHRW0(1,logenergiaH11,soporte11,[1E-1])
+
+# ╔═╡ 3a087963-7fa2-4286-9107-3bcbffeb6519
+begin
+	println("Máximo a posteriori: ",r1[1][1])
+	println("Media condicional: ", r1[3][1,1])
+end
+
+# ╔═╡ d4eb4443-b7ea-4bd5-bbe3-22e23d50763d
+begin
+	plot10 = histogram(r1[4][1,:],bins=50,label="Distribución de a", title="Información del parámetro a")
+	plot10 = plot!([r1[1][1],r1[1][1]],[0,100],label="MAP",lw=4)
+	plot10 = plot!([r1[3][1,1],r1[3][1,1]],[0,100],label="CM",lw=4)
+	plot(plot10)
+end
+
+# ╔═╡ 5ba2baa0-549b-4870-8baf-d08ab9020394
+begin
+	plot11 = plot(tiempo₁,H1₁(r1[4][1,2]),color="gray82",label=false,z=1)
+	for i in 1:10:length(r1[4][1,:])
+		plot11 = plot!(tiempo₁,H1₁(r1[4][1,i]),color="gray82",label=false,z=1)
+	end
+	plot11 = scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
+	plot11 = plot!(tiempo₁,H1₁(r1[1][1]),label="MAP",lw=3)
+	plot11 = plot!(tiempo₁,H1₁(r1[3][1,1]),label="CM",lw=3)
+	plot(plot11)
+end
+
+# ╔═╡ 2381cd08-bf19-47dc-b5d3-7627abc895ce
+md"""
+#### Estimación de parámetros por medio de optimización
+"""
+
+# ╔═╡ d9a8afc4-ade1-41e2-a3b5-472aeb2790c2
 md"""La función residuo mide el desajuste (o tamaño del residuo) entre la simulación de la ecuación diferencial ordinaria y los datos mediante mínimos cuadrados, representando la norma euclidiana de la diferencia o residuo."""
 
-# ╔═╡ 1c46896a-3412-4f2f-9e16-18e3cdfbd4f9
+# ╔═╡ 0898c191-dc45-471d-b988-60135cb7a88f
 function residuo(par,h,t)
   tspan=(4,120)
   h₀=11.8
@@ -227,28 +386,28 @@ function residuo(par,h,t)
 return nres
 end
 
-# ╔═╡ 2091595d-01cc-4ecc-9f40-982632f3591b
+# ╔═╡ 796208c6-6ce9-4bc0-b98e-2e366c7ec7b4
 md"""Por ejemplo el desajuste de usar $\alpha=1$ y $\epsilon=1$ en el modelo es de:"""
 
-# ╔═╡ c26e3dcb-8b5c-4702-8e80-7be52dcecc52
-residuo([1 1],h1₁,tiempo₁)
+# ╔═╡ 67734a1f-b02d-4144-be59-cb61de57cfe0
+ residuo([1 1],h1₁,tiempo₁)
 
-# ╔═╡ 682f1730-1a36-4cb4-b79b-27bf444cb7ba
+# ╔═╡ dd5a71c3-78c3-4fa5-beba-f683a5e7637c
 md"""Ahora, usemos optimización para calcular el valor del parámetro óptimo aproximado. Para esto creamos una función solo del parámetro,"""
 
-# ╔═╡ 3ba4e4c5-b989-4ff0-a675-9af89ad9fefb
+# ╔═╡ f1bc02fa-86a3-4daa-9d80-649503629158
 r(par) = residuo(par,h1₁,tiempo₁)
 
-# ╔═╡ 2476cb5f-0920-4b3c-bc8f-adc9c6213eab
+# ╔═╡ 2611045a-5466-4201-ad0d-835c82b7b262
 md"""y, optimizamos su valor"""
 
-# ╔═╡ c8f4ac55-99f1-4e29-b977-1762548277a2
+# ╔═╡ 6f630848-8d83-4bf0-a9d0-ef3a974d6038
 o=Optim.optimize(r, [.01, .01], NelderMead())
 
-# ╔═╡ 86046108-786f-42d3-a0e5-4941f7b71662
+# ╔═╡ e556edc7-a57f-42b5-9c00-e8ec04b21126
 o.minimizer
 
-# ╔═╡ b8b3ecd9-c540-47e4-8272-626795a526e1
+# ╔═╡ 4427f969-9512-466e-adf4-dc86193b328d
 md"""Obteniendo así que los valores optimos para $\alpha$ y $\epsilon$ son $6.8085$ y $1.3328$, respectivamente. 
 
 Luego 
@@ -256,7 +415,7 @@ Luego
 $\frac{dh}{dt}=-6.8085\frac{r_2^2\sqrt{2(g+1.3328)(h_1-h_2)}}{r_1^2}.$
 Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. """
 
-# ╔═╡ 756dead4-057a-407f-b2d6-f789eff70db3
+# ╔═╡ f661e0a7-9a4c-4a78-8a88-15a644e2a0eb
 begin
 	om=o.minimizer
 	EDOoptima=ODEProblem(modelo,h₀,tspan,om)
@@ -265,51 +424,162 @@ begin
 	scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
 end
 
-# ╔═╡ b08bb916-3eb9-4644-9db2-597f059a325c
+# ╔═╡ 800bba01-6fa7-47f9-a47b-56ab17c7ae9f
 md"""Ya conociendo al EDO y su solución podemos predecir la altura futura del líquido, por ejemplo la altura que nos da este modelo para $t=2m=120s$ es de:"""
 
-# ╔═╡ 21718ee0-2e6c-4a3f-9685-5e6ecaf37767
+# ╔═╡ d4f3b693-084e-43fa-bf0e-0f969817d49d
 hEDOoptima(120)
 
-# ╔═╡ 9f6158ec-4177-4b31-b5ac-be003a11eded
+# ╔═╡ 3c8d293b-9783-4d38-880b-6cc5d014e4bd
 md"""En el modelo 1 vimos que dicha predicción de la altura del líquido pasados los 2 minutos fue de 2.97cm y ahora con el modelo 2 obtuvimos que es 2.17cm, según se observa en el video [1] la altura es de 2.2 cm. De esto se observa que el modelo 2 es más preciso."""
 
-# ╔═╡ 6d261e42-80b1-4fb3-9ed9-a205ec54ebca
+# ╔═╡ cec7f6bf-d65c-464a-8721-b25104d391b7
+md"""
+#### Estimación de parámetros por medio de inferencia bayesiana
+"""
+
+# ╔═╡ 5d88f1ad-ba91-4ad6-8811-f1bf9b13c252
+md"""
+Creamos las funciones adecuadas para ejecutar el algoritmo MHRW. 
+"""
+
+# ╔═╡ a7a939db-e19d-4cec-8bd7-4bdcb348b569
+begin
+	function H1₂(par)
+		#Modelo
+		EDO=ODEProblem(modelo,h₀,tspan,par)
+	  	hSOL=solve(EDO)
+	  	hI=[hSOL(t) for t in tiempo₁]
+		return hI
+	end
+	
+	function soporte12(par)
+		#Intervalos en donde varían los parámetros
+		if -8<=par[1]<=8 && -5<=par[2]<=5
+			return true
+		else
+			return false
+		end
+	end
+
+	function logenergiaH12(par)
+		#Función de energía de los parámetros
+		mu = H1₂(par)
+		log_likelihood = sum(logpdf.(Normal.(mu,1), h1₁))
+		log_prior = logpdf(Normal(5,1), par[1]) + logpdf(Normal(1,1), par[2])
+		return log_likelihood + 0.1*log_prior - 0.1*(par[1]^2+par[2]^2)^0.5
+	end
+end
+
+# ╔═╡ 27d4e0af-4ef1-49ca-917a-5f1430045d51
+md"""
+En este caso estamos suponiendo que los datos se comportan con distribución normal con media $\mu=H1_2(t;\alpha,\epsilon)$ y varianza $\sigma^2 = 1$. Además para solucionar problemas de falta de "buen comportamiento" de los datos le añadimos una penalización de la norma euclidiana de los parámetros, esto se hace con el fin de que la función de log-energía tenga un máximo al cual el algoritmo MHRW pueda converger. Para los parámetros suponemos que a priori $\alpha\sim Normal(5,1)$ y $\epsilon\sim Normal(1,1)$ basado en el conocimiento de los parámetros que obtuvimos con la optimización.
+
+Como se puede evidenciar la función de log-energía alcanza un máximo en alguna parte del soporte de los parámetros.
+"""
+
+# ╔═╡ 96585ce4-4f13-45cc-8e2d-a4d93d0c56eb
+begin
+	f(x, y) = logenergiaH12((x,y))
+	x_range = 0:0.1:7
+	y_range = 0:0.1:7
+	mesh_x = zeros(length(x_range), length(y_range))
+	mesh_y = zeros(length(x_range), length(y_range))
+	for i in 1:length(x_range)
+	    for j in 1:length(y_range)
+	        mesh_x[i, j] = x_range[i]
+	        mesh_y[i, j] = y_range[j]
+	    end
+	end
+	z_values = f.(mesh_x, mesh_y)
+	contour(x_range, y_range, z_values, levels=400, color=:viridis, xlabel="epsilon", ylabel="alpha", title="Contornos de energía")
+end
+
+# ╔═╡ 5489794f-1b94-4a0b-b9d2-3b626729b1bc
+r2 = MHRW0(2,logenergiaH12,soporte12,[1,1])
+
+# ╔═╡ 332821ca-af0f-4005-8882-56ee8db8fd3b
+md"""
+Los valores de máximo a posteriori y de media condicional para ambos parámetros son:
+"""
+
+# ╔═╡ 07771bf1-a370-408b-b567-4dbb88357c30
+begin
+	println("Máximo a posteriori: ",r2[1])
+	println("Media condicional: ", r2[3])
+end
+
+# ╔═╡ 4da35556-8b51-4cb2-bd01-1bdb6aa9bd41
+md"""
+La distribución de cada uno de los parámetros se muestra a continuación.
+"""
+
+# ╔═╡ 92ffd149-8d5f-4ad2-b7a6-f2722aeb91bc
+begin
+	plot12h = histogram(r2[4][1,:],bins=50,label="Distribución de alpha")
+	plot12h = plot!([r2[1][1],r2[1][1]],[0,100],label="MAP",lw=4)
+	plot12h = plot!([r2[3][1,1],r2[3][1,1]],[0,100],label="CM",lw=4)
+	
+	plot120 = histogram(r2[4][2,:],bins=50,label="Distribución de epsilon")
+	plot120 = plot!([r2[1][2],r2[1][2]],[0,100],label="MAP",lw=4)
+	plot120 = plot!([r2[3][2,1],r2[3][2,1]],[0,100],label="CM",lw=4)
+	
+	plot(plot12h,plot120,layout=(1,2),size=(900,400))
+end
+
+# ╔═╡ 678c9022-34b1-48c5-9d03-571ef4c35e89
+md"""
+El ajuste de los parámetros se muestra en el siguiente gráfico. Note que en este caso la variabilidad del modelo es baja puesto que las muestras(mostrado por las gráficas grises) de cada uno de los parámetros están "cerca" a los datos. Además, los valores del máximo a posteriori y de la media condicional son demasiado cercanos, esto significa que los datos se ajustan de manera óptima al modelo.
+"""
+
+# ╔═╡ 80895e7e-e8f0-4d81-89a7-0dc3b88c60fe
+begin
+	plot12 = plot(tiempo₁,H1₂(r2[4][:,1]),color="gray82",label=false,z=1)
+	for i in 1:10:length(r2[4][1,:])
+		plot12 = plot!(tiempo₁,H1₂(r2[4][:,i]),color="gray82",label=false,z=1)
+	end
+	plot12 = scatter!(tiempo₁,h1₁,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
+	plot12 = plot!(tiempo₁,H1₂(r2[1]),label="MAP",lw=3)
+	plot12 = plot!(tiempo₁,H1₂(r2[3]),label="CM",lw=3)
+	plot(plot12)
+end
+
+# ╔═╡ fa1ac74e-bb62-4366-b58e-3d0de0f489f4
 md"""## Tanque 2
 
 Los datos recopilados del experimento del video [2] son los siguientes:"""
 
-# ╔═╡ 6f922c3c-cbbd-4679-bb5c-f1cf27573583
+# ╔═╡ 83e4e0a7-8e09-4f7e-aa79-57d47526e68d
 tiempo₃ = [19+4*i for i in 1:25] #instantes de tiempo (medidos en segundos)
 
-# ╔═╡ 872b5009-34a4-43c8-915a-bd13e02b6161
+# ╔═╡ a2e2923a-dd73-400a-8771-e26c3290cb81
 h1₃ = [12.6, 12.3, 12, 11.8, 11.6, 11.4, 11.2, 10.9, 10.7, 10.5, 10.3, 10.1, 9.9, 9.7, 9.5, 9.3, 9.1, 8.9, 8.7, 8.5, 8.3, 8.2, 8, 7.8, 7.6] #altura del agua en cada instante de tiempo tomado
 
-# ╔═╡ 2d868fc0-73d9-45a0-b339-1694c4472279
+# ╔═╡ 7bacffab-69ee-43a6-a033-04590cc2148d
 md"""Visualicemos dichos datos."""
 
-# ╔═╡ 16212813-da76-4782-81d4-4769e7bdd5fa
+# ╔═╡ 7d12950b-8813-4165-bd52-49c5880970d5
 scatter(tiempo₃,h1₃,ls=:dash,label="Altura h₁",lw=4, xlabel = "Tiempo",yaxis="Altura h₁")
 
-# ╔═╡ e260f73c-9573-4ede-901d-815e81f03a10
+# ╔═╡ 7eab1f4c-af65-4893-bf77-2fb148ed1e69
 md"""### Modelo 1: Ley de Torricelli
 Ajustaremos los datos a un modelo de ecuaciones diferenciales que ya dedujimos anteriormente
 
 $\frac{dh}{dt}=-\alpha\frac{r_2^2\sqrt{2(g+\epsilon)(h_1-h_2)}}{r_1^2}.$
 Recordemos que los parámetros que no conocemos son $\alpha$ y $\epsilon$. Estos serán los que deseamos ajustar. Con la condición inicial $h_{23}=h(23)=12.6$"""
 
-# ╔═╡ 99fb6e02-d4b7-4b63-a5fc-5c9a47c0cd5c
+# ╔═╡ 48515007-88fb-494d-9e59-bf7902d021a1
 md"""Creamos una función para dicho modelo:"""
 
-# ╔═╡ 7fc1f072-e7a9-462c-af21-aa4d78ed56d0
+# ╔═╡ 3dad3a1f-79c2-4913-8151-f0dfdf229285
 modelo₃(h₃,par₃,t₃)=-par₃[1]*(0.099219/4.17)^2*(2*(g+par₃[2]))^(1/2)*abs(h₃-0.5).^(1/2)
 
-# ╔═╡ af76fe39-8cbf-4992-8a02-6d387e80882c
+# ╔═╡ 7b8f031b-1afa-4e5f-a33a-980f90b65c1f
 md"""
 Si queremos resolver la EDO para determinados valorres de los parámetros, usamos, 
 """
 
-# ╔═╡ 8f9bd1b5-2aa1-4086-8b4c-6a14319bacae
+# ╔═╡ 99ef4432-99e6-4e4f-97b8-22e0b6e9249a
 begin
 	tspan₃=(23,240)
 	h₀₃=12.6
@@ -319,12 +589,17 @@ begin
 	plot(h₃)
 end
 
-# ╔═╡ 1b627267-1c73-425a-b5c1-d267d543e6c5
+# ╔═╡ dc6247e4-4fd5-4630-b68f-273dc0c0f314
+md"""
+#### Estimación de parámetros por medio de optimización
+"""
+
+# ╔═╡ f9de5b2c-5c50-46bb-8461-7359354672f4
 md"""
 Al igual que en los ejemplos anteriores, podemos escribir la función residuo del modelo de la EDO.
 """
 
-# ╔═╡ 2196ba17-c498-4c94-9b8b-f4f021b5792b
+# ╔═╡ 97068776-f732-492d-9501-5223d99b85ba
 function residuo₃(par,h,t)
   tspan=(23,240)
   h₀=11.8
@@ -336,34 +611,34 @@ function residuo₃(par,h,t)
 return nres
 end
 
-# ╔═╡ fcb24785-71de-4c45-ae0b-86ff9d3dac43
+# ╔═╡ a1003919-4324-43ef-afa6-49d1e7d092d5
 md"""La función residuo arriba mide el desajuste (o tamaño del residuo) de la simulación de la EDO con respecto a los datos usando mínimos cuadrados, es decir, la norma euclidiana de la diferencia o residuo. 
 
 Por ejemplo, el desajuste de usar $\alpha=1$ y $\epsilon=1$ en el modelo es de:"""
 
-# ╔═╡ 3645e94f-fa05-4c73-a182-9b9fc1cc89b9
+# ╔═╡ 19110a58-1bae-43d2-8398-3bf7b9d9e7e5
 residuo₃([1 1],h1₃,tiempo₃)
 
-# ╔═╡ 80fd39d0-4add-4240-9e67-782480b53e20
+# ╔═╡ a4dda2e3-a5b9-406b-af0d-40b9ec6133de
 md"""
 Observe que este valor es considerablemente grande, por lo tanto, es crucial encontrar el valor óptimo.
 """
 
-# ╔═╡ eeb7d348-6835-4b6c-9bf2-fd39c01ddb4b
+# ╔═╡ 9fd9234c-4ae2-4fa4-8818-fabe8c760e5c
 r₃(par₃) = residuo₃(par₃,h1₃,tiempo₃)
 
-# ╔═╡ 14642c41-6f15-4c2c-8b8c-8830057793e9
+# ╔═╡ 9994161e-4951-4760-bb2e-6256e78ef02d
 md"""
 Ahora, optimicemos el valor de los parámetros, de la siguiente forma:
 """
 
-# ╔═╡ 4c94e07b-238e-466b-88f2-586970471e46
+# ╔═╡ 68a0c0ed-aa53-4223-8541-e5969a3f5562
 o₃=Optim.optimize(r₃, [.01,.01], NelderMead())
 
-# ╔═╡ 379165b1-da00-4e6e-8e63-3934e449ebd0
+# ╔═╡ ad9abed3-6efd-4ea1-8958-b1660503fb2b
 o₃.minimizer
 
-# ╔═╡ ac5b21f5-83b5-44c6-90fe-3d7ba1add307
+# ╔═╡ 48557bcc-6852-4081-85d9-c7bf94674aee
 md"""Obteniendo así que los valores optimos para $\alpha$ y $\epsilon$ son $5.0699$ y $1.0067$, respectivamente. 
 
 Así la ecuación diferencial que se ajusta a nuestros datos es
@@ -371,7 +646,7 @@ Así la ecuación diferencial que se ajusta a nuestros datos es
 $\frac{dh}{dt}=-5.0699\frac{r_2^2\sqrt{2(g+1.0067)(h_1-h_2)}}{r_1^2}.$
 Después de calcular el valor del parámetro óptimo podemos mostrar el ajuste final de nuestro modelo. """
 
-# ╔═╡ 0eea2afa-a557-4750-bad3-fac30265402a
+# ╔═╡ 69ff1996-4f6e-49a1-811d-24cd3caa8c84
 begin
 	om₃=o₃.minimizer
 	EDOoptima₃=ODEProblem(modelo₃,h₀₃,tspan₃,om₃)
@@ -380,16 +655,120 @@ begin
 	scatter!(tiempo₃,h1₃,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
 end
 
-# ╔═╡ e57d285a-637e-4438-ae97-5078347f6caa
+# ╔═╡ 2c37107e-7114-42a7-a538-797ab4bec8b9
 md"""Ya conociendo al EDO y su solución podemos predecir la altura del líquido luego  de 4 minutos, observe que este es de"""
 
-# ╔═╡ 542f825c-23b0-4d60-a20a-7f29ff998367
+# ╔═╡ a28a4d79-c9db-4792-98bb-39c6418abf3b
 hEDOoptima₃(240)
 
-# ╔═╡ 71f936a0-f08f-4fec-a601-a659823d7772
+# ╔═╡ 0f2e88e1-ba63-446e-8f78-03d899e1df05
 md"""Según se observa en el video la altura del líquido al pasar 4 minutos es de 3.4cm, por tanto el modelo no es tan preciso."""
 
-# ╔═╡ 3ba2c93c-bfd7-4dff-9fb0-aee3200386b4
+# ╔═╡ f25dad77-e5d6-4516-ab1b-2ff6a8c3cb8c
+md"""
+#### Estimación de parámetros por medio de inferencia bayesiana
+"""
+
+# ╔═╡ 9f10e79c-ecaa-4851-94d9-c26e0d5cc9a2
+begin
+	function H2(par)
+		#Modelo
+		EDO=ODEProblem(modelo₃,h₀₃,tspan₃,par)
+	  	hSOL=solve(EDO)
+	  	hI=[hSOL(t) for t in tiempo₃]
+		return hI
+	end
+	
+	function soporte2(par)
+		# Soporte de los parámetros
+		if -8<=par[1]<=8 && -5<=par[2]<=5
+			return true
+		else
+			return false
+		end
+	end
+
+	function logenergiaH2(par)
+		#Función de log-energía de los parámetros
+		mu = H2(par)
+		log_likelihood = sum(logpdf.(Normal.(mu,1), h1₃))
+		log_prior = logpdf(Normal(6,1), par[1]) + logpdf(Normal(1,1), par[2])
+		return log_likelihood + log_prior
+	end
+end
+
+# ╔═╡ b304b42f-47a7-468f-b045-8d0f70c039ca
+md"""
+En este caso suponemos que los datos vienen de una distribución con media $\mu$ igual al modelo dado por la ley de Torricelli y con varianza $\sigma^2=1$. Para los parámetros asumimos que $\alpha\sim Normal(6,1)$ y $\epsilon\sim Normal(1,1)$. Como lo sugiere el gráfico a continuación, la energía alcanza un máximo.
+"""
+
+# ╔═╡ 9716805e-4358-4ddd-879e-317c5ce3a477
+begin
+	f2(x, y) = logenergiaH2((x,y))
+	x_range2 = 0:0.05:8
+	y_range2 = 0:0.05:8
+	mesh_x2 = zeros(length(x_range2), length(y_range2))
+	mesh_y2 = zeros(length(x_range2), length(y_range2))
+	for i in 1:length(x_range2)
+	    for j in 1:length(y_range2)
+	        mesh_x2[i, j] = x_range2[i]
+	        mesh_y2[i, j] = y_range2[j]
+	    end
+	end
+	z_values2 = f2.(mesh_x2, mesh_y2)
+	contour(x_range2, y_range2, z_values2, levels=250, color=:viridis, xlabel="epsilon", ylabel="alpha", title="Contornos de energía")
+end
+
+# ╔═╡ 459fd343-55fc-4314-82e3-4d34ed301337
+md"""
+Ejecutamos el algoritmo.
+"""
+
+# ╔═╡ a58b37ce-6abe-45b9-95a3-23debbce228e
+r3 = MHRW0(2,logenergiaH2,soporte2,[1,1])
+
+# ╔═╡ 42e5d3d0-084e-4112-8b0d-2c52f0778780
+md"""
+Los valores obtenidos para los parámetros en cada una de las dos estadísticas son:
+"""
+
+# ╔═╡ 9d247ff1-3776-47cd-a067-88d72e6ac82e
+begin
+	println("Máximo a posteriori: ",r3[1])
+	println("Media condicional: ", r3[3])
+end
+
+# ╔═╡ df76f922-6f95-425a-a07f-78cf94be87ad
+md"""
+En los gráficos siguientes mostramos la distribución de cada uno de los parámetros y el ajuste del máximo a posteriori, la media condicional y las muestras a los datos en este caso. Nótese que el parámetro $\alpha$ concentra la mayoría de sus valores alrededor de ambas estadísticas, contrario al parámetro $\epsilon$ que presenta una mayor variabilidad. 
+"""
+
+# ╔═╡ e12f6e11-d1ce-4543-ae8a-6109a6138526
+begin
+	plot2h = histogram(r3[4][1,:],bins=50,label="Distribución de alpha")
+	plot2h = plot!([r3[1][1],r3[1][1]],[0,100],label="MAP",lw=4)
+	plot2h = plot!([r3[3][1,1],r3[3][1,1]],[0,100],label="CM",lw=4)
+	
+	plot20 = histogram(r3[4][2,:],bins=50,label="Distribución de epsilon")
+	plot20 = plot!([r3[1][2],r3[1][2]],[0,100],label="MAP",lw=4)
+	plot20 = plot!([r3[3][2,1],r3[3][2,1]],[0,100],label="CM",lw=4)
+	
+	plot(plot2h,plot20,layout=(1,2),size=(900,400))
+end
+
+# ╔═╡ 110c3b10-2364-46a9-82fe-d04667d80b86
+begin
+	plot2 = plot(tiempo₃,H2(r3[4][:,1]),color="gray82",label="Muestras",z=1)
+	for i in 1:2:length(r3[4][1,:])
+		plot12 = plot!(tiempo₃,H2(r3[4][:,i]),color="gray82",label=false,z=1)
+	end
+	plot2 = plot!(tiempo₃,H2(r3[1]),label="MAP",lw=3)
+	plot2 = plot!(tiempo₃,H2(r3[3]),label="CM",lw=3)
+	plot2 = scatter!(tiempo₃,h1₃,label="Altura",lw=4, xlabel = "Tiempo",yaxis="Altura",legend=:bottomright)
+	plot(plot2)
+end
+
+# ╔═╡ cf1b1b8b-8cde-4fb7-9705-dadca70d2e4f
 md"""# Referencias
 
 [1] SIMIODE. (2014, Mayo 31). SIMIODE Torricelli's Law 7Over64 Inch Diameter Small Hole Collection Video [Video]. YouTube. https://www.youtube.com/watch?v=xDyDSPydN_E
@@ -426,13 +805,16 @@ md"""# Referencias
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 DifferentialEquations = "~7.10.0"
+Distributions = "~0.25.107"
 Optim = "~1.9.2"
 Plots = "~1.39.0"
 PlutoUI = "~0.7.58"
@@ -444,7 +826,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "8a98b017e2fdd005159996f6bf227edf1b2f8306"
+project_hash = "00f37f137b9962a24e502f0dc0c6b547f0bb3320"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -2231,80 +2613,120 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─111cd94e-c363-4f8f-8c2f-66a5955c19ce
-# ╟─ec0a7ef5-a7eb-4e63-bcdc-22616b2d1b11
-# ╟─9a519cdf-784b-4446-9bcd-404c547142ce
-# ╟─b0d7bc54-b642-41f7-a3f2-f4674cbc2d5d
-# ╟─57907276-2e07-4774-9b8b-b5fa54f24f56
-# ╠═5c772b84-e443-4fd7-af4f-09d18fee60d6
-# ╟─782b4a7d-a3e4-41b8-a3cf-d3dd9ed26f62
-# ╟─cd0848a1-6e89-447a-9793-3c4c03a33002
-# ╟─fb7d06a2-66b5-459c-b701-0daba981b138
-# ╠═debe5ded-5f5d-42db-bb08-d1002f8a537b
-# ╠═e4de0ac9-6a72-4e38-8399-2347f8801b62
-# ╠═eb26d803-83f1-453f-bb47-1f28f4ab8743
-# ╟─79d0d59f-104f-4541-abf6-ffdf1d7e2923
-# ╠═2201250e-985e-4062-9d81-c75ad71462b5
-# ╟─dfbbafe2-0683-46f8-bd53-3e6d50372d3f
-# ╟─32b5af0d-d710-4b65-b4b3-0757d4aefa36
-# ╠═82d22054-77bd-43c7-b68b-236251d0917e
-# ╟─2a3d6e11-4633-4305-9465-4a1427009e61
-# ╠═acedd068-e916-4b5f-8dfc-e8e88042cf51
-# ╟─99d301f8-493d-4435-93b6-5b1eeb58ab2c
-# ╠═a0ad6bf3-3f62-4c68-9d57-f200625a0db3
-# ╟─33200d26-207c-4a2a-bcd9-57d4c533e705
-# ╠═6d011c93-ebee-4ac9-a507-485575138c22
-# ╟─de6c5048-1b5a-4968-98b4-3dc71a4d079a
-# ╠═47bcc56e-8542-4dc7-b44f-a2a7eb2e5ade
-# ╟─10476727-4d44-48a7-abe2-2d418da7a05b
-# ╠═ac20f4b1-33f1-49b7-a11f-7071827f30ea
-# ╠═49388abe-2ed1-4d62-a3cf-32142e567f7c
-# ╟─748e47d9-f4ff-4e7e-92d6-bd2a882e60f2
-# ╠═1f5e77ef-c5e9-4254-934a-877f083cbdfe
-# ╟─c1b3f054-9414-4c94-9c36-94fc429832cb
-# ╠═ac721175-4961-437f-950e-bd670263581c
-# ╟─4d548fa3-33d9-4726-9103-a20f52e27262
-# ╠═81d04d41-57c1-448f-a872-943354ab6452
-# ╟─0285ca63-9265-4c07-a839-cca887999453
-# ╠═720793b1-a885-444a-ae5f-42878995d4af
-# ╟─af63c011-fd75-4798-8f06-f1a59cb39be2
-# ╠═1c46896a-3412-4f2f-9e16-18e3cdfbd4f9
-# ╟─2091595d-01cc-4ecc-9f40-982632f3591b
-# ╠═c26e3dcb-8b5c-4702-8e80-7be52dcecc52
-# ╟─682f1730-1a36-4cb4-b79b-27bf444cb7ba
-# ╠═3ba4e4c5-b989-4ff0-a675-9af89ad9fefb
-# ╟─2476cb5f-0920-4b3c-bc8f-adc9c6213eab
-# ╠═c8f4ac55-99f1-4e29-b977-1762548277a2
-# ╠═86046108-786f-42d3-a0e5-4941f7b71662
-# ╟─b8b3ecd9-c540-47e4-8272-626795a526e1
-# ╠═756dead4-057a-407f-b2d6-f789eff70db3
-# ╟─b08bb916-3eb9-4644-9db2-597f059a325c
-# ╠═21718ee0-2e6c-4a3f-9685-5e6ecaf37767
-# ╟─9f6158ec-4177-4b31-b5ac-be003a11eded
-# ╟─6d261e42-80b1-4fb3-9ed9-a205ec54ebca
-# ╠═6f922c3c-cbbd-4679-bb5c-f1cf27573583
-# ╠═872b5009-34a4-43c8-915a-bd13e02b6161
-# ╟─2d868fc0-73d9-45a0-b339-1694c4472279
-# ╠═16212813-da76-4782-81d4-4769e7bdd5fa
-# ╟─e260f73c-9573-4ede-901d-815e81f03a10
-# ╟─99fb6e02-d4b7-4b63-a5fc-5c9a47c0cd5c
-# ╠═7fc1f072-e7a9-462c-af21-aa4d78ed56d0
-# ╟─af76fe39-8cbf-4992-8a02-6d387e80882c
-# ╠═8f9bd1b5-2aa1-4086-8b4c-6a14319bacae
-# ╟─1b627267-1c73-425a-b5c1-d267d543e6c5
-# ╠═2196ba17-c498-4c94-9b8b-f4f021b5792b
-# ╟─fcb24785-71de-4c45-ae0b-86ff9d3dac43
-# ╠═3645e94f-fa05-4c73-a182-9b9fc1cc89b9
-# ╟─80fd39d0-4add-4240-9e67-782480b53e20
-# ╠═eeb7d348-6835-4b6c-9bf2-fd39c01ddb4b
-# ╟─14642c41-6f15-4c2c-8b8c-8830057793e9
-# ╠═4c94e07b-238e-466b-88f2-586970471e46
-# ╠═379165b1-da00-4e6e-8e63-3934e449ebd0
-# ╟─ac5b21f5-83b5-44c6-90fe-3d7ba1add307
-# ╠═0eea2afa-a557-4750-bad3-fac30265402a
-# ╟─e57d285a-637e-4438-ae97-5078347f6caa
-# ╠═542f825c-23b0-4d60-a20a-7f29ff998367
-# ╟─71f936a0-f08f-4fec-a601-a659823d7772
-# ╟─3ba2c93c-bfd7-4dff-9fb0-aee3200386b4
+# ╟─3a89574c-06c9-45b2-8e7e-54a550c26db0
+# ╟─920785ba-c91c-4697-84f6-5abdbab026a6
+# ╟─24244d99-613e-47fb-b53b-2dc21536a568
+# ╟─6815c72f-7456-4756-b228-36bb634157c8
+# ╟─622563c7-4137-4af5-82bb-c57e854bfaa0
+# ╠═a5d1beba-f053-4c35-a5c9-686c6cc67302
+# ╟─19597282-84ea-4bcb-8611-1092535b1b9d
+# ╟─89502336-92b1-443b-a74e-519a533f7b17
+# ╟─df6d5ba4-574c-44d2-8135-f9366fc4c1bb
+# ╠═8409dd37-6f53-4caf-a239-bcaa0c0b79d4
+# ╠═f800da38-ef07-48f1-a5b3-de2df7812de0
+# ╠═d24cc858-c8b0-46a7-9bc5-316d7e1d922c
+# ╟─1e258c09-aee0-483d-ac5e-9194cdf15455
+# ╠═62bd4ba4-25c9-4f91-9d47-e3e7cffea47f
+# ╟─d09015b3-1920-4820-89a9-da863486f386
+# ╟─56dc1e4e-3d8d-4311-83b0-322ce014ceff
+# ╠═acf0c3b9-2dd6-430d-b96f-9f4d187db0b7
+# ╟─7d4b102f-63ab-43fe-a92b-cd2d4040a908
+# ╠═244bdf17-b4d3-45f2-8fee-ee0494b5123e
+# ╟─10490e62-3803-49d0-a927-469ac0a6049d
+# ╟─d8a47a14-6f91-4ff8-801e-6353205babe9
+# ╠═a92f1359-3e09-429c-8874-43abe19d9c05
+# ╟─a5446a93-693b-480c-9420-f6228b4401c7
+# ╠═4c4ded08-363c-4374-9b49-5a6925dda469
+# ╟─b7b6b4a2-edef-460b-bc0b-c9f469c02371
+# ╠═f80df167-98b4-41bf-be80-b85236f07546
+# ╟─6c34ebc3-2a75-4007-b7bf-292294c407b8
+# ╠═644f4678-dd01-49bd-9e9e-356047d8422a
+# ╠═1c6718e7-bbb8-4076-822b-338b2a92a536
+# ╟─1ef3b914-e503-4852-8448-dab30abca49d
+# ╠═c7137e9c-fbd9-483e-bd27-14721eb342fd
+# ╟─4fb8d205-130c-4fde-88ef-ed4d7b014cb5
+# ╠═23857984-54a6-4850-b125-6325a9d81616
+# ╟─f7875145-9938-4a42-99fe-744949792ce3
+# ╟─03c781d5-395c-41f1-9a4e-f784663167d2
+# ╠═94aa1b15-cd3f-4b57-a8a5-880e5ec79768
+# ╟─4c561238-d187-439d-9598-ba3f94046206
+# ╠═76745e6d-1edf-4a84-a809-5ecf25dd0776
+# ╟─34b8d249-f4bf-4905-83d6-71358bd70726
+# ╟─2c082ef8-4c74-4a2d-8683-398c02f1c5d5
+# ╠═83c1ba16-a3db-40ea-9b9a-5a816af5993f
+# ╟─2b5f6c4d-8b36-489f-9e78-d33d504e5add
+# ╟─3a087963-7fa2-4286-9107-3bcbffeb6519
+# ╟─ea822ea2-84e8-4a04-b7d9-0756342df25c
+# ╟─d4eb4443-b7ea-4bd5-bbe3-22e23d50763d
+# ╟─4f81497c-bde7-4063-b79c-fd855e087087
+# ╟─5ba2baa0-549b-4870-8baf-d08ab9020394
+# ╟─865765c1-9d6a-4c53-9c90-71175275039b
+# ╠═c4fa3de9-a6fe-476b-a1b8-1821c9325255
+# ╟─a934af87-adbf-4ac8-a03a-a312142953c0
+# ╠═d68497bf-cb9a-4b89-b389-22c1c8db443c
+# ╟─2381cd08-bf19-47dc-b5d3-7627abc895ce
+# ╟─d9a8afc4-ade1-41e2-a3b5-472aeb2790c2
+# ╠═0898c191-dc45-471d-b988-60135cb7a88f
+# ╟─796208c6-6ce9-4bc0-b98e-2e366c7ec7b4
+# ╠═67734a1f-b02d-4144-be59-cb61de57cfe0
+# ╟─dd5a71c3-78c3-4fa5-beba-f683a5e7637c
+# ╠═f1bc02fa-86a3-4daa-9d80-649503629158
+# ╟─2611045a-5466-4201-ad0d-835c82b7b262
+# ╠═6f630848-8d83-4bf0-a9d0-ef3a974d6038
+# ╠═e556edc7-a57f-42b5-9c00-e8ec04b21126
+# ╟─4427f969-9512-466e-adf4-dc86193b328d
+# ╠═f661e0a7-9a4c-4a78-8a88-15a644e2a0eb
+# ╟─800bba01-6fa7-47f9-a47b-56ab17c7ae9f
+# ╠═d4f3b693-084e-43fa-bf0e-0f969817d49d
+# ╟─3c8d293b-9783-4d38-880b-6cc5d014e4bd
+# ╟─cec7f6bf-d65c-464a-8721-b25104d391b7
+# ╟─5d88f1ad-ba91-4ad6-8811-f1bf9b13c252
+# ╠═a7a939db-e19d-4cec-8bd7-4bdcb348b569
+# ╟─27d4e0af-4ef1-49ca-917a-5f1430045d51
+# ╟─96585ce4-4f13-45cc-8e2d-a4d93d0c56eb
+# ╠═5489794f-1b94-4a0b-b9d2-3b626729b1bc
+# ╟─332821ca-af0f-4005-8882-56ee8db8fd3b
+# ╟─07771bf1-a370-408b-b567-4dbb88357c30
+# ╟─4da35556-8b51-4cb2-bd01-1bdb6aa9bd41
+# ╟─92ffd149-8d5f-4ad2-b7a6-f2722aeb91bc
+# ╟─678c9022-34b1-48c5-9d03-571ef4c35e89
+# ╟─80895e7e-e8f0-4d81-89a7-0dc3b88c60fe
+# ╟─fa1ac74e-bb62-4366-b58e-3d0de0f489f4
+# ╠═83e4e0a7-8e09-4f7e-aa79-57d47526e68d
+# ╠═a2e2923a-dd73-400a-8771-e26c3290cb81
+# ╟─7bacffab-69ee-43a6-a033-04590cc2148d
+# ╠═7d12950b-8813-4165-bd52-49c5880970d5
+# ╟─7eab1f4c-af65-4893-bf77-2fb148ed1e69
+# ╟─48515007-88fb-494d-9e59-bf7902d021a1
+# ╠═3dad3a1f-79c2-4913-8151-f0dfdf229285
+# ╟─7b8f031b-1afa-4e5f-a33a-980f90b65c1f
+# ╠═99ef4432-99e6-4e4f-97b8-22e0b6e9249a
+# ╟─dc6247e4-4fd5-4630-b68f-273dc0c0f314
+# ╟─f9de5b2c-5c50-46bb-8461-7359354672f4
+# ╠═97068776-f732-492d-9501-5223d99b85ba
+# ╟─a1003919-4324-43ef-afa6-49d1e7d092d5
+# ╠═19110a58-1bae-43d2-8398-3bf7b9d9e7e5
+# ╟─a4dda2e3-a5b9-406b-af0d-40b9ec6133de
+# ╠═9fd9234c-4ae2-4fa4-8818-fabe8c760e5c
+# ╟─9994161e-4951-4760-bb2e-6256e78ef02d
+# ╠═68a0c0ed-aa53-4223-8541-e5969a3f5562
+# ╠═ad9abed3-6efd-4ea1-8958-b1660503fb2b
+# ╟─48557bcc-6852-4081-85d9-c7bf94674aee
+# ╠═69ff1996-4f6e-49a1-811d-24cd3caa8c84
+# ╟─2c37107e-7114-42a7-a538-797ab4bec8b9
+# ╠═a28a4d79-c9db-4792-98bb-39c6418abf3b
+# ╟─0f2e88e1-ba63-446e-8f78-03d899e1df05
+# ╟─f25dad77-e5d6-4516-ab1b-2ff6a8c3cb8c
+# ╠═9f10e79c-ecaa-4851-94d9-c26e0d5cc9a2
+# ╟─b304b42f-47a7-468f-b045-8d0f70c039ca
+# ╟─9716805e-4358-4ddd-879e-317c5ce3a477
+# ╟─459fd343-55fc-4314-82e3-4d34ed301337
+# ╠═a58b37ce-6abe-45b9-95a3-23debbce228e
+# ╟─42e5d3d0-084e-4112-8b0d-2c52f0778780
+# ╟─9d247ff1-3776-47cd-a067-88d72e6ac82e
+# ╟─df76f922-6f95-425a-a07f-78cf94be87ad
+# ╟─e12f6e11-d1ce-4543-ae8a-6109a6138526
+# ╟─110c3b10-2364-46a9-82fe-d04667d80b86
+# ╟─cf1b1b8b-8cde-4fb7-9705-dadca70d2e4f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
