@@ -546,10 +546,11 @@ La condición inicial del problema es $V_0=V(0)=0.0158$. Recordemos que deseamos
 md"""
 La solución exacta a este problema de valor inicial es:
 
-$$V(t) = f(V_0,t,a,b),$$
-es decir, una función que depende del valor inicial $V_0$, de $t$ y de los parámetros $a$ y $b$.
+$$V(t) = V(t;a,b),$$
+es decir, la solución a este problema que cambia a lo largo del tiempo $t$ y tiene como parámetro a un valor fijo de $a$ y $b$.
 
-El problema inverso en cuestión intenta hallar los valores de $a$ y $b$ con base a observaciones...$\textcolor{red}{falta}$
+Vamos a suponer que los datos tomados $\{z_{\ell}\}_{\ell=1}^{45}$ a lo largo del tiempo $\{t_{\ell}\}_{\ell=1}^{45}$ son realizaciones aleatorias de una distribución $Normal(\mu,\sigma^2)$ con media $\mu$ y varianza $\sigma^2 \mu^2$. Como queremos comparar el ajuste del modelo en los datos $\{z_{\ell}\}_{\ell=1}^{45}$ asumimos que la $\mu= V(t;a,b)$ y $\sigma^2=1$.
+Para los parámetros suponemos que a priori $a\sim Normal(0.5,1)$ y $b\sim Normal(0.5,1)$
 """
 
 # ╔═╡ 4851cddc-4f29-426e-a940-b0f955dd2152
@@ -635,62 +636,8 @@ begin
 	scatter!(tiempo,volumen,ls=:dash,label="Volumen",lw=4, xlabel = "Tiempo",yaxis="Volumen",legend=:bottomright)
 end
 
-# ╔═╡ f24cc905-c0af-482c-8add-eddb80607dc1
-#Energía
-	function energiaEDO(p) #log de la posterior
-	    a = p[1]
-	    b = p[2]
-	    #logverosimilitud gaussiana
-	    log_likelihood = -0.5 .* sum((volumen - sol_num_ED(p)).^2)
-	    
-	    #log a priori
-	    log_priori = logpdf(Normal(0.5,1), a) + logpdf(Normal(0.5,1), b)
-	
-	    return  log_likelihood*(10^(-2)) + log_priori*(10^(-2)) + log(100)
-	end
-
-# ╔═╡ 9a0dd382-0e83-46c0-85b9-efe10dba5a75
-md""" En este ejemplo se supone que $(a,b)\in[0,1]\times [0,100]$. Para que en el algoritmo de Metropolis-Hastings sea 'más sencillo' ejecutar el camino aleatorio que seguirán los parámetros serán los siguientes: """
-
-# ╔═╡ a482eac4-ac19-437a-905d-441064c6c678
-function support₂(pa)
-	    # soporte de los parametros ""
-	    rt = true
-	    rt &= (0.0 < pa[1] < 1.0)
-	    rt &= (0.0 < pa[2] < 1.0)
-	    return rt
-	end
-
-# ╔═╡ f4468684-2f96-42b0-96a0-90639f0e4ebe
-md"""Los contornos de la función de energía son mostrados a continuación."""
-
-# ╔═╡ ad5879a7-e89d-4fd8-b31a-770e5419260c
-begin
-	f₂(x, y) = energiaEDO((x,y))
-	
-	x_range0 = 0.01:0.05:1
-	y_range0 = 0.01:0.05:1
-	
-	# Inicializar matrices para la malla
-	mesh_x0 = zeros(length(x_range0), length(y_range0))
-	mesh_y0 = zeros(length(x_range0), length(y_range0))
-	# Llenar las matrices de la malla con valores de x e y
-	for i in 1:length(x_range0)
-	    for j in 1:length(y_range0)
-	        mesh_x0[i, j] = x_range0[i]
-	        mesh_y0[i, j] = y_range0[j]
-	    end
-	end
-	# Evaluar la función en cada punto de la malla
-	z_values0 = f₂.(mesh_y0, mesh_x0)
-	# Crear el gráfico de contornos
-	contour(x_range0, y_range0, exp.(z_values0), levels=500, color=:viridis, xlabel="a", ylabel="b", title="Contornos de energía")	     
-end
-
 # ╔═╡ 04edbbc3-041d-45ea-b770-46eb127419aa
-md""" **$\bullet$ Metropolis Hasting Random Walk**
-
-En el siguiente fragmento de código se ejecuta el algoritmo de MH. Se hace una pequeña modificación para tener en cuenta la condición del soporte en que deben estar los parámetros $a$ y $b$."""
+md""" En el siguiente fragmento de código se ejecuta el algoritmo de MH. Se hace una pequeña modificación para tener en cuenta la condición del soporte en que deben estar los parámetros $a$ y $b$."""
 
 # ╔═╡ 6acfd215-a4e3-4f1b-b2c4-91461377e706
 begin
@@ -745,17 +692,71 @@ begin
 	end
 end
 
+# ╔═╡ f24cc905-c0af-482c-8add-eddb80607dc1
+#Energía
+	function energiaEDO(p) #log de la posterior
+	    a = p[1]
+	    b = p[2]
+	    #logverosimilitud gaussiana
+	    log_likelihood = -0.5 .* sum((volumen - sol_num_ED(p)).^2)
+	    
+	    #log a priori
+	    log_priori = logpdf(Normal(0.5,1), a) + logpdf(Normal(0.5,1), b)
+	
+	    return  log_likelihood*(10^(-2)) + log_priori*(10^(-2)) + log(100)
+	end
+
+# ╔═╡ 9a0dd382-0e83-46c0-85b9-efe10dba5a75
+md""" Para que en el algoritmo de Metropolis-Hastings sea 'más sencillo' ejecutar el camino aleatorio que seguirán los parámetros serán los siguientes: """
+
+# ╔═╡ a482eac4-ac19-437a-905d-441064c6c678
+function support₂(pa)
+	    # soporte de los parametros ""
+	    rt = true
+	    rt &= (0.0 < pa[1] < 1.0)
+	    rt &= (0.0 < pa[2] < 1.0)
+	    return rt
+	end
+
+# ╔═╡ f4468684-2f96-42b0-96a0-90639f0e4ebe
+md"""Los contornos de la función de energía son mostrados a continuación."""
+
+# ╔═╡ ad5879a7-e89d-4fd8-b31a-770e5419260c
+begin
+	f₂(x, y) = energiaEDO((x,y))
+	
+	x_range0 = 0.01:0.05:1
+	y_range0 = 0.01:0.05:1
+	
+	# Inicializar matrices para la malla
+	mesh_x0 = zeros(length(x_range0), length(y_range0))
+	mesh_y0 = zeros(length(x_range0), length(y_range0))
+	# Llenar las matrices de la malla con valores de x e y
+	for i in 1:length(x_range0)
+	    for j in 1:length(y_range0)
+	        mesh_x0[i, j] = x_range0[i]
+	        mesh_y0[i, j] = y_range0[j]
+	    end
+	end
+	# Evaluar la función en cada punto de la malla
+	z_values0 = f₂.(mesh_y0, mesh_x0)
+	# Crear el gráfico de contornos
+	contour(x_range0, y_range0, exp.(z_values0), levels=500, color=:viridis, xlabel="a", ylabel="b", title="Contornos de energía")	     
+end
+
 # ╔═╡ 8d550296-d82e-4949-9421-01354d63425e
 begin
 	Max_likelihood0,max_prob0,Mean0,samples0,probabilities0,Alpha0 = MHRW0(2,energiaEDO,support₂,rand(2),0.005,20000);
-	@show Max_likelihood0
-	@show Mean0 ;
+	println("Máximo a posteriori: ",Max_likelihood0)
+	println("Media condicional: ", Mean0)
 end
 
-# ╔═╡ a50b3a49-4b81-4843-bfaa-e6273a2835a4
-md"""A continuación se muestran las gráficas."""
+# ╔═╡ 9e087ad2-9bc7-4b66-9a7c-0200731853f6
+md"""
+La distribución de cada uno de los parámetros se muestra a continuación.
+"""
 
-# ╔═╡ 7c231cf4-d2e6-4819-86f7-d7b0231d45f9
+# ╔═╡ f59b9534-1051-4f15-bed5-13488dfe6d62
 begin
 	p10 = histogram(samples0[1,:],bins=50,label=false,color="red",xlim=(0,1),title="Histograma para m")
 	p10 = plot!([Mean0[1], Mean0[1]], [0,100],linewidth=2,color="orange", label="Media Condicional")
@@ -764,33 +765,33 @@ begin
 	p20 = histogram(samples0[2,:],bins=50,label=false,color="blue",xlim=(0,1),title="Histograma para k")
 	p20 = plot!([Mean0[2], Mean0[2]], [0,100],linewidth=2,color="orange", label="Media condicional")
 	p20 = plot!([Max_likelihood0[2], Max_likelihood0[2]], [0,100],linewidth=2,color="green", label="Max a Posteriori")
-	
-	p30 = plot(samples0[1,:],color="red",label = false,title="Camino aleatorio para r",ylim=(0,1))
-	
-	p40 = plot(samples0[2,:],color="blue",label = false,title="Camino aleatorio para k",ylim=(0,1))
-	
-	p50 = plot(log.(probabilities0), label=false , title="Log-Verosimilitud")
-	
+
+	plot(p10,p20, layout=(1,2),size=(900,400))
+end
+
+# ╔═╡ 90ce15a3-304c-45a7-afaf-a9ff914fe07a
+md"""La siguiente gráfica muestra el camino aleatorio. Note que este es bastante inestable."""
+
+# ╔═╡ 798291b8-9488-44db-9aad-9dc557931c3d
+begin
 	p60 = contour(x_range0, y_range0, exp.(z_values0), levels=200, color=:viridis, xlabel="m", ylabel="k",title="Camino aleatorio")
 	p60 = plot!(samples0[1,:],samples0[2,:],label=false)
-	
-	p70 = plot(tiempo, volumen ,label=false, title = "Datos de partida")
-	
+end
+
+# ╔═╡ a50b3a49-4b81-4843-bfaa-e6273a2835a4
+md"""El ajuste de los parámetros se muestra en el siguiente gráfico. En este caso, la variabilidad del modelo es alta, ya que las muestras (mostradas por las gráficas grises) de cada uno de los parámetros están distantes de los datos. Además, los valores del máximo a posteriori y de la media condicional muestran una separación significativa, lo que indica que los datos no se ajustan de manera óptima al modelo y existe una alta variabilidad en la predicción."""
+
+# ╔═╡ 7c231cf4-d2e6-4819-86f7-d7b0231d45f9
+begin
 	p80 = plot(tiempo,sol_num_ED(samples0[end-1,:]),
 	    color="gray82",title="MHRW",label="Muestras",z=1,size=(1000, 600),ylim= (0,10))
 	for j=1:10:(size(samples0)[2]-1)
 	   p80 = plot!(tiempo,sol_num_ED((samples0[:,j][1],samples0[:,j][2])),color="gray82",label=false,z=1)
 	end
-	p80 = plot!(tiempo, volumen,label="Datos")
+	p80 = scatter!(tiempo, volumen,label="Datos")
 	p80 = plot!(tiempo, sol_num_ED((Max_likelihood0[1],Max_likelihood0[2])),color="green",label="X_MAP")
 	p80 = plot!(tiempo, sol_num_ED((Mean0[1],Mean0[2])),color="orange",label="X_CM")
-	
-	
-	plot(p10,p20,p30,p40,p50,p60,p70,p80, layout=(4,2),size=(1100,1600))
 end
-
-# ╔═╡ cc64d3c8-fa47-4aac-8bed-29365e9d2505
-md"""Note que en la gráfica "Camino aleatorio" el camino no se estabilizó, por tanto, el algoritmo no es estable en este caso. """
 
 # ╔═╡ 1a52f2b3-9aaf-402d-8d4c-b1a6b1a65e45
 md"""
@@ -2750,20 +2751,23 @@ version = "1.4.1+1"
 # ╠═3f42f911-825d-458e-a4a1-2bffc0bd3b46
 # ╟─c33e2bfb-798c-4e15-a9ba-0e1404f6eb34
 # ╟─97435cc8-95ca-45eb-abeb-8fee0db7d651
-# ╠═baeb53bb-cc5a-4e34-a560-8ee87198bfab
+# ╟─baeb53bb-cc5a-4e34-a560-8ee87198bfab
 # ╟─4851cddc-4f29-426e-a940-b0f955dd2152
 # ╠═9f379a94-fab6-4e9f-8a6c-45326f9ba041
+# ╟─04edbbc3-041d-45ea-b770-46eb127419aa
+# ╠═6acfd215-a4e3-4f1b-b2c4-91461377e706
 # ╠═f24cc905-c0af-482c-8add-eddb80607dc1
 # ╟─9a0dd382-0e83-46c0-85b9-efe10dba5a75
 # ╠═a482eac4-ac19-437a-905d-441064c6c678
 # ╟─f4468684-2f96-42b0-96a0-90639f0e4ebe
 # ╠═ad5879a7-e89d-4fd8-b31a-770e5419260c
-# ╟─04edbbc3-041d-45ea-b770-46eb127419aa
-# ╠═6acfd215-a4e3-4f1b-b2c4-91461377e706
-# ╠═8d550296-d82e-4949-9421-01354d63425e
+# ╟─8d550296-d82e-4949-9421-01354d63425e
+# ╟─9e087ad2-9bc7-4b66-9a7c-0200731853f6
+# ╟─f59b9534-1051-4f15-bed5-13488dfe6d62
+# ╟─90ce15a3-304c-45a7-afaf-a9ff914fe07a
+# ╠═798291b8-9488-44db-9aad-9dc557931c3d
 # ╟─a50b3a49-4b81-4843-bfaa-e6273a2835a4
-# ╟─7c231cf4-d2e6-4819-86f7-d7b0231d45f9
-# ╟─cc64d3c8-fa47-4aac-8bed-29365e9d2505
+# ╠═7c231cf4-d2e6-4819-86f7-d7b0231d45f9
 # ╟─1a52f2b3-9aaf-402d-8d4c-b1a6b1a65e45
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
