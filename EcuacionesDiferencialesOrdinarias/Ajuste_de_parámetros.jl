@@ -758,11 +758,11 @@ La distribución de cada uno de los parámetros se muestra a continuación.
 
 # ╔═╡ f59b9534-1051-4f15-bed5-13488dfe6d62
 begin
-	p10 = histogram(samples0[1,:],bins=50,label=false,color="red",xlim=(0,1),title="Histograma para m")
+	p10 = histogram(samples0[1,:],bins=50,label=false,color="red",xlim=(0,1),title="Histograma para a")
 	p10 = plot!([Mean0[1], Mean0[1]], [0,100],linewidth=2,color="orange", label="Media Condicional")
 	p10 = plot!([Max_likelihood0[1], Max_likelihood0[1]], [0,100],linewidth=2,color="green", label="Max a Posteriori")
 	
-	p20 = histogram(samples0[2,:],bins=50,label=false,color="blue",xlim=(0,1),title="Histograma para k")
+	p20 = histogram(samples0[2,:],bins=50,label=false,color="blue",xlim=(0,1),title="Histograma para b")
 	p20 = plot!([Mean0[2], Mean0[2]], [0,100],linewidth=2,color="orange", label="Media condicional")
 	p20 = plot!([Max_likelihood0[2], Max_likelihood0[2]], [0,100],linewidth=2,color="green", label="Max a Posteriori")
 
@@ -774,7 +774,7 @@ md"""La siguiente gráfica muestra el camino aleatorio. Note que este es bastant
 
 # ╔═╡ 798291b8-9488-44db-9aad-9dc557931c3d
 begin
-	p60 = contour(x_range0, y_range0, exp.(z_values0), levels=200, color=:viridis, xlabel="m", ylabel="k",title="Camino aleatorio")
+	p60 = contour(x_range0, y_range0, exp.(z_values0), levels=200, color=:viridis, xlabel="a", ylabel="b",title="Camino aleatorio")
 	p60 = plot!(samples0[1,:],samples0[2,:],label=false)
 end
 
@@ -2763,7 +2763,7 @@ version = "1.4.1+1"
 # ╠═ad5879a7-e89d-4fd8-b31a-770e5419260c
 # ╟─8d550296-d82e-4949-9421-01354d63425e
 # ╟─9e087ad2-9bc7-4b66-9a7c-0200731853f6
-# ╟─f59b9534-1051-4f15-bed5-13488dfe6d62
+# ╠═f59b9534-1051-4f15-bed5-13488dfe6d62
 # ╟─90ce15a3-304c-45a7-afaf-a9ff914fe07a
 # ╠═798291b8-9488-44db-9aad-9dc557931c3d
 # ╟─a50b3a49-4b81-4843-bfaa-e6273a2835a4
