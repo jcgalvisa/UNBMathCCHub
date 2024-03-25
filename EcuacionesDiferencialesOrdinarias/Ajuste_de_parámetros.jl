@@ -697,13 +697,14 @@ end
 	function energiaEDO(p) #log de la posterior
 	    a = p[1]
 	    b = p[2]
+		mu = sol_num_ED(p)
 	    #logverosimilitud gaussiana
-	    log_likelihood = -0.5 .* sum((volumen - sol_num_ED(p)).^2)
-	    
+		log_likelihood = sum(logpdf.(Normal.(mu,0.05),volumen))
+		
 	    #log a priori
 	    log_priori = logpdf(Normal(0.5,1), a) + logpdf(Normal(0.5,1), b)
 	
-	    return  log_likelihood*(10^(-2)) + log_priori*(10^(-2)) + log(100)
+	    return  (log_likelihood + log_priori)*1E-3 
 	end
 
 # ╔═╡ 9a0dd382-0e83-46c0-85b9-efe10dba5a75
@@ -725,8 +726,8 @@ md"""Los contornos de la función de energía son mostrados a continuación."""
 begin
 	f₂(x, y) = energiaEDO((x,y))
 	
-	x_range0 = 0.01:0.05:1
-	y_range0 = 0.01:0.05:1
+	x_range0 = 0.01:0.01:1
+	y_range0 = 0.01:0.01:1
 	
 	# Inicializar matrices para la malla
 	mesh_x0 = zeros(length(x_range0), length(y_range0))
@@ -741,7 +742,7 @@ begin
 	# Evaluar la función en cada punto de la malla
 	z_values0 = f₂.(mesh_y0, mesh_x0)
 	# Crear el gráfico de contornos
-	contour(x_range0, y_range0, exp.(z_values0), levels=500, color=:viridis, xlabel="a", ylabel="b", title="Contornos de energía")	     
+	contour(x_range0, y_range0, exp.(z_values0), levels=200, color=:viridis, xlabel="a", ylabel="b", title="Contornos de energía")	     
 end
 
 # ╔═╡ 8d550296-d82e-4949-9421-01354d63425e
@@ -770,7 +771,7 @@ begin
 end
 
 # ╔═╡ 90ce15a3-304c-45a7-afaf-a9ff914fe07a
-md"""La siguiente gráfica muestra el camino aleatorio. Note que este es bastante inestable."""
+md"""La siguiente gráfica muestra el camino aleatorio."""
 
 # ╔═╡ 798291b8-9488-44db-9aad-9dc557931c3d
 begin
@@ -779,7 +780,7 @@ begin
 end
 
 # ╔═╡ a50b3a49-4b81-4843-bfaa-e6273a2835a4
-md"""El ajuste de los parámetros se muestra en el siguiente gráfico. En este caso, la variabilidad del modelo es alta, ya que las muestras (mostradas por las gráficas grises) de cada uno de los parámetros están distantes de los datos. Además, los valores del máximo a posteriori y de la media condicional muestran una separación significativa, lo que indica que los datos no se ajustan de manera óptima al modelo y existe una alta variabilidad en la predicción."""
+md"""El ajuste de los parámetros se muestra en el siguiente gráfico. En este caso, la variabilidad del modelo es baja, ya que las muestras (mostradas por las gráficas grises) de cada uno de los parámetros están cerca de los datos. Además, los valores del máximo a posteriori y de la media condicional se encuentran cercanos, lo que indica que los datos se ajustan de manera óptima al modelo y existe una baja variabilidad en la predicción."""
 
 # ╔═╡ 7c231cf4-d2e6-4819-86f7-d7b0231d45f9
 begin
@@ -858,9 +859,9 @@ manifest_format = "2.0"
 project_hash = "71cbc2c94e0fa561dc05d106344f1ca650cc8a54"
 
 [[deps.ADTypes]]
-git-tree-sha1 = "41c37aa88889c171f1300ceac1313c06e891d245"
+git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
 uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "0.2.6"
+version = "0.2.7"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -898,9 +899,9 @@ version = "7.5.1"
 
 [[deps.ArrayLayouts]]
 deps = ["FillArrays", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "e46675dbc095ddfdf2b5fba247d5a25f34e1f8a2"
+git-tree-sha1 = "2aeaeaff72cdedaa0b5f30dfb8c1f16aefdac65d"
 uuid = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
-version = "1.6.1"
+version = "1.7.0"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -1059,9 +1060,9 @@ version = "0.2.3"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
-git-tree-sha1 = "9c4708e3ed2b799e6124b5673a712dda0b596a9b"
+git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
-version = "2.3.1"
+version = "2.4.1"
 
 [[deps.Conda]]
 deps = ["Downloads", "JSON", "VersionParsing"]
@@ -1071,9 +1072,9 @@ version = "1.10.0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "c53fc348ca4d40d7b371e71fd52251839080cbc9"
+git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.4"
+version = "1.5.5"
 
 [[deps.Contour]]
 git-tree-sha1 = "d05d9e7b7aedff4e5b51a029dced05cfb6125781"
@@ -1322,9 +1323,9 @@ version = "0.1.3"
 
 [[deps.Functors]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "166c544477f97bbadc7179ede1c1868e0e9b426b"
+git-tree-sha1 = "8ae30e786837ce0a24f5e2186938bf3251ab94b2"
 uuid = "d9f16b24-f501-4c13-a1f2-28368ffc5196"
-version = "0.4.7"
+version = "0.4.8"
 
 [[deps.Future]]
 deps = ["Random"]
@@ -1368,9 +1369,9 @@ version = "0.21.0+0"
 
 [[deps.Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "e94c92c7bf4819685eb80186d51c43e71d4afa17"
+git-tree-sha1 = "359a1ba2e320790ddbe4ee8b4d54a305c0ea2aff"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.76.5+0"
+version = "2.80.0+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1391,9 +1392,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "db864f2d91f68a5912937af80327d288ea1f3aee"
+git-tree-sha1 = "995f762e0182ebc50548c434c171a5bb6635f8e4"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.3"
+version = "1.10.4"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -1452,10 +1453,10 @@ deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.InverseFunctions]]
-deps = ["Test"]
-git-tree-sha1 = "68772f49f54b479fa88ace904f6127f0a3bb2e46"
+deps = ["Dates", "Test"]
+git-tree-sha1 = "896385798a8d49a255c398bd49162062e4a4c435"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.12"
+version = "0.1.13"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
@@ -1619,10 +1620,10 @@ uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
 version = "1.17.0+0"
 
 [[deps.Libmount_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "9c30530bf0effd46e15e0fdcf2b8636e78cbbd73"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "dae976433497a2f841baadea93d27e68f1a12a97"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.35.0+0"
+version = "2.39.3+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -1913,9 +1914,9 @@ version = "0.4.4"
 
 [[deps.Polyester]]
 deps = ["ArrayInterface", "BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "ManualMemory", "PolyesterWeave", "Requires", "Static", "StaticArrayInterface", "StrideArraysCore", "ThreadingUtilities"]
-git-tree-sha1 = "fca25670784a1ae44546bcb17288218310af2778"
+git-tree-sha1 = "8df43bbe60029526dd628af7e9951f5af680d4d7"
 uuid = "f517fe37-dbe3-4b94-8317-1923a5111588"
-version = "0.7.9"
+version = "0.7.10"
 
 [[deps.PolyesterWeave]]
 deps = ["BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "Static", "ThreadingUtilities"]
@@ -2054,9 +2055,9 @@ version = "0.4.0+0"
 
 [[deps.Roots]]
 deps = ["Accessors", "ChainRulesCore", "CommonSolve", "Printf"]
-git-tree-sha1 = "754acd3031a9f2eaf6632ba4850b1c01fe4460c1"
+git-tree-sha1 = "1ab580704784260ee5f45bffac810b152922747b"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "2.1.2"
+version = "2.1.5"
 
 [[deps.RuntimeGeneratedFunctions]]
 deps = ["ExprTools", "SHA", "Serialization"]
@@ -2317,9 +2318,9 @@ version = "0.5.2"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
-git-tree-sha1 = "3caa21522e7efac1ba21834a03734c57b4611c7e"
+git-tree-sha1 = "a09c933bebed12501890d8e92946bbab6a1690f1"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.4"
+version = "0.10.5"
 
 [[deps.TriangularSolve]]
 deps = ["CloseOpenIntervals", "IfElse", "LayoutPointers", "LinearAlgebra", "LoopVectorization", "Polyester", "Static", "VectorizationBase"]
@@ -2427,9 +2428,9 @@ version = "1.1.34+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "37195dcb94a5970397ad425b95a9a26d0befce3a"
+git-tree-sha1 = "31c421e5516a6248dfb22c194519e37effbf1f30"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.6.0+0"
+version = "5.6.1+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Libdl", "Pkg"]
@@ -2760,14 +2761,14 @@ version = "1.4.1+1"
 # ╟─9a0dd382-0e83-46c0-85b9-efe10dba5a75
 # ╠═a482eac4-ac19-437a-905d-441064c6c678
 # ╟─f4468684-2f96-42b0-96a0-90639f0e4ebe
-# ╠═ad5879a7-e89d-4fd8-b31a-770e5419260c
+# ╟─ad5879a7-e89d-4fd8-b31a-770e5419260c
 # ╟─8d550296-d82e-4949-9421-01354d63425e
 # ╟─9e087ad2-9bc7-4b66-9a7c-0200731853f6
-# ╠═f59b9534-1051-4f15-bed5-13488dfe6d62
+# ╟─f59b9534-1051-4f15-bed5-13488dfe6d62
 # ╟─90ce15a3-304c-45a7-afaf-a9ff914fe07a
-# ╠═798291b8-9488-44db-9aad-9dc557931c3d
+# ╟─798291b8-9488-44db-9aad-9dc557931c3d
 # ╟─a50b3a49-4b81-4843-bfaa-e6273a2835a4
-# ╠═7c231cf4-d2e6-4819-86f7-d7b0231d45f9
+# ╟─7c231cf4-d2e6-4819-86f7-d7b0231d45f9
 # ╟─1a52f2b3-9aaf-402d-8d4c-b1a6b1a65e45
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
