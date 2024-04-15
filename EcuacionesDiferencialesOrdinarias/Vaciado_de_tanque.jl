@@ -19,7 +19,7 @@ md"""Este cuaderno esta en construcción y puede ser modificado en el futuro par
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
 # ╔═╡ 6815c72f-7456-4756-b228-36bb634157c8
-md"""Elaborado por Juan Galvis, Carlos Nosa y Yessica Trujillo."""
+md"""Elaborado por Juan Galvis, Francisco Gómez, Carlos Nosa y Yessica Trujillo."""
 
 # ╔═╡ 622563c7-4137-4af5-82bb-c57e854bfaa0
 md"""Usaremos las siguientes librerías:"""
