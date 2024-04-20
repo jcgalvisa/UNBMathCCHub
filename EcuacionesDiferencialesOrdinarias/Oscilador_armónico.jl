@@ -41,10 +41,14 @@ La relación con la Ley de Hooke es esencial para entender el comportamiento del
 md"""# Resorte y bloque"""
 
 # ╔═╡ 3a5175a1-50a5-4a3c-8d90-28cffdbf2a4d
-PlutoUI.LocalResource("C:\\Users\\ytruj\\OneDrive\\Documentos\\Pagina we\\laboratoriodealgebralineal.github.io\\Imágenes\\Harmonic2.png")
+begin
+	url = "https://pixabay.com/get/gc7e60c85d386d04c2f2f04a2c040d76b7fa8816f51aca09b469ec4e990134094574d4b6eb8d0476c48c63f576941c1b0550fc9cd377f88c0a3523fd7e562eb25_1280.png"
+	fname = download(url) #bajamos la imagen a la máquina local
+	imag = load(fname) #declaramos la variable "imag"
+end
 
 # ╔═╡ 4226a6f2-1541-4aa1-9851-d22678206ae4
-md"""Un bloque de masa $M$ está conectado a un extremo de un resorte horizontal, mientras que el otro extremo está fijo. Este bloque se encuentra sobre una superficie horizontal sin fricción. ¿Qué tipo de movimiento puede experimentar este bloque?
+md"""Un bloque de masa $M$ está conectado a un extremo de un resorte horizontal, mientras que el otro extremo está fijo, donde $k$ es la constante de restitución del resorte. Este bloque se encuentra sobre una superficie horizontal sin fricción. ¿Qué tipo de movimiento puede experimentar este bloque?
 
 Debido a que la única fuerza horizontal que actúa sobre el bloque es la fuerza del resorte, su ecuación de movimiento se expresa como 
 
@@ -94,15 +98,23 @@ $x(t)= (C_1+C_2)\cos(\omega t)+i(C_1-C_2)\sin(\omega t)=A\cos(\omega t)+B\sin(\o
 md"""# Dos resortes y un bloque"""
 
 # ╔═╡ cfa121a6-02f0-4eb2-8037-f27fb34eae9f
-PlutoUI.LocalResource("C:\\Users\\ytruj\\OneDrive\\Documentos\\Pagina we\\laboratoriodealgebralineal.github.io\\Imágenes\\Harmonic3.png")
+begin
+	url₂ = "https://pixabay.com/get/g8d2cf56723727bf25cc30ad520d2da0219fbf3e791984e9864101993ac84baf34c1c1dfe3b163529fc74c4e6dff73d6e14532148587405d90d0e3d368b54b936_1280.png"
+	fname₂ = download(url₂) #bajamos la imagen a la máquina local
+	imag₂ = load(fname₂) #declaramos la variable "imag"
+end
 
 # ╔═╡ a6af49ae-930d-43a9-afda-a4c5740fedc3
-md"""Ahora, supongamos que un bloque de masa $m$ está conectado a los extremos inferiores de dos resortes verticales, mientras que los otros extremos están fijos. Si deseamos hallar la posición del bloque en el instante $t$ primero debemos definir la ecuación que describe el movimiento. 
+md"""Ahora, supongamos que un bloque de masa $m$ está conectado a los extremos inferiores de dos resortes verticales, mientras que los otros extremos están fijos, las constantes de restitución de los resortes son $k_1$ y $k_2$, tal como se muestra en la figura. Si deseamos hallar la posición del bloque en el instante $t$ primero debemos definir la ecuación que describe el movimiento. 
 
 Realizando los diagramas de cuerpo:"""
 
 # ╔═╡ cb17a57a-870b-4d25-b336-ff1b654547ab
-PlutoUI.LocalResource("C:\\Users\\ytruj\\OneDrive\\Documentos\\Pagina we\\laboratoriodealgebralineal.github.io\\Imágenes\\Harmonic4.png")
+begin
+	url₃ = "https://pixabay.com/get/gf4b00d083c737bc81729b43216ec2bac86e5e2e26aeaa5f2b3a7da534d76f15551e90220fd667f2f4517aac8bfc569174f924af7f5d43ab5f505d080eefcc14e_1280.png"
+	fname₃ = download(url₃) #bajamos la imagen a la máquina local
+	imag₃ = load(fname₃) #declaramos la variable "imag"
+end
 
 # ╔═╡ 63595c29-5fff-4371-a450-fb643187a2b8
 md"""
@@ -123,12 +135,114 @@ $-ky+mg=my''\hspace{0.5cm}\text{o}\hspace{0.5cm} y''=-\frac{k}{m}y+g.$
 
 Por tanto, $y''=-\omega^2y+g$ con $\omega = \sqrt{\frac{k}{m}}=\sqrt{\frac{k_1+k_2}{m}}.$"""
 
+# ╔═╡ b18eeedc-1a6d-42c7-8c2b-3fee35f954b7
+md"""*Ejemplo:*
+
+Supongamos que una masa que pesa 10 libras estira dos resortes de 2 pulgadas cada uno, conectados paralelamente. Si la masa es desplazada 2 pulgadas adicionales y luego se pone en movimiento con una velocidad inicial hacia arriba de 1 pie por segundo, determinemos la posición de la masa en cualquier momento posterior.
+
+
+**Solución:**
+
+La constante de cada resorte es $k_1=k_2 = \frac{10 \text{ lb}}{2 \text{ in}}= 60 \text{ lb}/\text{ft}$, así $k=k_1+k_2= 60\text{ lb}/\text{ft} + 60\text{ lb}/\text{ft}= 120\text{ lb}/\text{ft}$, y la masa es $m = \frac{w}{g} = \frac{10}{32} \text{lb}·\text{s}^2/\text{ft}$. Por lo tanto, la ecuación de movimiento es
+
+$y''= -\frac{120}{\frac{10}{32}}y + 32,$
+esto es
+
+$y''=-384y+32.$
+
+La anterior ecuación tiene las siguientes condiciones iniciales $y(0) = 2 \text{ in}= \frac{1}{6} \text{ft}$ y $y'(0) = -1 \text{ ft/s}$. Hallemos su solución.
+"""
+
+# ╔═╡ 7b431ef5-688f-4939-9915-b33a2afd4a39
+md"""Las variables simbólicas que se usarán son:"""
+
+# ╔═╡ 9b15d4b1-8a73-4128-b763-df612070cb65
+@syms y()
+
+# ╔═╡ 0c93621b-92e5-4eab-a464-a56f6dfdac03
+md"""Iniciamos definiendo la ecuación diferencial."""
+
+# ╔═╡ ab8e3bf6-f215-41ad-bfaa-1911a4692c10
+eqn₂ = D(D(y))(t) ~ -384* y(t)+32 #y'' = -384y + 32
+
+# ╔═╡ b732fa80-a2c8-4e09-a6fa-fb506c15392f
+md"""Luego, la resolvemos de la siguiente manera"""
+
+# ╔═╡ 92214926-1845-478e-bac5-4672d101a5eb
+solucion₂ = dsolve(eqn₂)
+
+# ╔═╡ 2b6ffac3-0ebd-4971-82c8-6a2141fcd8a8
+md"""Ahora, resolvamos el problema de valor inicial, primero hallemos $C_1$, recordemos que $y'(0)=-1$.
+
+Trabajemos solo con la solución dada, definimos la siguiente ecuación:"""
+
+# ╔═╡ 10f96ceb-bace-4947-ab13-8efee576cf59
+eq = rhs(solucion₂)
+
+# ╔═╡ f1f40170-42c2-4dbd-be8f-279d39e28f7f
+md"""Hallamos su derivada, es decir, $y'(t)"""
+
+# ╔═╡ 54770ffb-4544-48f8-b418-a94650dc9f5f
+begin
+	D₂ = Differential(t)
+	D₂(rhs(solucion₂))
+end
+
+# ╔═╡ d6f19155-0b4a-4c28-9815-8c332afdb4d5
+md"""Y como $y'(0)=-1$, entonces $C_1=$"""
+
+# ╔═╡ 12b26030-d263-4d09-9d14-2a5563f5049d
+begin
+	eq₁ = D₂(rhs(solucion₂))  
+	C1 = first(setdiff(free_symbols(eq₁), (t)))
+	c1 = solve(eq₁(t=>0) + 1, C1)[1] #y'(0)=-1
+end
+
+# ╔═╡ a4bffaaf-a1bf-4536-ae2b-b60ccce76d2c
+md"""Así, $y(t)=$"""
+
+# ╔═╡ 319dfb3f-59b9-4c99-a34f-cc5c2feaa04e
+eq1 = eq(C1 => c1)
+
+# ╔═╡ 68cc5e27-c274-4fff-be1b-7dd7edb1d5d1
+md"""Nos falta hallar el valor de $C_2$ para esto consideremos la condición inicial $y(0)=\frac{1}{6}$. Así $C_2=$"""
+
+# ╔═╡ 7a5a4579-d677-49b3-95cf-fcf423061740
+begin  
+	C2 = first(setdiff(free_symbols(eq1), (t)))
+	c2 = solve(eq(t=>0) - Rational(1,6), C2)[1] #y(0)=1/6
+end
+
+# ╔═╡ 27e2502b-0b45-4ffd-9cfc-1c02b99f36cc
+md"""Así, la posición de la masa en el instante $t$ es:"""
+
+# ╔═╡ c49b21d7-4f1b-46cc-87b9-4a8b1113e03a
+eq2 = eq1(C2 => c2)
+
+# ╔═╡ 4e479594-d98f-4f5f-b269-e18f4e200587
+let
+	eq3 = D₂(eq2)
+	f(t) = eq2(t)
+	g(t) = eq3(t)
+	t = range(0, 1, length=1000)
+	y = map(f, t)
+	Dy = map(g,t)
+	plot(t, y, title="Solución", label="y(t)", linewidth=2)
+	plot!(t, Dy, label="y'(t)", linewidth=2)
+	scatter!([0], [1/6], color="red", label="y₀")
+	scatter!([0], [-1], color="blue", label="y'₀")
+end
+
 # ╔═╡ e15e76d4-3516-4ade-a61e-3eb0e11a164e
 md"""# El péndulo simple
 """
 
 # ╔═╡ 77187efa-2a08-4176-a0d7-d5df7296205b
-PlutoUI.LocalResource("C:\\Users\\ytruj\\OneDrive\\Documentos\\Pagina we\\laboratoriodealgebralineal.github.io\\Imágenes\\Harmonic1.png")
+begin
+	url₄ = "https://pixabay.com/get/g4e2c1ff5b1e13729e3aeb69296b06c56860772dca51d21d772feb7e8fce81849fb23d81a3b26788cfaf2ebc1f2c0e469063bc9b3c4e6fe6f8c113c1e78655ccc_1280.png"
+	fname₄ = download(url₄) #bajamos la imagen a la máquina local
+	imag₄ = load(fname₄) #declaramos la variable "imag"
+end
 
 # ╔═╡ 08ba90ed-4a5a-4222-af87-4d8e62e5d414
 md"""La figura muestra un dibujo de un péndulo simple junto con el diagrama de fuerzas. La fuerza tangencial es $-W \sin(\phi)$, y esto nos lleva a la ecuación 
@@ -1601,6 +1715,26 @@ version = "1.4.1+1"
 # ╟─a6af49ae-930d-43a9-afda-a4c5740fedc3
 # ╟─cb17a57a-870b-4d25-b336-ff1b654547ab
 # ╟─63595c29-5fff-4371-a450-fb643187a2b8
+# ╟─b18eeedc-1a6d-42c7-8c2b-3fee35f954b7
+# ╟─7b431ef5-688f-4939-9915-b33a2afd4a39
+# ╠═9b15d4b1-8a73-4128-b763-df612070cb65
+# ╟─0c93621b-92e5-4eab-a464-a56f6dfdac03
+# ╠═ab8e3bf6-f215-41ad-bfaa-1911a4692c10
+# ╟─b732fa80-a2c8-4e09-a6fa-fb506c15392f
+# ╠═92214926-1845-478e-bac5-4672d101a5eb
+# ╟─2b6ffac3-0ebd-4971-82c8-6a2141fcd8a8
+# ╠═10f96ceb-bace-4947-ab13-8efee576cf59
+# ╟─f1f40170-42c2-4dbd-be8f-279d39e28f7f
+# ╠═54770ffb-4544-48f8-b418-a94650dc9f5f
+# ╟─d6f19155-0b4a-4c28-9815-8c332afdb4d5
+# ╠═12b26030-d263-4d09-9d14-2a5563f5049d
+# ╟─a4bffaaf-a1bf-4536-ae2b-b60ccce76d2c
+# ╠═319dfb3f-59b9-4c99-a34f-cc5c2feaa04e
+# ╟─68cc5e27-c274-4fff-be1b-7dd7edb1d5d1
+# ╠═7a5a4579-d677-49b3-95cf-fcf423061740
+# ╟─27e2502b-0b45-4ffd-9cfc-1c02b99f36cc
+# ╠═c49b21d7-4f1b-46cc-87b9-4a8b1113e03a
+# ╟─4e479594-d98f-4f5f-b269-e18f4e200587
 # ╟─e15e76d4-3516-4ade-a61e-3eb0e11a164e
 # ╟─77187efa-2a08-4176-a0d7-d5df7296205b
 # ╟─08ba90ed-4a5a-4222-af87-4d8e62e5d414
