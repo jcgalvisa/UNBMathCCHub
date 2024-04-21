@@ -221,8 +221,12 @@ Es bastante obvio que no tiene sentido preocuparse por reducir este error única
 # ╔═╡ fbaaf968-b40d-4731-a947-240c8df50e21
 md"""
 # Referencias
+[1] Lin, C. C., & Segel, L. A. (1988). Mathematics Applied to Deterministic Problems in the Natural Sciences (Classics in Applied Mathematics, Series Number 1) (1st ed.). SIAM: Society for Industrial and Applied.
 
-[2] Kincaid, D. R., & Cheney, E. W. (1996). Numerical Analysis: Mathematics of Scientific Computing (2nd ed.). Brooks Cole."""
+[2] Kincaid, D. R., & Cheney, E. W. (1996). Numerical Analysis: Mathematics of Scientific Computing (2nd ed.). Brooks Cole.
+
+[3] Strang, G. (1986). Introduction to Applied Mathematics. Wellesley-Cambridge Press
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1523,6 +1527,6 @@ version = "1.4.1+1"
 # ╟─776dfee9-08b0-4424-967a-8d1b1b1d37ac
 # ╟─9409857c-052e-4ac6-a99e-9285346161b5
 # ╟─e6509621-9ab6-45fe-aa0e-44eeb82ae497
-# ╠═fbaaf968-b40d-4731-a947-240c8df50e21
+# ╟─fbaaf968-b40d-4731-a947-240c8df50e21
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
