@@ -64,7 +64,7 @@ Como mencionamos anteriormente $x$ es la longitud del túnel en pies que constru
 
 # ╔═╡ e078a44d-91b9-447c-846d-77d09c9381a0
 begin
-	url = "https://pixabay.com/get/g31a4667f53f91dfb06f9be95c97a6fd69d419d52824dcb5928c3e6fd6fe05a8732f28ea4b13b9069abe61db121417a3405231b550d4b12cd57ca91a150989483_1280.png"
+	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/Hormiga1.png?raw=true"
 	fname = download(url) #bajamos la imagen a la máquina local
 	imag = load(fname) #declaramos la variable "imag"
 end
@@ -76,7 +76,7 @@ Se hace una distinción entre $T(x + h) - T(x)$ y $T(h)$, explicando que el prim
 
 # ╔═╡ cfa7a704-b305-444f-a017-29599e4c4aa7
 begin
-	url2 = "https://pixabay.com/get/g12217bc5397655b45c6caffd4aa7f7ae54961b38e90de1f2552aef522318c20429a6220626df9548673d729456235ae88484486b668bdbafe8216733ef9dee46_1280.png"
+	url2 = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/Hormiga2.png?raw=true"
 	fname2 = download(url2) #bajamos la imagen a la máquina local
 	imag2 = load(fname2) #declaramos la variable "imag"
 end
