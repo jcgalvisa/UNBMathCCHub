@@ -150,7 +150,7 @@ md"""Resolvemos la EDO"""
 solution = dsolve(eqn₂)
 
 # ╔═╡ 364bbb4a-b028-4f3c-b1c6-892f09bda0b2
-md"""Luego, resolvemos el problema de valor inicial de manera general, es decir, $N(0)=0$."""
+md"""Luego, resolvemos el problema de valor inicial de manera general, es decir, $N(0)=N_0$."""
 
 # ╔═╡ ed23b426-3538-494a-ba7b-e7c95c180e08
 begin
