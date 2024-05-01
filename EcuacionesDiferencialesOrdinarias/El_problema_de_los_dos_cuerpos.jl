@@ -72,7 +72,7 @@ y
 $m\left(\frac{d^2r}{dt^2}-r\left(\frac{d\theta}{dt}\right)^2\right)=F_r.$"""
 
 # ╔═╡ d9725c10-6329-422c-b8a7-b5b069defa9a
-md"""**Fuerzas centrales.**
+md"""## Fuerzas centrales
 
  $\overrightarrow{F}$ se llama fuerza central si no tiene componente perpendicular a $\overrightarrow{r}$, es decir, si $F_{\theta}=0$. Bajo esta suposición, se tiene que
 
@@ -101,7 +101,7 @@ $A(t_2)-A(t_1)=\frac{1}{2}h(t_2-t_1).$
 De esto se obtiene la segunda ley de Kepler, que nos dice que a medida que un planeta se mueve en su órbita alrededor del sol, el área que barre su vector de radio (la línea que conecta el planeta y el sol) en un intervalo de tiempo dado es constante. En otras palabras, cuando un planeta está más cerca del sol y se mueve más rápido en su órbita, barre un área más grande en el mismo tiempo que cuando está más lejos y se mueve más lentamente."""
 
 # ╔═╡ a3930018-44e3-4b01-beca-fe07651efd1c
-md"""**Fuerzas gravitacionales centrales**
+md"""## Fuerzas gravitacionales centrales
 
 Ahora vamos a suponer que $\overrightarrow{F}$ es una fuerza central atractiva cuya magnitud, la ley de gravitación de Newton establece que la magnitud de esta fuerza es proporcional al producto de las masas de los dos objetos involucrados y es inversamente proporcional al cuadrado de la distancia entre ellos, es decir
 
