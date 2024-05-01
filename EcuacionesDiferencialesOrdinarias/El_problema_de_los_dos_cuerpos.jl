@@ -40,7 +40,7 @@ md"""# La ley de gravitación de Newton y el movimiento de los planetas.
 Para situaciones donde una partícula en movimiento experimenta una fuerza que siempre actúa a lo largo de la línea que va desde la partícula hasta un punto fijo, resulta más sencillo descomponer la velocidad, la aceleración y la fuerza en componentes a lo largo y perpendiculares a dicha línea. Por consiguiente, ubicamos la partícula fija $M$ en el origen de un sistema de coordenadas polares, tal como se muestra en la siguiente imagen"""
 
 # ╔═╡ 51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
-begin
+let
 	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/cuerpos1.png?raw=true"
 	fname = download(url) #bajamos la imagen a la máquina local
 	imag = load(fname) #declaramos la variable "imag"
@@ -147,6 +147,86 @@ md"""Luego la resolvemos de la siguiente manera"""
 
 # ╔═╡ a8b3a377-16ab-405d-b85e-587aabaca696
 solucion = dsolve(eqn)
+
+# ╔═╡ 228de1eb-1d09-44b3-84d7-29aad26f53c1
+md"""Para simplificar, vamos a alterar la orientación del eje polar de manera que $r$ sea mínimo (es decir, $m$ está más cercano al origen) cuando $\theta = 0$. Esto implica que $z$ es máximo en esta dirección, lo que lleva a 
+
+$\frac{dz}{d\theta} = 0 \text{ y } \frac{d^2 z}{d\theta^2} < 0$ cuando $\theta = 0.$
+Estas condiciones implican que $C_1 = 0$ y $C_2 > 0$. Si sustituimos $z$ por $\frac{1}{r}$, la ecuación que obtuvimos al solucionar la EDO se tiene que
+
+$\frac{1}{r}=C_2\cos{\theta}+\frac{k}{h^2},$
+despejando $r$ se tiene
+
+$r=\frac{1}{C_2\cos{\theta}+\frac{k}{h^2}}=\frac{\frac{h^2}{k}}{1+(\frac{C_2h^2}{k})\cos{\theta}}.$
+Sea $e = \frac{C_2 \cdot h^2}{k}$, nuestra ecuación orbital se convierte en:
+
+$r=\frac{\frac{h^2}{k}}{1+e\cos{\theta}}.$"""
+
+# ╔═╡ 67312149-15a9-48fc-a9d7-226b086042d5
+begin
+	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/cuerpos2.png?raw=true"
+	fname = download(url) #bajamos la imagen a la máquina local
+	imag = load(fname) #declaramos la variable "imag"
+end
+
+# ╔═╡ 01484609-92b9-4552-9008-d39ef252cd3a
+md"""Recordamos que la relación entre la distancia entre un punto $P$ en una curva y un punto $F$ (el foco) y la distancia entre el punto $P$ y una recta $D$ (la directriz) de una sección cónica, es conocida como la excentricidad $e$ de la sección cónica (está relacionada con la forma y la orientación de la curva).
+
+Note que
+
+$r = \frac{pe}{1 + e \cos \theta},$
+donde $p=\frac{1}{C_2}$
+
+Esta es la ecuación polar de nuestra sección cónica, que puede ser una elipse, una parábola o una hipérbola dependiendo de si $e < 1$, $e = 1$ o $e > 1$, (en el caso de una elipse, la excentricidad $e$ es un valor que va de 0 a 1, cuando $e$ se acerca más a 0, la elipse se vuelve más circular, si $e = 1$, estamos hablando de una parábola, y si $e > 1$, nos referimos a una hipérbola).
+
+Note así, que la órbita es una sección cónica con excentricidad $e = \frac{C_2 \cdot h^2}{k}$. Como los planetas permanecen en órbitas cerradas dentro del sistema solar, se cumple la primera ley de Kepler: la órbita de cada planeta es una elipse con el sol en uno de sus focos."""
+
+# ╔═╡ 7533a427-cffe-433f-b55b-23e1bee545ea
+md"""## Trayectoria orbital del planeta Tierra"""
+
+# ╔═╡ 62cfe850-a350-4303-b116-b79f0c542a8c
+md"""Consideremos las excentricidades de los siguientes planetas, estando el Sol en uno de los focos."""
+
+# ╔═╡ 3b96f1fc-2abe-44d4-ad72-a72f56d3a758
+md"""| PLANETA       | EXCENTRICIDAD |
+|---------------|---------------|
+| Mercurio      | 0.206         |
+| Venus         | 0.007         |
+| Tierra        | 0.017         |
+| Marte         | 0.093         |
+| Júpiter       | 0.048         |
+| Saturno       | 0.055         |
+| Urano         | 0.051         |
+| Neptuno       | 0.007         |
+| Plutón        | 0.252         |
+| Cometa Halley | 0.967         |"""
+
+# ╔═╡ ba1f3436-7db4-407d-a907-21391da990a0
+md"""Grafiquemos la trayectoria de la Tierra."""
+
+# ╔═╡ eca2ca57-627e-4cfe-8ca6-50874e786220
+begin
+	p = 8955.586  # Parámetro
+	e = 0.0167  # Excentricidad de la órbita terrestre
+
+	# Función para calcular la distancia al Sol en función del ángulo polar θ
+	function distancia_al_sol(θ, p, e)
+    	r = p*e / (1 + e * cos(θ))
+    	return r
+	end
+
+	θ_values = range(0, stop=2π, length=1000) # Rango de valores para el ángulo θ
+
+	# Calcular las coordenadas (x, y) para cada valor de θ
+	x_values = [distancia_al_sol(θ, p, e) * cos(θ) for θ in θ_values]
+	y_values = [distancia_al_sol(θ, p, e) * sin(θ) for θ in θ_values]
+
+	# Graficar la órbita de la Tierra alrededor del Sol
+	plot(x_values, y_values, aspect_ratio=:equal, xlabel="Distancia (millones de km)", ylabel="Distancia (millones de km)", label=false)
+	title!("Órbita de la Tierra alrededor del Sol")
+
+	scatter!([0], [0], markersize=5, label="Sol")
+end
 
 # ╔═╡ b631844b-3eab-4eae-b850-d9441704791f
 md"""# Referencias
@@ -2526,6 +2606,14 @@ version = "1.4.1+1"
 # ╠═958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
 # ╟─72a691b7-b3f7-4e5c-ac93-c1c66fef785a
 # ╠═a8b3a377-16ab-405d-b85e-587aabaca696
+# ╟─228de1eb-1d09-44b3-84d7-29aad26f53c1
+# ╟─67312149-15a9-48fc-a9d7-226b086042d5
+# ╟─01484609-92b9-4552-9008-d39ef252cd3a
+# ╟─7533a427-cffe-433f-b55b-23e1bee545ea
+# ╟─62cfe850-a350-4303-b116-b79f0c542a8c
+# ╟─3b96f1fc-2abe-44d4-ad72-a72f56d3a758
+# ╟─ba1f3436-7db4-407d-a907-21391da990a0
+# ╟─eca2ca57-627e-4cfe-8ca6-50874e786220
 # ╟─b631844b-3eab-4eae-b850-d9441704791f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
