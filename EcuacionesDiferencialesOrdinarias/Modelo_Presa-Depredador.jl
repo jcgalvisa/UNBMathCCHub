@@ -21,7 +21,7 @@ md"""Este cuaderno esta en construcción y puede ser modificado en el futuro par
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
 # ╔═╡ 94dfcd8e-7a4f-4c46-ae25-75d5ba5fabc7
-md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
+md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. El cuaderno fue inspirado en [2]. 
 """
 
 # ╔═╡ 563ebf25-53c0-421c-b529-879f5b2fbdb6

@@ -23,17 +23,142 @@ md"""Este cuaderno esta en construcción y puede ser modificado en el futuro par
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
 # ╔═╡ e4cd00ea-f51d-4067-acd9-b7cbdbcfaf4f
-md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
+md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. El cuaderno fue inspirado en [1].
 """
 
 # ╔═╡ c11ce2da-c7e5-4752-95da-881dfd1977ca
 md"""Usaremos las siguientes librerías:"""
 
 # ╔═╡ 4b25186e-b286-46ca-ae61-88234b7a0576
-md"""# Introducción"""
+md"""# Introducción
+
+La ley de atracción inversa del cuadrado es la base de numerosos fenómenos naturales, como las órbitas de los planetas alrededor del sol, el desplazamiento de la luna y los satélites artificiales alrededor de la Tierra, y los recorridos de partículas cargadas en la física atómica. En este cuaderno se mostrará la deducción de las leyes planetarias de Kepler a partir de la ley de gravitación universal de Newton, centrándonos en el movimiento de un planeta (una pequeña partícula de masa $m$) bajo la influencia gravitatoria de una gran partícula fija (de masa $M$ que representa al sol)."""
+
+# ╔═╡ 623e738d-d3e4-449f-b96d-844ca249fc3d
+md"""# La ley de gravitación de Newton y el movimiento de los planetas.
+
+Para situaciones donde una partícula en movimiento experimenta una fuerza que siempre actúa a lo largo de la línea que va desde la partícula hasta un punto fijo, resulta más sencillo descomponer la velocidad, la aceleración y la fuerza en componentes a lo largo y perpendiculares a dicha línea. Por consiguiente, ubicamos la partícula fija $M$ en el origen de un sistema de coordenadas polares, tal como se muestra en la siguiente imagen"""
+
+# ╔═╡ 51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
+begin
+	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/cuerpos1.png?raw=true"
+	fname = download(url) #bajamos la imagen a la máquina local
+	imag = load(fname) #declaramos la variable "imag"
+end
+
+# ╔═╡ bcf413bb-5b40-4036-8dc0-d689e14911ec
+md"""y expresamos el vector de radio desde el origen hasta la partícula en movimiento $m$ de esa manera
+
+$\overrightarrow{r}=r\overrightarrow{u_r},$
+donde $\overrightarrow{u_r}$ es el vector unitario en la dirección de $\overrightarrow{r}.$ Note que 
+
+$\overrightarrow{u_r} = \overrightarrow{i}\cos{\theta}+\overrightarrow{j}\sin{\theta},$
+y también el vector unitario, perpendicular a $\overrightarrow{u_r}$, en la dirección creciente de $\theta$, está dado por
+
+$\overrightarrow{u_{\theta}} = -\overrightarrow{i}\sin{\theta}+\overrightarrow{j}\cos{\theta}.$
+Así se tiene que 
+
+$\overrightarrow{v}=\frac{d\overrightarrow{r}}{dt}=r\frac{d\theta}{dt}\overrightarrow{u_{\theta}}+\frac{dr}{dt}\overrightarrow{u_r},$
+y
+
+$\overrightarrow{a}=\frac{d\overrightarrow{v}}{dt}=\left(r\frac{d^2\theta}{dt^2}+2\frac{dr}{dt}\frac{d\theta}{dt}\right)\overrightarrow{u_{\theta}}+\left(\frac{d^2r}{dt^2}-r\left(\frac{d\theta}{dt}\right)^2\right)\overrightarrow{u_r}.$"""
+
+# ╔═╡ 0be71780-732d-43d4-9ae8-050d9516e4ee
+md"""Note que $\overrightarrow{F}=F_{\theta}\overrightarrow{u_{\theta}}+F_r\overrightarrow{u_r}$, así por la segunda ley de Newton ( $\overrightarrow{F}=m\overrightarrow{a}$ ) se tiene que
+
+$m\left(r\frac{d^2\theta}{dt^2}+2\frac{dr}{dt}\frac{d\theta}{dt}\right)=F_{\theta},$
+y
+
+$m\left(\frac{d^2r}{dt^2}-r\left(\frac{d\theta}{dt}\right)^2\right)=F_r.$"""
+
+# ╔═╡ d9725c10-6329-422c-b8a7-b5b069defa9a
+md"""**Fuerzas centrales.**
+
+ $\overrightarrow{F}$ se llama fuerza central si no tiene componente perpendicular a $\overrightarrow{r}$, es decir, si $F_{\theta}=0$. Bajo esta suposición, se tiene que
+
+$r\frac{d^2\theta}{dt^2}+2\frac{dr}{dt}\frac{d\theta}{dt}=0,$
+multiplicando por $r$ se sigue que
+
+$r^2\frac{d^2\theta}{dt^2}+2r\frac{dr}{dt}\frac{d\theta}{dt}=0.$
+Esto es
+
+$\frac{d}{dt}\left(r^2\frac{d\theta}{dt}\right)=0,$
+así
+
+$r^2\frac{d\theta}{dt}=h,$
+con $h$ constante, además vamos a suponer que es positiva, lo que evidentemente significa que $m$ se está moviendo en sentido antihorario. Ahora bien si $A=A(t)$ es el área barrida por $\overrightarrow{r}$ desde alguna posición fija de referencia, de modo que 
+
+$dA=\frac{r^2d\theta}{2},$
+luego 
+
+$dA=\frac{1}{2}\left(r^2\frac{d\theta}{dt}\right)dt=\frac{1}{2}hdt.$
+Ahora, integrando se tiene 
+
+$\int_{t_1}^{t_2}dA=\int_{t_1}^{t_2}\frac{1}{2}hdt,$
+esto es
+
+$A(t_2)-A(t_1)=\frac{1}{2}h(t_2-t_1).$
+De esto se obtiene la segunda ley de Kepler, que nos dice que a medida que un planeta se mueve en su órbita alrededor del sol, el área que barre su vector de radio (la línea que conecta el planeta y el sol) en un intervalo de tiempo dado es constante. En otras palabras, cuando un planeta está más cerca del sol y se mueve más rápido en su órbita, barre un área más grande en el mismo tiempo que cuando está más lejos y se mueve más lentamente."""
+
+# ╔═╡ a3930018-44e3-4b01-beca-fe07651efd1c
+md"""**Fuerzas gravitacionales centrales**
+
+Ahora vamos a suponer que $\overrightarrow{F}$ es una fuerza central atractiva cuya magnitud, la ley de gravitación de Newton establece que la magnitud de esta fuerza es proporcional al producto de las masas de los dos objetos involucrados y es inversamente proporcional al cuadrado de la distancia entre ellos, es decir
+
+$F_r=-G\frac{Mm}{r^2},$
+donde $G$ es la constante gravitacional, la ecuación anterior la podemos escribir de la siguiente forma
+
+$F_r=-\frac{km}{r^2},$
+donde $k=GM.$ Como ya vimos $m\left(\frac{d^2r}{dt^2}-r\left(\frac{d\theta}{dt}\right)^2\right)=F_r.$ Así
+
+$\frac{d^2r}{dt^2}-r\left(\frac{d\theta}{dt}\right)^2 = -\frac{k}{r^2}.$
+
+Esta ecuación se presenta de manera más familiar si realizamos el siguiente cambio de variable $z=\frac{1}{r}$ y usamos $\theta$ en lugar de $t$ como la variable independiente. Para realizar esta transformación, es necesario calcular primero lo siguiente
+
+$\frac{dr}{dt}=\frac{d}{dt}\left(\frac{1}{z}\right)=-\frac{1}{z^2}\frac{dz}{dt}=-\frac{1}{z^2}\frac{dz}{d\theta}\frac{d\theta}{dt}=-\frac{1}{z^2}\frac{dz}{d\theta}\frac{h}{r^2}=-h\frac{dz}{d\theta},$
+y
+
+$\frac{d^2r}{dt^2}=-h\frac{d}{dt}\left(\frac{dz}{d\theta}\right)=-h\frac{d}{d\theta}\left(\frac{dz}{d\theta}\right)\frac{d\theta}{dt}=-h\frac{d^2z}{d\theta^2}\frac{h}{r^2}=-h^2z^2\frac{d^2z}{d\theta^2}.$
+Reemplazando lo hallado en la ecuación anterior se tiene que
+
+$-h^2z^2\frac{d^2z}{d\theta^2}-\frac{1}{z}h^2z^4=-kz^2,$
+simplificando esta igualdad obtenemos
+
+$\frac{d^2z}{d\theta^2}+z=\frac{k}{h^2}.$
+Resolvamos esta EDO."""
+
+# ╔═╡ 53d13f61-1957-4d00-b8d2-d5e0c9dd605a
+md"""Las variables simbólicas que se usarán son las siguientes:"""
+
+# ╔═╡ ce2100e1-9787-4eb9-b149-49bafbdbf4c1
+@syms z() θ z₀ k h
+
+# ╔═╡ 9ed3e0d1-95b9-4114-936b-1f451c03ee4b
+md"""Iniciamos definiendo la ecuación diferencial."""
+
+# ╔═╡ 958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
+begin
+	D = Differential(θ)
+	eqn = D(D(z))(θ) ~ -z(θ) + k/h^2 #z'' = -z + k/h^2
+end
+
+# ╔═╡ 72a691b7-b3f7-4e5c-ac93-c1c66fef785a
+md"""Luego la resolvemos de la siguiente manera"""
+
+# ╔═╡ a8b3a377-16ab-405d-b85e-587aabaca696
+solucion = dsolve(eqn)
 
 # ╔═╡ b631844b-3eab-4eae-b850-d9441704791f
-md"""# Referencias"""
+md"""# Referencias
+
+[1] Simmons, G. F. (1972). Differential Equations with Applications and Historical Notes. McGraw-Hill.
+
+[2] Kleppner, D., & Kolenkow, R. (1973). An introduction to mechanics. McGraw-Hill.
+
+[3] Bryan, K. (2021). Differential Equations: A Toolbox to Modeling the World. SIMIODE.
+
+[4] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons.
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2389,6 +2514,18 @@ version = "1.4.1+1"
 # ╟─c11ce2da-c7e5-4752-95da-881dfd1977ca
 # ╠═fa24bafe-6606-4ac2-9365-ed88c9fa8654
 # ╟─4b25186e-b286-46ca-ae61-88234b7a0576
+# ╟─623e738d-d3e4-449f-b96d-844ca249fc3d
+# ╟─51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
+# ╟─bcf413bb-5b40-4036-8dc0-d689e14911ec
+# ╟─0be71780-732d-43d4-9ae8-050d9516e4ee
+# ╟─d9725c10-6329-422c-b8a7-b5b069defa9a
+# ╟─a3930018-44e3-4b01-beca-fe07651efd1c
+# ╟─53d13f61-1957-4d00-b8d2-d5e0c9dd605a
+# ╠═ce2100e1-9787-4eb9-b149-49bafbdbf4c1
+# ╟─9ed3e0d1-95b9-4114-936b-1f451c03ee4b
+# ╠═958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
+# ╟─72a691b7-b3f7-4e5c-ac93-c1c66fef785a
+# ╠═a8b3a377-16ab-405d-b85e-587aabaca696
 # ╟─b631844b-3eab-4eae-b850-d9441704791f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
