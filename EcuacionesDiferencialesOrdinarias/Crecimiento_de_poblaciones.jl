@@ -4,225 +4,243 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 36cf4ed0-ed92-40c8-b9ad-0dce400900ad
+# ╔═╡ a8bba679-f278-4bec-bead-a2db35b22480
 using PlutoUI
 
-# ╔═╡ 0d72f7ea-9db2-4f9b-9f0a-80516ec0bcd9
-begin
-	using Colors, ColorVectorSpace, ImageShow, FileIO, ImageIO
-	using HypertextLiteral
-	using CalculusWithJulia, Plots, SymPy
-end
+# ╔═╡ eda2c6e2-d8cc-11ee-1504-6f5faf98b7a4
+using CalculusWithJulia, Plots, SymPy, Roots
 
-# ╔═╡ 686c8bee-dba1-49e5-b923-71135b04d8ab
-PlutoUI.TableOfContents(title="Construcción de un tunel de hormigas", aside=true)
+# ╔═╡ 1678c6ff-49a0-4e31-91d6-473e1c464919
+PlutoUI.TableOfContents(title="Crecimiento de poblaciones", aside=true)
 
-# ╔═╡ 3c96e9bc-108b-498f-9ffd-88d1a60f7246
+# ╔═╡ 8e76a38d-14f5-4400-8c2a-e14065d4a8f9
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ cecd7473-8c60-43e1-909b-9a8acd988f7a
+# ╔═╡ 8beae7e8-43c5-4b22-8092-bc7bed00446b
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
 """
 
-# ╔═╡ cf3bd1ef-030b-446a-9da2-a0a874b8cc93
+# ╔═╡ da68339a-d432-4d45-86e4-ba0d2bdbffe6
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ 7f1c699a-6e90-4394-9157-e91b3d2c1bcb
+# ╔═╡ 69bc73b6-a9fe-420e-9750-0a010d3f36af
 md"""
-# Introducción
-El modelado matemático implica una secuencia de etapas que van desde la aceptación de una situación hasta la interpretación de los resultados en el contexto específico. Este proceso incluye aceptar la situación dada, formular suposiciones, traducir esas suposiciones en términos matemáticos, resolver las ecuaciones resultantes y finalmente interpretar los resultados de manera pertinente a la situación original.
+# Introducción"""
 
-En este cuaderno, no solo nos enfocaremos en plantear modelos matemáticos para estimar el tiempo de construcción de los túneles de hormigas."""
-
-# ╔═╡ ec1f452d-236b-4d3c-9224-6e833519c423
-md"""Pensemos en la siguiente pregunta: ¿Cuánto tiempo le toma a una hormiga construir un túnel?. Observar trabajar laboriosamente a las hormigas, construyendo túneles con meticulosidad, nos da curiosidad sobre el tiempo que les lleva realizar esa tarea.
-
-Para responder a esta pregunta, debemos reducir el alcance de nuestro estudio, simplificar conceptos y definir términos y variables. Comencemos identificando algunas de estas variables y haciendo suposiciones realistas que nos llevarán a la formulación de un modelo matemático, para entender el proceso de construcción de túneles por parte de las hormigas."""
-
-# ╔═╡ c3eb58fc-20ae-471c-a005-37093a20f9f6
-md"""# Modelo matemático
-Deseamos enfatizar la simplicidad de la situación en lugar de la complejidad involucrada, para plantar nuestro modelo consideremos suposiciones:
-
-1. La hormiga construirá un túnel nivelado y recto.
-2. La hormiga construirá en arena uniforme, húmeda y fina.
-3. La hormiga caminará tan rápido cuando esté cargando algo como cuando esté desocupada, es decir, siempre caminara al mismo.
-4. El área transversal del túnel es constante.
-5. La hormiga está cavando en el costado de una pared de arena.
-Añadimos esta última suposición para que el problema de qué hacer con la arena cuando la llevamos a la boca del túnel no complique demasiado la actividad de modelado.
-
-Con esto podemos plantear la pregunta original de una manera más precisa: 
-
-¿Cuánto tiempo tarda una hormiga en excavar un túnel recto de longitud $x$ en arena uniforme, húmeda y fina en el costado de una pared vertical?"""
-
-# ╔═╡ be6b03e5-d7c1-44b0-ad07-fe3f5e25f4ad
+# ╔═╡ 626fe653-d0ab-4aa9-8118-9fca62893737
 md"""
-Identifiquemos algunas variables y luego hagamos algunas suposiciones que conducirán a un modelo matemático. 
+El presente notebook aborda dos modelos diferentes de ecuaciones diferenciales ordinarias (EDOs) que son comunes en la modelización matemática de fenómenos naturales y sociales: el modelo de crecimiento exponencial y el modelo de crecimiento logístico. Estos modelos son fundamentales para comprender cómo ciertos sistemas evolucionan en el tiempo."""
 
-Como mencionamos anteriormente $x$ es la longitud del túnel en pies que construye una hormiga. Sea $T(x)$ el tiempo en horas que le toma a la hormiga construir el túnel de longitud $x$."""
+# ╔═╡ a3474d95-5273-4e44-9ba4-279f2439022c
+md"""Las variables simbólicas que se usarán en los ejemplos presentados son las siguientes:"""
 
-# ╔═╡ e078a44d-91b9-447c-846d-77d09c9381a0
+# ╔═╡ 0ab26568-672f-479d-9e29-5bfede3dc7ff
+@syms N() t tᵢ r N₀ Nᵢ tₚ K
+
+# ╔═╡ 83b04957-cdc8-466e-945f-9ac669218fc1
+md"""# Modelo de crecimiento exponencial
+
+El modelo de crecimiento exponencial describe el crecimiento de una cantidad en función del tiempo, donde la tasa de crecimiento es proporcional a la cantidad presente en ese momento. Este modelo tiene la siguiente forma:
+
+$\frac{dN}{dt} =rN, \hspace{0.5cm} N(0)=N_0$
+
+Donde $N$ representa la cantidad en función del tiempo $t$, $\frac{dN}{dt}$ es la tasa de cambio de la cantidad con respecto al tiempo, $r$ es la tasa de crecimiento si $r>0$ o la tasa de decrecimiento si $r<0$."""
+
+# ╔═╡ a5b9e427-b488-490e-a6b0-de8c45329858
+md"""*Ejemplo:*
+
+Supongamos que una población de peces crece de manera exponencial. Un estanque es inicialmente poblado con 500 peces. Después de 6 meses, hay 1000 peces en el estanque. El propietario permitirá que sus amigos y vecinos pesquen en su estanque una vez que la población de peces alcance los 10,000. ¿Cuándo podrán pescar los amigos del propietario?"""
+
+# ╔═╡ 0d5df730-726d-4aab-8020-7f177ca74930
+md"""Para solucionar dicho problema, primero iniciemos definiendo la ecuación diferencial."""
+
+# ╔═╡ 88f4e272-3949-48a3-8bb6-67e48d8f3fee
 begin
-	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/Hormiga1.png?raw=true"
-	fname = download(url) #bajamos la imagen a la máquina local
-	imag = load(fname) #declaramos la variable "imag"
+	D₂ = Differential(t)
+	eqn₂ = D₂(N)(t) ~ r * N(t)
 end
 
-# ╔═╡ ee838869-1eed-446e-bedf-62a936db7bd2
-md"""Ahora, si deseamos saber cuánto tiempo tomaría a una hormiga extender un túnel desde la distancia $x$ hasta $x + h$.
+# ╔═╡ 0ad7ddec-da98-44c9-abff-33fb772d31e9
+md"""Resolvemos la EDO"""
 
-Se hace una distinción entre $T(x + h) - T(x)$ y $T(h)$, explicando que el primero incluye el tiempo para llevar todo el material desde la región de $x$ hasta $x + h$ fuera del túnel, mientras que el segundo solo representa el tiempo para llevar el material a una distancia de $h$ hasta la boca del túnel."""
+# ╔═╡ 3e9a6c50-c593-4a15-9f14-e54bf5adbaa1
+solution = dsolve(eqn₂)
 
-# ╔═╡ cfa7a704-b305-444f-a017-29599e4c4aa7
+# ╔═╡ 364bbb4a-b028-4f3c-b1c6-892f09bda0b2
+md"""Luego, resolvemos el problema de valor inicial de manera general, es decir, $N(0)=N_0$."""
+
+# ╔═╡ ed23b426-3538-494a-ba7b-e7c95c180e08
 begin
-	url2 = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/Hormiga2.png?raw=true"
-	fname2 = download(url2) #bajamos la imagen a la máquina local
-	imag2 = load(fname2) #declaramos la variable "imag"
+	eq₂ = rhs(solution)   
+	C1₂ = first(setdiff(free_symbols(eq₂), (t,r))) 
+	c1₂ = solve(eq₂(t=>0) - N₀, C1₂) #N(0)=N₀
+	eq1₂ = eq₂(C1₂ => c1₂[1])
 end
 
-# ╔═╡ 61a288c5-36d2-4dd1-a8f6-9ae837c2c572
-md"""Así que tenemos el tiempo para extender el túnel desde la distancia $x$ hasta $x+ h$ es $T(x + h) - T(x)$."""
+# ╔═╡ 920255ed-d03f-453b-ab64-a88b62e1087c
+md"""De la solución anterior, no conocemos el valor de $r$. Dado que en cualquier instante de tiempo $t_i$ se tiene que $N(t_i)=N_i$. Así, despejemos $r$."""
 
-# ╔═╡ 44ce9eff-c436-4c57-85ff-157e4c0044ec
-md"""A continuación hay varios modelos matemáticos posibles. Veamos cual o cuales de ellos se adecuan a nuestro problema.
+# ╔═╡ 12f1dd7b-6fb0-415d-8312-bfbe1b1961ed
+solve(eq1₂(t=>tᵢ) - Nᵢ, r)[1]
 
-1. $T(x + h) - T(x) = x + h.$
-2. $T(x + h) - T(x) = x - h.$
-3. $T(x + h) - T(x) = x^h.$
-4. $T(x + h) - T(x) = h^x.$
-5. $T(x + h) - T(x) = x \cdot h.$"""
+# ╔═╡ 7039f022-a74e-42bb-a1dd-a19fe888bafb
+md"""Así la solución del problema es
 
-# ╔═╡ 84349bfe-19e6-40f1-8e14-9cbadb19ff3a
-md"""
-1. Esto sugiere que el tiempo para construir una sección adicional de longitud $h$ es simplemente la suma de la longitud original $x$ y $h$. Pero note que si consideramos $h=0$ se tiene que $T(x)-T(x)=x$ lo cual es falso. Por tanto este modelo no es valido.
+$N(t)=N_0e^{\frac{\ln{\left(\frac{N_i}{N_0}\right)}}{t_i}t}$
 
-2. Similar al modelo anterior, pero restando $h$. De igual forma, si consideramos $h=0$ se tiene que $T(x)-T(x)=x$ lo cual no es cierto.
+Recordemos que $N_0=500$ y el problema nos dice que luego de $6$ meses hay 1000 peces en el estanque, así $t_i=6$ y $N_i=1000$. Esto es
 
-3. Este modelo plantea una relación exponencial entre la longitud adicional $h$ y el tiempo de construcción. Pero no es valido para todo valor de $h$, note que si $h=0$ se tiene que , $T(x)-T(x)=1$ lo cual es falso.
+$N(t)= 500e^{\frac{\ln{\left(\frac{1000}{500}\right)}}{6}t}= 500e^{\frac{\ln{\left(2\right)}}{6}t}.$
 
-4. Este modelo plantea una relación exponencial inversa entre la longitud adicional $h$y el tiempo de construcción, pero no parece ser una aproximación realista de la situación.
+Mostremos la solución y los valores mencionados."""
 
-5. Esta función sugiere que el tiempo es proporcional a la longitud del túnel, lo cual tiene sentido intuitivo ya que mientras más largo sea el túnel, más tiempo llevará construirlo."""
-
-# ╔═╡ ffa48d9c-79e3-43a9-930a-f29965b3db62
-md"""Quedémonos con el último modelo, y realicemos algunas modificaciones.
-
-Dado que la hormiga debe llevar toda la arena en esta pequeña sección desde $x$ a $x+h$, y dado que asumimos que la hormiga viaja a una velocidad constante, ya sea con o sin carga, podemos asumir que el tiempo para sacar toda la arena desde una distancia hasta otra es proporcional a $x$, es decir
-
-$T(x+h)-T(x)=\beta x.$
-
-Además, note que el tiempo necesario para extender el túnel $h$ unidades (para $h$ pequeño) también es proporcional a $h$, ya que cuanto más larga sea la sección, más tiempo se necesitará para cavarla. De hecho, es valido afirmar que: "Si $h$ son 10 granitos de altura por 1 granito de profundidad, entonces la hormiga tiene que hacer 10 viajes de regreso fuera del túnel. Si $h$ son 10 granitos de altura por 2 granitos de profundidad, entonces la hormiga tiene que hacer 20 viajes de regreso fuera del túnel, todo sobre la misma distancia de viaje". Según esto podemos definir
-
-$T(x + h) - T(x) = \gamma h.$"""
-
-# ╔═╡ 5bb3245b-9e25-4c39-9424-22bbf488c4d6
-md"""Podemos comparar los modelos construidos bajo diferentes suposiciones. Dado que este túnel se está excavando en el costado de la colina, la hormiga simplemente deja caer la arena sobre el borde en la apertura del túnel, y esta acción no afecta el tiempo de excavación. A continuación, tenemos que 
-
-$T(x + h) - T(x) = \gamma h,$ y también 
-
-$T(x + h) - T(x) = \beta x.$ 
-Esto significa que $\gamma h = \beta x$ para todos los valores de $x$ y $h$. La única manera en que este resultado puede ocurrir es si $\gamma = \alpha x$ y $\beta = \alpha h$. Por lo tanto, obtenemos la ecuación 
-
-$T(x + h) - T(x) = \alpha xh.$"""
-
-# ╔═╡ 5e383f59-e081-4178-b801-3a6331dee965
-md"""Recordemos que deseamos conocer $T(x)$, además de la expresión anterior se tiene que
-
-$T'(x)=\lim_{h\to 0}\frac{T(x+h)-T(x)}{h}=\alpha x.$
-Además, sabemos que la hormiga tarda $T=0$ horas en construir un tuner de longitud $x=0$, es decir $T(0)=0$. Con esta información resolvamos la ecuación diferencial anterior. """
-
-# ╔═╡ fb30e37c-5700-48e7-8f58-44210a6841c0
-md"""Las variables simbólicas que se usarán son las siguientes:"""
-
-# ╔═╡ 54d33a24-3ad0-4812-90ca-69e9ff895311
-@syms T() x α
-
-# ╔═╡ 883ae29f-0635-4c37-b6f1-cec620f8005d
-md"""Iniciamos definiendo la ecuación diferencial."""
-
-# ╔═╡ 87dab266-5b49-4dfc-899e-581f6d398691
+# ╔═╡ 6251e8fb-5cd1-46eb-bc03-d53df11c2363
 begin
-	D = Differential(x)
-	eqn = D(T)(x) ~ α* x #T' = α x
+	x₂ = range(0, 30, length=100)
+	y₂ = 500 * exp.((log(2)/6) .* x₂)
+	plot(x₂, y₂, title="Solución", label="N(t)", linewidth=2)
+	scatter!([0], [500], color="red", label="N₀")
+	scatter!([6], [1000], color="blue", label="N₆")
 end
 
-# ╔═╡ 8c2b291d-2e02-40b7-b268-fe36fe60d669
-md"""Luego la resolvemos de la siguiente manera"""
+# ╔═╡ dacf0d1f-efa1-4271-9116-15a53b9c94cf
+md"""Como también nos interesa saber cuando podrán pescar los amigos del propietario, recordemos que esto será cuando la poblacion de peces sea de 10000, entonces debemos resolver la siguiente ecuación
 
-# ╔═╡ c1bf3afa-d932-4798-b4fd-a9dce6bfab95
-solucion = dsolve(eqn)
+$500e^{\frac{\ln{\left(2\right)}}{6}t_p}=10000,$
+esto implica que 
+$500e^{\frac{\ln{\left(2\right)}}{6}t_p}-10000=0.$
+Esto se resuelve de la siguiente forma:"""
 
-# ╔═╡ e91ca5a5-18c2-4080-8e7e-20077d46f192
-md"""Ahora, resolvamos el problema de valor inicial, consideremos $T(0)=0$. Se tiene que $C_1=$"""
-
-# ╔═╡ 274f8220-8790-47bb-94e3-63f7bb14fc83
+# ╔═╡ dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
 begin
-	eq = rhs(solucion)   
-	C1 = first(setdiff(free_symbols(eq), (x,α))) 
-	c1 = solve(eq(x=>0) - 0, C1)[1] #T(0)=0
+	f(tₚ) = 500 * exp((log(2)/6) * tₚ) - 10000 #definimos la función
+	tₚ_sol = fzero(f, 0)  # Encuentra la raíz de la función f cerca de tₚ = 0
 end
 
-# ╔═╡ 750763d1-8d2b-4a93-95e8-ca4b2ec1464d
-md"""Así la solución es:"""
+# ╔═╡ f7ff41e8-4671-4510-92e6-6803349c16d5
+md"""De esto se observa que luego de 26 meses los amigos del propietario podran pescar en el estanque."""
 
-# ╔═╡ 0a2ad8e3-f307-4fb3-860a-13006802155f
-eq(C1 => c1)
+# ╔═╡ 5a546318-dd9e-417b-aa6c-768a576f3c5f
+md"""El campo de vectores la solución general de la EDO es el siguiente:"""
 
-# ╔═╡ f467fff3-e441-4d93-8f09-69b99ed9dbcf
-let
-	f(x,α) = α* (x^2)/2
-	f1(x)=f(x,1) #α = 1
-	g(x,α) = α*x
-	g1(x) = g(x,1)
-	x = range(0, 1, length=1000)
-	y = map(f1, x)
-	y2 = map(g1,x)
-	plot(x, y, title="Solución con α = 1", label="T(x)", linewidth=2)
-	plot!(x, y2, label="T'(x)", linewidth=2)
-	scatter!([0], [0], color="red", label="T₀")
+# ╔═╡ 75a584e7-e772-4161-8ba0-a8ca632cfd19
+begin
+	F₂(N, t) =  (log(2)/6) * N
+	plot(legend=false)
+	vectorfieldplot!((t,y) -> [1, F₂(y,t)], xlims=(0, 30), ylims=(0, 10000))
+	plot!(x₂, y₂, title="Solución", label="N(t)", linewidth=2) #solución del pvi
 end
 
-# ╔═╡ f7004c5a-4b6a-4f8b-992f-459e01ecdc13
-md"""Dado que no conocemos otro dato del problema, no nos es posible hallar el valor de $\alpha$ por tanto lo dejamos como un parámetro para $T(x)$. Por tanto 
+# ╔═╡ 1233c5ec-7994-4505-b265-3f6781a4c76c
+md"""# Modelo de crecimiento logístico
 
-$T(x)=\frac{\alpha x^2}{2}.$
-Para evaluar dicho modelo necesitamos datos reales del problema. Para así considerar los errores de este y realizar mejoras. Para más detalle del proceso de modelación matématica ver el cuaderno "Introducción a la modelación matemática"."""
+El modelo de crecimiento logístico es una extensión del modelo de crecimiento exponencial que tiene en cuenta una capacidad de carga o límite superior para el crecimiento. Este modelo se utiliza comúnmente para describir el crecimiento de poblaciones en entornos limitados por recursos finitos. 
 
-# ╔═╡ 4156c7b9-efde-42f6-804a-1c716eb2ec31
+La ecuación del modelo es la siguiente:
+
+$\frac{dN}{dt} = rN \left(1 - \frac{N}{K}\right).$
+
+Donde $N$ representa la población en función del tiempo $t$, $\frac{dN}{dt}$ es la tasa de cambio de la población con respecto al tiempo, $r$ es la tasa intrínseca de crecimiento, $K$ es la capacidad de carga o tamaño máximo de la población que el entorno puede soportar sin cambios en las condiciones ambientales.
+
+Este modelo implica que la tasa de crecimiento de la población disminuye a medida que la población se acerca a la capacidad de carga $K$. Cuando $N$ se acerca a $K$, la tasa de cambio $\frac{dN}{dt}$ se acerca a cero, lo que indica que el crecimiento se detiene porque los recursos son insuficientes para soportar un mayor crecimiento."""
+
+# ╔═╡ f9710b1a-2d51-41f2-b076-a1f38199fadb
+md"""*Ejemplo:*
+
+Supongamos que una población de bacterias se reproduce en un medio ambiente con recursos limitados. La tasa de crecimiento de las bacterias es de $r = 0.1$ por hora, y la capacidad de carga del medio ambiente es de $K = 1000$ bacterias. Si inicialmente hay 100 bacterias en el medio ambiente, ¿cuánto tiempo tomará para que la población alcance el 90$\%$ de su capacidad de carga?"""
+
+# ╔═╡ 12eb6304-96ae-46fd-9c88-c5af1324991b
+md"""La ecuación diferencial ordinaria que modela el problema es la siguiente, donde el tiempo $t$ será tomado en horas."""
+
+# ╔═╡ db68a0a5-5293-4c97-be25-2637f314fefc
+begin
+	D₃ = Differential(t)
+	eqn₃ = D₃(N)(t) ~ r * N(t) * (1- (N(t)/K))
+end
+
+# ╔═╡ 13e86d40-6e7a-400b-bbf0-7eb78d662273
+md"""La solución de la anterior EDO es"""
+
+# ╔═╡ 6bc832b4-181b-45d0-ae34-852c86502784
+sol = dsolve(eqn₃)
+
+# ╔═╡ 1d76d454-20bf-4244-8622-5cbe82cd2660
+md"""COnsiderando $N(0)=N_0$, resolvamos el problema de valor inicial."""
+
+# ╔═╡ f2183dcc-3797-45cb-b4d4-d02f4593c1d0
+begin
+	eq₃ = rhs(sol)   
+	C1₃ = first(setdiff(free_symbols(eq₃), (K,t,r))) 
+	c1₃ = solve(eq₃(t=>0) - N₀, C1₃) #N(0)=N₀
+	eq1₃ = simplify(eq₃(C1₃ => c1₃[1]))
+end
+
+# ╔═╡ 70eabb15-e734-4e29-87ba-2b08c763d16d
+md"""Dado que $r=0.1$, $N_0=100$, $K=1000$, se tiene que la solución es
+
+$N(t)=\frac{1000\cdot 100 \cdot e^{0.1t}}{1000 + 100\cdot e^{0.1t} - 100}=\frac{1000\cdot e^{0.1t}}{9 + e^{0.1t}}.$
+Como nos interesa saber el instante de tiempo $t_s$ en el que la población alcance el $90\%$ de su capacidad, esto quiere decir que $N(t_s)=0.9*1000=900$. Esto es
+
+$\frac{1000\cdot e^{0.1t_s}}{9 + e^{0.1t_s}} = 900.$
+Hallemos el valor de $t_s$."""
+
+# ╔═╡ 45cf7bd9-e94b-447c-87fe-961933fe1d71
+begin
+	f₃(t) = (1000 * exp(0.1 * t)) / (9 + exp(0.1 * t)) - 900
+	t_s = fzero(f₃, 0)
+end
+
+# ╔═╡ 858c4ac1-a38a-418b-b0a1-9f6f4b90a8e3
+md"""Así en aproximadamente el día 44 se tiene que la población de bacterias será de 900.
+
+Visualicemos dicha solución."""
+
+# ╔═╡ 28da7f1b-0355-4f2a-a5a6-039034954d42
+begin
+	x₃ = range(0, 50, length=100)
+	y₃ = (1000 * exp(0.1 * t)) / (9 + exp(0.1 * t))
+	plot(x₃, y₃, title="Solución", label="N(t)", linewidth=2)
+	scatter!([t_s], [900], color="red", label="N₆")
+	scatter!([0], [100], color="blue", label="N₀")
+end
+
+# ╔═╡ 9b9917e5-26c4-4e27-a433-188c06d5b274
+md"""El campo de vectores la solución general de la EDO es el siguiente:"""
+
+# ╔═╡ a3d20b00-2111-45d5-82ec-ea7b18acecdb
+begin
+	F₃(N, t) =  0.1*(1-N/1000)*N
+	plot(legend=false)
+	vectorfieldplot!((t,y) -> [1, F₃(y,t)], xlims=(0, 50), ylims=(100, 1000))
+	plot!(x₃, y₃, title="Solución", label="N(t)", linewidth=2) #solución del pvi
+end
+
+# ╔═╡ 3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
 md"""
 # Referencias
 
 [1] Bryan, K. (2021). Differential Equations: A Toolbox to Modeling the World. SIMIODE.
 
-[2] QUBES Hub. (s.f.). Simiode Starter Kit. Recuperado de https://qubeshub.org/community/groups/simiode/browse/starter-kit
+[2] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons.
 
-[3] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons."""
+[3] Verzani, J. (s.f.). Calculus with Julia: Ordinary Differential Equations. Recuperado de https://jverzani.github.io/CalculusWithJuliaNotes.jl/ODEs.html"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CalculusWithJulia = "a2e0e22d-7d4c-5312-9169-8b992201a882"
-ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
-FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
-ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
-CalculusWithJulia = "~0.2.0"
-ColorVectorSpace = "~0.10.0"
-Colors = "~0.12.10"
-FileIO = "~1.16.3"
-HypertextLiteral = "~0.9.5"
-ImageIO = "~0.6.7"
-ImageShow = "~0.3.8"
-Plots = "~1.40.4"
+CalculusWithJulia = "~0.1.4"
+Plots = "~1.39.0"
 PlutoUI = "~0.7.58"
+Roots = "~2.1.2"
 SymPy = "~2.0.1"
 """
 
@@ -232,13 +250,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "7de09f4b26c0cad8b692cd061c772794d44112f3"
+project_hash = "b21e2ddcc39ed8cc809a39a25640c2ff54eac4b9"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "0f748c81756f2e5e6854298f11ad8b2dfae6911a"
+git-tree-sha1 = "297b6b41b66ac7cbbebb4a740844310db9fd7b8c"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.3.0"
+version = "1.3.1"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
@@ -268,12 +286,6 @@ version = "1.1.1"
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
-[[deps.AxisArrays]]
-deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
-git-tree-sha1 = "16351be62963a67ac4083f748fdb3cca58bfd52f"
-uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
-version = "0.4.7"
-
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
@@ -288,11 +300,6 @@ git-tree-sha1 = "9e2a6b69137e6969bab0152632dcb3bc108c8bdd"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+1"
 
-[[deps.CEnum]]
-git-tree-sha1 = "389ad5c84de1ae7cf0e28e381131c98ea87d54fc"
-uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
-version = "0.5.0"
-
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
 git-tree-sha1 = "a4c43f59baa34011e303e76f5c8c91bf58415aaf"
@@ -300,15 +307,10 @@ uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.0+1"
 
 [[deps.CalculusWithJulia]]
-deps = ["Base64", "Contour", "ForwardDiff", "IntervalSets", "LinearAlgebra", "PlotUtils", "Random", "Reexport", "Roots", "SpecialFunctions", "SplitApplyCombine", "Test"]
-git-tree-sha1 = "9d40a2af9ae764268f544162892c4a0d3922c6ae"
+deps = ["Base64", "Contour", "ForwardDiff", "HCubature", "IntervalSets", "JSON", "LinearAlgebra", "PlotUtils", "Random", "RecipesBase", "Reexport", "Requires", "Roots", "SpecialFunctions", "SplitApplyCombine", "Test"]
+git-tree-sha1 = "df0608635021120c3d2e19a70edbb6506549fe14"
 uuid = "a2e0e22d-7d4c-5312-9169-8b992201a882"
-version = "0.2.0"
-weakdeps = ["Plots", "SymPyCore"]
-
-    [deps.CalculusWithJulia.extensions]
-    CalculusWithJuliaPlotsExt = "Plots"
-    CalculusWithJuliaSymPyCoreExt = "SymPyCore"
+version = "0.1.4"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
@@ -353,6 +355,11 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
+
+[[deps.Combinatorics]]
+git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
+uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+version = "1.0.2"
 
 [[deps.CommonEq]]
 git-tree-sha1 = "6b0f0354b8eb954cdba708fb262ef00ee7274468"
@@ -411,14 +418,11 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 version = "1.5.5"
+weakdeps = ["IntervalSets", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
     ConstructionBaseIntervalSetsExt = "IntervalSets"
     ConstructionBaseStaticArraysExt = "StaticArrays"
-
-    [deps.ConstructionBase.weakdeps]
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -464,10 +468,6 @@ git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
 uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
 version = "1.15.1"
 
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
 git-tree-sha1 = "2fb1e02f2b635d0845df5d7c167fec4dd739b00d"
@@ -509,12 +509,6 @@ git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.4+1"
 
-[[deps.FileIO]]
-deps = ["Pkg", "Requires", "UUIDs"]
-git-tree-sha1 = "82d8afa92ecf4b52d78d869f038ebfb881267322"
-uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-version = "1.16.3"
-
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
@@ -540,12 +534,10 @@ deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "Lo
 git-tree-sha1 = "cf0fe81336da9fb90944683b8c41984b08793dad"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.36"
+weakdeps = ["StaticArrays"]
 
     [deps.ForwardDiff.extensions]
     ForwardDiffStaticArraysExt = "StaticArrays"
-
-    [deps.ForwardDiff.weakdeps]
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -567,15 +559,15 @@ version = "3.3.9+0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "3437ade7073682993e092ca570ad68a2aba26983"
+git-tree-sha1 = "27442171f28c952804dede8ff72828a96f2bfc1f"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.3"
+version = "0.72.10"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "a96d5c713e6aa28c242b0d25c1347e258d6541ab"
+git-tree-sha1 = "025d171a2847f616becc0f84c8dc62fe18f0f6dd"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.3+0"
+version = "0.72.10+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -599,6 +591,12 @@ version = "1.3.14+0"
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
 uuid = "42e2da0e-8278-4e71-bc24-59509adca0fe"
 version = "1.0.2"
+
+[[deps.HCubature]]
+deps = ["Combinatorics", "DataStructures", "LinearAlgebra", "QuadGK", "StaticArrays"]
+git-tree-sha1 = "10f37537bbd83e52c63abf6393f209dbd641fedc"
+uuid = "19dc6840-f33b-545b-b366-655c7e3ffd49"
+version = "1.6.0"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
@@ -630,62 +628,10 @@ git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.4"
 
-[[deps.ImageAxes]]
-deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
-git-tree-sha1 = "2e4520d67b0cef90865b3ef727594d2a58e0e1f8"
-uuid = "2803e5a7-5153-5ecf-9a86-9b4c37f5f5ac"
-version = "0.6.11"
-
-[[deps.ImageBase]]
-deps = ["ImageCore", "Reexport"]
-git-tree-sha1 = "eb49b82c172811fd2c86759fa0553a2221feb909"
-uuid = "c817782e-172a-44cc-b673-b171935fbb9e"
-version = "0.1.7"
-
-[[deps.ImageCore]]
-deps = ["ColorVectorSpace", "Colors", "FixedPointNumbers", "MappedArrays", "MosaicViews", "OffsetArrays", "PaddedViews", "PrecompileTools", "Reexport"]
-git-tree-sha1 = "b2a7eaa169c13f5bcae8131a83bc30eff8f71be0"
-uuid = "a09fc81d-aa75-5fe9-8630-4744c3626534"
-version = "0.10.2"
-
-[[deps.ImageIO]]
-deps = ["FileIO", "IndirectArrays", "JpegTurbo", "LazyModules", "Netpbm", "OpenEXR", "PNGFiles", "QOI", "Sixel", "TiffImages", "UUIDs"]
-git-tree-sha1 = "bca20b2f5d00c4fbc192c3212da8fa79f4688009"
-uuid = "82e4d734-157c-48bb-816b-45c225c6df19"
-version = "0.6.7"
-
-[[deps.ImageMetadata]]
-deps = ["AxisArrays", "ImageAxes", "ImageBase", "ImageCore"]
-git-tree-sha1 = "355e2b974f2e3212a75dfb60519de21361ad3cb7"
-uuid = "bc367c6b-8a6b-528e-b4bd-a4b897500b49"
-version = "0.9.9"
-
-[[deps.ImageShow]]
-deps = ["Base64", "ColorSchemes", "FileIO", "ImageBase", "ImageCore", "OffsetArrays", "StackViews"]
-git-tree-sha1 = "3b5344bcdbdc11ad58f3b1956709b5b9345355de"
-uuid = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
-version = "0.3.8"
-
-[[deps.Imath_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3d09a9f60edf77f8a4d99f9e015e8fbf9989605d"
-uuid = "905a6f67-0a94-5f89-b386-d35d92009cd1"
-version = "3.1.7+0"
-
 [[deps.Indexing]]
 git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
 uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
 version = "1.1.1"
-
-[[deps.IndirectArrays]]
-git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
-uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
-version = "1.0.0"
-
-[[deps.Inflate]]
-git-tree-sha1 = "ea8031dea4aff6bd41f1df8f2fdfb25b33626381"
-uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
-version = "0.1.4"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -717,11 +663,6 @@ git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
 
-[[deps.IterTools]]
-git-tree-sha1 = "42d5f897009e7ff2cf88db414a389e5ed1bdd023"
-uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
-version = "1.10.0"
-
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
 git-tree-sha1 = "a53ebe394b71470c7f97c2e7e170d51df21b17af"
@@ -739,12 +680,6 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.4"
-
-[[deps.JpegTurbo]]
-deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]
-git-tree-sha1 = "fa6d0bcff8583bac20f1ffa708c3913ca605c611"
-uuid = "b835a17e-a41a-41e7-81f0-2f016b05efe0"
-version = "0.1.5"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -794,11 +729,6 @@ version = "0.16.3"
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
-
-[[deps.LazyModules]]
-git-tree-sha1 = "a560dd966b386ac9ae60bdd3a3d3a326062d3c3e"
-uuid = "8cdb02fc-e678-4876-92c5-9defec4f444e"
-version = "0.3.1"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -915,11 +845,6 @@ git-tree-sha1 = "2fa9ee3e63fd3a4f7a9a4f4744a52f4856de82df"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 version = "0.5.13"
 
-[[deps.MappedArrays]]
-git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
-uuid = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
-version = "0.4.2"
-
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -949,12 +874,6 @@ version = "1.2.0"
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
-[[deps.MosaicViews]]
-deps = ["MappedArrays", "OffsetArrays", "PaddedViews", "StackViews"]
-git-tree-sha1 = "7b86a5d4d70a9f5cdf2dacb3cbe6d251d1a61dbe"
-uuid = "e94cdb99-869f-56ef-bcf0-1ae2bcbe0389"
-version = "0.3.4"
-
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.1.10"
@@ -965,26 +884,9 @@ git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
 
-[[deps.Netpbm]]
-deps = ["FileIO", "ImageCore", "ImageMetadata"]
-git-tree-sha1 = "d92b107dbb887293622df7697a2223f9f8176fcd"
-uuid = "f09324ee-3d7c-5217-9330-fc30815ba969"
-version = "1.1.1"
-
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
-
-[[deps.OffsetArrays]]
-git-tree-sha1 = "e64b4f5ea6b7389f6f046d13d4896a8f9c1ba71e"
-uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.14.0"
-
-    [deps.OffsetArrays.extensions]
-    OffsetArraysAdaptExt = "Adapt"
-
-    [deps.OffsetArrays.weakdeps]
-    Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -996,18 +898,6 @@ version = "1.3.5+1"
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 version = "0.3.23+4"
-
-[[deps.OpenEXR]]
-deps = ["Colors", "FileIO", "OpenEXR_jll"]
-git-tree-sha1 = "327f53360fdb54df7ecd01e96ef1983536d1e633"
-uuid = "52e1d378-f018-4a11-a4be-720524705ac7"
-version = "0.3.2"
-
-[[deps.OpenEXR_jll]]
-deps = ["Artifacts", "Imath_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "a4ca623df1ae99d09bc9868b008262d0c0ac1e4f"
-uuid = "18a262bb-aa17-5467-a713-aee519bc75cb"
-version = "3.1.4+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1048,18 +938,6 @@ deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
 version = "10.42.0+1"
 
-[[deps.PNGFiles]]
-deps = ["Base64", "CEnum", "ImageCore", "IndirectArrays", "OffsetArrays", "libpng_jll"]
-git-tree-sha1 = "67186a2bc9a90f9f85ff3cc8277868961fb57cbd"
-uuid = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
-version = "0.4.3"
-
-[[deps.PaddedViews]]
-deps = ["OffsetArrays"]
-git-tree-sha1 = "0fac6313486baae819364c52b4f483450a9d793f"
-uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
-version = "0.5.12"
-
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
 git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
@@ -1082,12 +960,6 @@ deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 version = "1.10.0"
 
-[[deps.PkgVersion]]
-deps = ["Pkg"]
-git-tree-sha1 = "f9501cc0430a26bc3d156ae1b5b0c1b47af4d6da"
-uuid = "eebad327-c553-4316-9ea0-9fa01ccd7688"
-version = "0.3.3"
-
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
 git-tree-sha1 = "1f03a2d339f42dca4a4da149c7e15e9b896ad899"
@@ -1101,10 +973,10 @@ uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "1.4.1"
 
 [[deps.Plots]]
-deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "442e1e7ac27dd5ff8825c3fa62fbd1e86397974b"
+deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Preferences", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
+git-tree-sha1 = "ccee59c6e48e6f2edf8a5b64dc817b6729f99eb5"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.4"
+version = "1.39.0"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1142,29 +1014,23 @@ version = "1.4.3"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
-[[deps.ProgressMeter]]
-deps = ["Distributed", "Printf"]
-git-tree-sha1 = "763a8ceb07833dd51bb9e3bbca372de32c0605ad"
-uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
-version = "1.10.0"
-
 [[deps.PyCall]]
 deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
 git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
 uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 version = "1.96.4"
 
-[[deps.QOI]]
-deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
-git-tree-sha1 = "18e8f4d1426e965c7b532ddd260599e1510d26ce"
-uuid = "4b34888f-f399-49d4-9bb3-47ed5cae4e65"
-version = "1.0.0"
-
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
 git-tree-sha1 = "37b7bb7aabf9a085e0044307e1717436117f2b3b"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
 version = "6.5.3+1"
+
+[[deps.QuadGK]]
+deps = ["DataStructures", "LinearAlgebra"]
+git-tree-sha1 = "9b23c31e76e333e6fb4c1595ae6afa74966a729e"
+uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+version = "2.9.4"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -1173,11 +1039,6 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-
-[[deps.RangeArrays]]
-git-tree-sha1 = "b9039e93773ddcfc828f12aadf7115b4b4d225f5"
-uuid = "b3c3ace0-ae52-54e7-9d0b-2c1406fd6b9d"
-version = "0.3.2"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1250,18 +1111,6 @@ git-tree-sha1 = "874e8867b33a00e784c8a7e4b60afe9e037b74e1"
 uuid = "777ac1f9-54b0-4bf8-805c-2214025038e7"
 version = "1.1.0"
 
-[[deps.SimpleTraits]]
-deps = ["InteractiveUtils", "MacroTools"]
-git-tree-sha1 = "5d7e3f4e11935503d3ecaf7186eac40602e7d231"
-uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
-version = "0.9.4"
-
-[[deps.Sixel]]
-deps = ["Dates", "FileIO", "ImageCore", "IndirectArrays", "OffsetArrays", "REPL", "libsixel_jll"]
-git-tree-sha1 = "2da10356e31327c7096832eb9cd86307a50b1eb6"
-uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
-version = "0.1.3"
-
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
@@ -1292,11 +1141,16 @@ git-tree-sha1 = "c06d695d51cfb2187e6848e98d6252df9101c588"
 uuid = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 version = "1.2.3"
 
-[[deps.StackViews]]
-deps = ["OffsetArrays"]
-git-tree-sha1 = "46e589465204cd0c08b4bd97385e4fa79a0c770c"
-uuid = "cae243ae-269e-4f55-b966-ac2d0dc13c15"
-version = "0.1.1"
+[[deps.StaticArrays]]
+deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
+git-tree-sha1 = "bf074c045d3d5ffd956fa0a461da38a44685d6b2"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "1.9.3"
+weakdeps = ["ChainRulesCore", "Statistics"]
+
+    [deps.StaticArrays.extensions]
+    StaticArraysChainRulesCoreExt = "ChainRulesCore"
+    StaticArraysStatisticsExt = "Statistics"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "36b3d696ce6366023a0ea192b4cd442268995a0d"
@@ -1362,12 +1216,6 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[[deps.TiffImages]]
-deps = ["ColorTypes", "DataStructures", "DocStringExtensions", "FileIO", "FixedPointNumbers", "IndirectArrays", "Inflate", "Mmap", "OffsetArrays", "PkgVersion", "ProgressMeter", "UUIDs"]
-git-tree-sha1 = "34cc045dd0aaa59b8bbe86c644679bc57f1d5bd0"
-uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
-version = "0.6.8"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
@@ -1678,12 +1526,6 @@ git-tree-sha1 = "d7015d2e18a5fd9a4f47de711837e980519781a4"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
 version = "1.6.43+1"
 
-[[deps.libsixel_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "libpng_jll"]
-git-tree-sha1 = "d4f63314c8aa1e48cd22aa0c17ed76cd1ae48c3c"
-uuid = "075b6546-f08a-558a-be8f-8157d0f608a5"
-version = "1.10.3+0"
-
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
 git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
@@ -1726,37 +1568,47 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─36cf4ed0-ed92-40c8-b9ad-0dce400900ad
-# ╟─686c8bee-dba1-49e5-b923-71135b04d8ab
-# ╟─3c96e9bc-108b-498f-9ffd-88d1a60f7246
-# ╟─cecd7473-8c60-43e1-909b-9a8acd988f7a
-# ╟─cf3bd1ef-030b-446a-9da2-a0a874b8cc93
-# ╠═0d72f7ea-9db2-4f9b-9f0a-80516ec0bcd9
-# ╟─7f1c699a-6e90-4394-9157-e91b3d2c1bcb
-# ╟─ec1f452d-236b-4d3c-9224-6e833519c423
-# ╟─c3eb58fc-20ae-471c-a005-37093a20f9f6
-# ╟─be6b03e5-d7c1-44b0-ad07-fe3f5e25f4ad
-# ╟─e078a44d-91b9-447c-846d-77d09c9381a0
-# ╟─ee838869-1eed-446e-bedf-62a936db7bd2
-# ╟─cfa7a704-b305-444f-a017-29599e4c4aa7
-# ╟─61a288c5-36d2-4dd1-a8f6-9ae837c2c572
-# ╟─44ce9eff-c436-4c57-85ff-157e4c0044ec
-# ╟─84349bfe-19e6-40f1-8e14-9cbadb19ff3a
-# ╟─ffa48d9c-79e3-43a9-930a-f29965b3db62
-# ╟─5bb3245b-9e25-4c39-9424-22bbf488c4d6
-# ╟─5e383f59-e081-4178-b801-3a6331dee965
-# ╟─fb30e37c-5700-48e7-8f58-44210a6841c0
-# ╠═54d33a24-3ad0-4812-90ca-69e9ff895311
-# ╟─883ae29f-0635-4c37-b6f1-cec620f8005d
-# ╠═87dab266-5b49-4dfc-899e-581f6d398691
-# ╟─8c2b291d-2e02-40b7-b268-fe36fe60d669
-# ╠═c1bf3afa-d932-4798-b4fd-a9dce6bfab95
-# ╟─e91ca5a5-18c2-4080-8e7e-20077d46f192
-# ╠═274f8220-8790-47bb-94e3-63f7bb14fc83
-# ╟─750763d1-8d2b-4a93-95e8-ca4b2ec1464d
-# ╠═0a2ad8e3-f307-4fb3-860a-13006802155f
-# ╟─f467fff3-e441-4d93-8f09-69b99ed9dbcf
-# ╟─f7004c5a-4b6a-4f8b-992f-459e01ecdc13
-# ╟─4156c7b9-efde-42f6-804a-1c716eb2ec31
+# ╟─a8bba679-f278-4bec-bead-a2db35b22480
+# ╟─1678c6ff-49a0-4e31-91d6-473e1c464919
+# ╟─8e76a38d-14f5-4400-8c2a-e14065d4a8f9
+# ╟─8beae7e8-43c5-4b22-8092-bc7bed00446b
+# ╟─da68339a-d432-4d45-86e4-ba0d2bdbffe6
+# ╠═eda2c6e2-d8cc-11ee-1504-6f5faf98b7a4
+# ╟─69bc73b6-a9fe-420e-9750-0a010d3f36af
+# ╟─626fe653-d0ab-4aa9-8118-9fca62893737
+# ╟─a3474d95-5273-4e44-9ba4-279f2439022c
+# ╠═0ab26568-672f-479d-9e29-5bfede3dc7ff
+# ╟─83b04957-cdc8-466e-945f-9ac669218fc1
+# ╟─a5b9e427-b488-490e-a6b0-de8c45329858
+# ╟─0d5df730-726d-4aab-8020-7f177ca74930
+# ╠═88f4e272-3949-48a3-8bb6-67e48d8f3fee
+# ╟─0ad7ddec-da98-44c9-abff-33fb772d31e9
+# ╠═3e9a6c50-c593-4a15-9f14-e54bf5adbaa1
+# ╟─364bbb4a-b028-4f3c-b1c6-892f09bda0b2
+# ╠═ed23b426-3538-494a-ba7b-e7c95c180e08
+# ╟─920255ed-d03f-453b-ab64-a88b62e1087c
+# ╠═12f1dd7b-6fb0-415d-8312-bfbe1b1961ed
+# ╟─7039f022-a74e-42bb-a1dd-a19fe888bafb
+# ╠═6251e8fb-5cd1-46eb-bc03-d53df11c2363
+# ╟─dacf0d1f-efa1-4271-9116-15a53b9c94cf
+# ╠═dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
+# ╟─f7ff41e8-4671-4510-92e6-6803349c16d5
+# ╟─5a546318-dd9e-417b-aa6c-768a576f3c5f
+# ╠═75a584e7-e772-4161-8ba0-a8ca632cfd19
+# ╟─1233c5ec-7994-4505-b265-3f6781a4c76c
+# ╟─f9710b1a-2d51-41f2-b076-a1f38199fadb
+# ╟─12eb6304-96ae-46fd-9c88-c5af1324991b
+# ╠═db68a0a5-5293-4c97-be25-2637f314fefc
+# ╟─13e86d40-6e7a-400b-bbf0-7eb78d662273
+# ╠═6bc832b4-181b-45d0-ae34-852c86502784
+# ╟─1d76d454-20bf-4244-8622-5cbe82cd2660
+# ╠═f2183dcc-3797-45cb-b4d4-d02f4593c1d0
+# ╟─70eabb15-e734-4e29-87ba-2b08c763d16d
+# ╠═45cf7bd9-e94b-447c-87fe-961933fe1d71
+# ╟─858c4ac1-a38a-418b-b0a1-9f6f4b90a8e3
+# ╠═28da7f1b-0355-4f2a-a5a6-039034954d42
+# ╟─9b9917e5-26c4-4e27-a433-188c06d5b274
+# ╠═a3d20b00-2111-45d5-82ec-ea7b18acecdb
+# ╟─3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

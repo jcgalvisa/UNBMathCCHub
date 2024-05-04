@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ a6ad6525-4b25-471f-b4f1-f0bd9aa5a1ac
 using PlutoUI
 
@@ -172,9 +182,13 @@ md"""Luego, la resolvemos de la siguiente manera"""
 solucion₂ = dsolve(eqn₂)
 
 # ╔═╡ 2b6ffac3-0ebd-4971-82c8-6a2141fcd8a8
-md"""Ahora, resolvamos el problema de valor inicial, primero hallemos $C_1$, recordemos que $y'(0)=-1$.
+md"""Ahora, resolvamos el problema de valor inicial, primero hallemos $C_1$, recordemos que $y'(0)=-1$."""
 
-Trabajemos solo con la solución dada, definimos la siguiente ecuación:"""
+# ╔═╡ aefdbaa2-1af5-4dbf-9ac4-10bf172662ec
+@bind Dy0 Slider(-5:5, show_value=true)
+
+# ╔═╡ ec0905cb-f246-4ead-ad88-714c0f156201
+md"""Trabajemos solo con la solución dada, definimos la siguiente ecuación:"""
 
 # ╔═╡ 10f96ceb-bace-4947-ab13-8efee576cf59
 eq = rhs(solucion₂)
@@ -195,7 +209,7 @@ md"""Y como $y'(0)=-1$, entonces $C_1=$"""
 begin
 	eq₁ = D₂(rhs(solucion₂))  
 	C1 = first(setdiff(free_symbols(eq₁), (t)))
-	c1 = solve(eq₁(t=>0) + 1, C1)[1] #y'(0)=-1
+	c1 = solve(eq₁(t=>0) - Dy0, C1)[1] #y'(0)=-1
 end
 
 # ╔═╡ a4bffaaf-a1bf-4536-ae2b-b60ccce76d2c
@@ -204,13 +218,16 @@ md"""Así, $y(t)=$"""
 # ╔═╡ 319dfb3f-59b9-4c99-a34f-cc5c2feaa04e
 eq1 = eq(C1 => c1)
 
+# ╔═╡ 083a1c78-b850-4c42-a49c-53c0d195577d
+@bind y0 Slider(0:0.001:1, show_value=true)
+
 # ╔═╡ 68cc5e27-c274-4fff-be1b-7dd7edb1d5d1
-md"""Nos falta hallar el valor de $C_2$ para esto consideremos la condición inicial $y(0)=\frac{1}{6}$. Así $C_2=$"""
+md"""Nos falta hallar el valor de $C_2$ para esto consideremos la condición inicial $y(0)=\frac{1}{6}$ (0.167). Así $C_2=$"""
 
 # ╔═╡ 7a5a4579-d677-49b3-95cf-fcf423061740
 begin  
 	C2 = first(setdiff(free_symbols(eq1), (t)))
-	c2 = solve(eq(t=>0) - Rational(1,6), C2)[1] #y(0)=1/6
+	c2 = solve(eq(t=>0) - y0, C2)[1] #y(0)=1/6
 end
 
 # ╔═╡ 27e2502b-0b45-4ffd-9cfc-1c02b99f36cc
@@ -324,7 +341,7 @@ SymPy = "~2.0.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.2"
+julia_version = "1.10.3"
 manifest_format = "2.0"
 project_hash = "703e941d0f2171dcd25c2b086db0157c2a17efe1"
 
@@ -576,7 +593,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.1.0+0"
+version = "1.1.1+0"
 
 [[deps.CompositionsBase]]
 git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
@@ -2676,6 +2693,8 @@ version = "1.4.1+1"
 # ╟─b732fa80-a2c8-4e09-a6fa-fb506c15392f
 # ╠═92214926-1845-478e-bac5-4672d101a5eb
 # ╟─2b6ffac3-0ebd-4971-82c8-6a2141fcd8a8
+# ╠═aefdbaa2-1af5-4dbf-9ac4-10bf172662ec
+# ╟─ec0905cb-f246-4ead-ad88-714c0f156201
 # ╠═10f96ceb-bace-4947-ab13-8efee576cf59
 # ╟─f1f40170-42c2-4dbd-be8f-279d39e28f7f
 # ╠═54770ffb-4544-48f8-b418-a94650dc9f5f
@@ -2683,6 +2702,7 @@ version = "1.4.1+1"
 # ╠═12b26030-d263-4d09-9d14-2a5563f5049d
 # ╟─a4bffaaf-a1bf-4536-ae2b-b60ccce76d2c
 # ╠═319dfb3f-59b9-4c99-a34f-cc5c2feaa04e
+# ╠═083a1c78-b850-4c42-a49c-53c0d195577d
 # ╟─68cc5e27-c274-4fff-be1b-7dd7edb1d5d1
 # ╠═7a5a4579-d677-49b3-95cf-fcf423061740
 # ╟─27e2502b-0b45-4ffd-9cfc-1c02b99f36cc

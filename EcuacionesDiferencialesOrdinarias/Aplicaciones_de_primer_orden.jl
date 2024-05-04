@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ a8bba679-f278-4bec-bead-a2db35b22480
 using PlutoUI
 
@@ -11,7 +21,7 @@ using PlutoUI
 using CalculusWithJulia, Plots, SymPy, Roots
 
 # ╔═╡ 1678c6ff-49a0-4e31-91d6-473e1c464919
-PlutoUI.TableOfContents(title="Aplicaciones de primer orden", aside=true)
+PlutoUI.TableOfContents(title="Crecimiento de poblaciones", aside=true)
 
 # ╔═╡ 8e76a38d-14f5-4400-8c2a-e14065d4a8f9
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
@@ -31,94 +41,13 @@ md"""
 
 # ╔═╡ 626fe653-d0ab-4aa9-8118-9fca62893737
 md"""
-El presente notebook aborda tres modelos diferentes de ecuaciones diferenciales ordinarias (EDOs) que son comunes en la modelización matemática de fenómenos naturales y sociales: la ley de enfriamiento de Newton, el modelo de crecimiento exponencial y el modelo de crecimiento logístico. Estos modelos son fundamentales para comprender cómo ciertos sistemas evolucionan en el tiempo."""
+El presente notebook aborda dos modelos diferentes de ecuaciones diferenciales ordinarias (EDOs) que son comunes en la modelización matemática de fenómenos naturales y sociales: el modelo de crecimiento exponencial y el modelo de crecimiento logístico. Estos modelos son fundamentales para comprender cómo ciertos sistemas evolucionan en el tiempo."""
 
 # ╔═╡ a3474d95-5273-4e44-9ba4-279f2439022c
 md"""Las variables simbólicas que se usarán en los ejemplos presentados son las siguientes:"""
 
 # ╔═╡ 0ab26568-672f-479d-9e29-5bfede3dc7ff
-@syms N() u() t T k u₀ tᵢ uᵢ r N₀ Nᵢ tₚ K
-
-# ╔═╡ c1601cf6-ded6-422c-b6b9-8d028b1eacf7
-md"""
-# Ley de enfriamiento de Newton
-
-La ley de enfriamiento de Newton es una ley física que describe cómo la temperatura de un objeto cambia con respecto al tiempo, esto cuando el objeto está en contacto con un medio ambiente a una temperatura constante. Es comúnmente aplicada en situaciones donde un objeto se enfría o se calienta debido a la diferencia de temperatura entre el objeto y el ambiente que lo rodea.
-
-La ley de enfriamiento de Newton no dice que la temperatura $u(t)$ satisface la siguiente ecuación diferencial
-
-$\frac{du}{dt}=-k(u-T), \hspace{0.5cm} u(0)=u_0$
-Donde $\frac{du}{dt}$ es la tasa de cambio de la temperatura del objeto respecto al tiempo, $u$ es la temperatura del objeto, $T$ es la temperatura ambiente (constante), $u_0$ es la temperatura inicial del objeto y $k$ es una constante de proporcionalidad que depende de las propiedades del objeto y del medio ambiente."""
-
-# ╔═╡ f3dbf8bf-9ffa-4e32-9a3f-a60b74473375
-md"""*Ejemplo:*
-
-Supongamos que un objeto con temperatura $u(t)$ tiene una temperatura inicial $u(0)=98.6°F$ en un lugar donde la temperatura del ambiente es $T=72°F$. Sea $t$ el tiempo dado en horas. Después de 3 horas el objeto tiene una temperatura de $94°F$. 
-
-Encontremos la temperatura del objeto en el tiempo $t$."""
-
-# ╔═╡ f5e1bb64-4eb0-4f34-a416-76a340934c49
-md"""Iniciamos definiendo la ecuación diferencial."""
-
-# ╔═╡ f5de9d2b-77dd-4db6-ae82-7ba6d534a2c6
-begin
-	D = Differential(t)
-	eqn = D(u)(t) ~ -k * ( u(t) - T)
-end
-
-# ╔═╡ 68f559cd-081b-406c-988f-a09a85fed49b
-md"""Luego la resolvemos de la siguiente manera"""
-
-# ╔═╡ b94c1396-5ddf-4948-8b38-ea77b0d2be95
-solucion = dsolve(eqn)
-
-# ╔═╡ 5c069bbe-2350-4202-9095-9fb0e546ed2d
-md"""Ahora, resolvamos el problema de valor inicial, consideremos $u(0)=u_0$."""
-
-# ╔═╡ ccd09ee8-f03b-4ea0-aff2-f82e0cdad1c2
-begin
-	eq = rhs(solucion)   
-	C1 = first(setdiff(free_symbols(eq), (t,k,T))) 
-	c1 = solve(eq(t=>0) - u₀, C1) #u(0)=u₀
-	eq1 = eq(C1 => c1[1])
-end
-
-# ╔═╡ 351fb54b-8c10-40e3-9130-b5a727a5e022
-md"""Note que conocemos tanto a $u_0$ como a $T$, pero no conocemos $k$. Es claro que en cualquier instante de tiempo $t_i$ se tiene que $u(t_i)=u_i$. Teniendo en cuenta esto despejemos $k$."""
-
-# ╔═╡ 530ad7da-8776-4a63-8229-50c1ee2f6b78
-solve(eq1(t=>tᵢ) - uᵢ, k)[1]
-
-# ╔═╡ 8ed603e8-e67b-4561-b281-7de113d7d785
-md"""Así la solución del problema es
-
-$u(t)=T+(-T+u_0)e^{-\frac{\ln{\left(\frac{T-u_0}{T-u_i}\right)}}{t_i}t}$
-
-Recordemos que $T=72°F, u_0=98.6°F$ y el problema nos dice que luego de $3$ horas el objeto tiene una temperatura de $94°F$, así $t_3=3$ y $u_3=94°F$. Esto es
-
-$u(t)=72+(-72+98.6)e^{-\frac{\ln{\left(\frac{72-98.6}{72-94}\right)}}{3}t}= 72 + 26.6e^{-0.063t}.$
-
-Visualicemos dicha solución."""
-
-# ╔═╡ 491288ee-9c34-4b0f-a226-997384e07b81
-begin
-	x = range(0, 10, length=100)
-	y = 72 .+ 26.6 * exp.(-0.063 .* x)
-	plot(x, y, title="Solución", label="u(t)", linewidth=2)
-	scatter!([0], [98.6], color="red", label="u₀")
-	scatter!([3], [94], color="blue", label="u₃")
-end
-
-# ╔═╡ 820d3202-728c-4706-8ae9-0cdcb3d59110
-md"""El campo de vectores la solución general de la EDO es el siguiente:"""
-
-# ╔═╡ 1c8a64c2-9912-4d75-afd8-716e6a6d3bdc
-begin
-	F(y, t) =  -0.063 * ( y - 72)
-	plot(legend=false)
-	vectorfieldplot!((t,y) -> [1, F(y,t)], xlims=(0, 6), ylims=(85, 100))
-	plot!(x, y, title="Solución", label="u(t)", linewidth=2) #solcuión del pvi
-end
+@syms N() t tᵢ r N₀ Nᵢ tₚ K
 
 # ╔═╡ 83b04957-cdc8-466e-945f-9ac669218fc1
 md"""# Modelo de crecimiento exponencial
@@ -171,19 +100,23 @@ md"""Así la solución del problema es
 
 $N(t)=N_0e^{\frac{\ln{\left(\frac{N_i}{N_0}\right)}}{t_i}t}$
 
-Recordemos que $N_0=500$ y el problema nos dice que luego de $6$ meses hay 1000 peces en el estanque, así $t_i=6$ y $N_i=1000$. Esto es
-
-$N(t)= 500e^{\frac{\ln{\left(\frac{1000}{500}\right)}}{6}t}= 500e^{\frac{\ln{\left(2\right)}}{6}t}.$
+Recordemos que $N_0=500$ y el problema nos dice que luego de $6$ meses hay 1000 peces en el estanque, así $t_i=6$ y $N_i=1000$.
 
 Mostremos la solución y los valores mencionados."""
+
+# ╔═╡ 3c1db2ff-14f6-49ad-8b52-6aad1f1dc7b9
+@bind N₀1 Slider(1:1000, show_value=true)
+
+# ╔═╡ 17e1c64e-334f-4de5-93c8-cc7a056d9887
+@bind Nᵢ1 Slider(1:2000, show_value=true)
 
 # ╔═╡ 6251e8fb-5cd1-46eb-bc03-d53df11c2363
 begin
 	x₂ = range(0, 30, length=100)
-	y₂ = 500 * exp.((log(2)/6) .* x₂)
+	y₂ = N₀1 * exp.((log(Nᵢ1/N₀1)/6).* x₂)
 	plot(x₂, y₂, title="Solución", label="N(t)", linewidth=2)
-	scatter!([0], [500], color="red", label="N₀")
-	scatter!([6], [1000], color="blue", label="N₆")
+	scatter!([0], [N₀1], color="red", label="N₀")
+	scatter!([6], [Nᵢ1], color="blue", label="N₆")
 end
 
 # ╔═╡ dacf0d1f-efa1-4271-9116-15a53b9c94cf
@@ -196,7 +129,7 @@ Esto se resuelve de la siguiente forma:"""
 
 # ╔═╡ dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
 begin
-	f(tₚ) = 500 * exp((log(2)/6) * tₚ) - 10000 #definimos la función
+	f(tₚ) = N₀1 * exp.((log(Nᵢ1/N₀1)/6) * tₚ) - 10000 #definimos la función
 	tₚ_sol = fzero(f, 0)  # Encuentra la raíz de la función f cerca de tₚ = 0
 end
 
@@ -208,7 +141,7 @@ md"""El campo de vectores la solución general de la EDO es el siguiente:"""
 
 # ╔═╡ 75a584e7-e772-4161-8ba0-a8ca632cfd19
 begin
-	F₂(N, t) =  (log(2)/6) * N
+	F₂(N, t) =  (log(Nᵢ1/N₀1)/6) * N
 	plot(legend=false)
 	vectorfieldplot!((t,y) -> [1, F₂(y,t)], xlims=(0, 30), ylims=(0, 10000))
 	plot!(x₂, y₂, title="Solución", label="N(t)", linewidth=2) #solución del pvi
@@ -329,7 +262,7 @@ SymPy = "~2.0.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.5"
+julia_version = "1.10.3"
 manifest_format = "2.0"
 project_hash = "b21e2ddcc39ed8cc809a39a25640c2ff54eac4b9"
 
@@ -340,10 +273,25 @@ uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.1"
 
 [[deps.Accessors]]
-deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Requires", "Test"]
+deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
 git-tree-sha1 = "c0d491ef0b135fd7d63cbc6404286bc633329425"
 uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
 version = "0.1.36"
+
+    [deps.Accessors.extensions]
+    AccessorsAxisKeysExt = "AxisKeys"
+    AccessorsIntervalSetsExt = "IntervalSets"
+    AccessorsStaticArraysExt = "StaticArrays"
+    AccessorsStructArraysExt = "StructArrays"
+    AccessorsUnitfulExt = "Unitful"
+
+    [deps.Accessors.weakdeps]
+    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
+    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+    Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -379,16 +327,14 @@ uuid = "a2e0e22d-7d4c-5312-9169-8b992201a882"
 version = "0.1.4"
 
 [[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra", "SparseArrays"]
+deps = ["Compat", "LinearAlgebra"]
 git-tree-sha1 = "575cd02e080939a33b6df6c5853d14924c08e35b"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 version = "1.23.0"
+weakdeps = ["SparseArrays"]
 
-[[deps.ChangesOfVariables]]
-deps = ["InverseFunctions", "LinearAlgebra", "Test"]
-git-tree-sha1 = "2fba81a302a7be671aefe194f0525ef231104e7f"
-uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.8"
+    [deps.ChainRulesCore.extensions]
+    ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -413,6 +359,10 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.10.0"
+weakdeps = ["SpecialFunctions"]
+
+    [deps.ColorVectorSpace.extensions]
+    SpecialFunctionsExt = "SpecialFunctions"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
@@ -442,20 +392,28 @@ uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
 version = "0.3.0"
 
 [[deps.Compat]]
-deps = ["Dates", "LinearAlgebra", "TOML", "UUIDs"]
+deps = ["TOML", "UUIDs"]
 git-tree-sha1 = "c955881e3c981181362ae4088b35995446298b80"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
 version = "4.14.0"
+weakdeps = ["Dates", "LinearAlgebra"]
+
+    [deps.Compat.extensions]
+    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.1+0"
+version = "1.1.1+0"
 
 [[deps.CompositionsBase]]
 git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
 uuid = "a33af91c-f02d-484b-be07-31d278c5ca2b"
 version = "0.1.2"
+weakdeps = ["InverseFunctions"]
+
+    [deps.CompositionsBase.extensions]
+    CompositionsBaseInverseFunctionsExt = "InverseFunctions"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
@@ -474,6 +432,11 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 version = "1.5.5"
+weakdeps = ["IntervalSets", "StaticArrays"]
+
+    [deps.ConstructionBase.extensions]
+    ConstructionBaseIntervalSetsExt = "IntervalSets"
+    ConstructionBaseStaticArraysExt = "StaticArrays"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -497,7 +460,9 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelimitedFiles]]
 deps = ["Mmap"]
+git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+version = "1.9.1"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random", "Serialization"]
@@ -579,10 +544,14 @@ uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
 
 [[deps.ForwardDiff]]
-deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions", "StaticArrays"]
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
 git-tree-sha1 = "cf0fe81336da9fb90944683b8c41984b08793dad"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.36"
+weakdeps = ["StaticArrays"]
+
+    [deps.ForwardDiff.extensions]
+    ForwardDiffStaticArraysExt = "StaticArrays"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -683,16 +652,25 @@ deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.IntervalSets]]
-deps = ["Random", "RecipesBase", "Statistics"]
 git-tree-sha1 = "dba9ddf07f77f60450fe5d2e2beb9854d9a49bd0"
 uuid = "8197267c-284f-5f27-9208-e0e47529a953"
 version = "0.7.10"
+weakdeps = ["Random", "RecipesBase", "Statistics"]
+
+    [deps.IntervalSets.extensions]
+    IntervalSetsRandomExt = "Random"
+    IntervalSetsRecipesBaseExt = "RecipesBase"
+    IntervalSetsStatisticsExt = "Statistics"
 
 [[deps.InverseFunctions]]
-deps = ["Dates", "Test"]
+deps = ["Test"]
 git-tree-sha1 = "896385798a8d49a255c398bd49162062e4a4c435"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
 version = "0.1.13"
+weakdeps = ["Dates"]
+
+    [deps.InverseFunctions.extensions]
+    DatesExt = "Dates"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
@@ -758,24 +736,37 @@ git-tree-sha1 = "e0b5cd21dc1b44ec6e64f351976f961e6f31d6c4"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 version = "0.16.3"
 
+    [deps.Latexify.extensions]
+    DataFramesExt = "DataFrames"
+    SymEngineExt = "SymEngine"
+
+    [deps.Latexify.weakdeps]
+    DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -829,14 +820,24 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.39.3+1"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "libblastrampoline_jll"]
+deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
-deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
+deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
 git-tree-sha1 = "18144f3e9cbe9b15b070288eef858f71b291ce37"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 version = "0.3.27"
+
+    [deps.LogExpFunctions.extensions]
+    LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
+    LogExpFunctionsChangesOfVariablesExt = "ChangesOfVariables"
+    LogExpFunctionsInverseFunctionsExt = "InverseFunctions"
+
+    [deps.LogExpFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -871,7 +872,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.0+0"
+version = "2.28.2+1"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -889,7 +890,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.2.1"
+version = "2023.1.10"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -910,12 +911,12 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.20+0"
+version = "0.3.23+4"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+0"
+version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -949,7 +950,7 @@ version = "1.6.3"
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
-version = "10.40.0+0"
+version = "10.42.0+1"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -969,9 +970,9 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.42.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.8.0"
+version = "1.10.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -990,6 +991,20 @@ deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers"
 git-tree-sha1 = "ccee59c6e48e6f2edf8a5b64dc817b6729f99eb5"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.39.0"
+
+    [deps.Plots.extensions]
+    FileIOExt = "FileIO"
+    GeometryBasicsExt = "GeometryBasics"
+    IJuliaExt = "IJulia"
+    ImageInTerminalExt = "ImageInTerminal"
+    UnitfulExt = "Unitful"
+
+    [deps.Plots.weakdeps]
+    FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+    GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+    IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+    ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
+    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -1036,7 +1051,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.RecipesBase]]
@@ -1074,6 +1089,18 @@ git-tree-sha1 = "1ab580704784260ee5f45bffac810b152922747b"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 version = "2.1.5"
 
+    [deps.Roots.extensions]
+    RootsForwardDiffExt = "ForwardDiff"
+    RootsIntervalRootFindingExt = "IntervalRootFinding"
+    RootsSymPyExt = "SymPy"
+    RootsSymPyPythonCallExt = "SymPyPythonCall"
+
+    [deps.Roots.weakdeps]
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+    IntervalRootFinding = "d2bf35a9-74e0-55ec-b149-d360ff49b807"
+    SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
+    SymPyPythonCall = "bc8888f7-b21e-4b7c-a06a-5d9c9496438c"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
@@ -1108,14 +1135,19 @@ uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
 version = "1.2.1"
 
 [[deps.SparseArrays]]
-deps = ["LinearAlgebra", "Random"]
+deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.SpecialFunctions]]
-deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
+deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
 git-tree-sha1 = "e2cfc4012a19088254b3950b85c3c1d8882d864d"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "2.3.1"
+weakdeps = ["ChainRulesCore"]
+
+    [deps.SpecialFunctions.extensions]
+    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
 
 [[deps.SplitApplyCombine]]
 deps = ["Dictionaries", "Indexing"]
@@ -1124,10 +1156,15 @@ uuid = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 version = "1.2.3"
 
 [[deps.StaticArrays]]
-deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore", "Statistics"]
+deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
 git-tree-sha1 = "bf074c045d3d5ffd956fa0a461da38a44685d6b2"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
 version = "1.9.3"
+weakdeps = ["ChainRulesCore", "Statistics"]
+
+    [deps.StaticArrays.extensions]
+    StaticArraysChainRulesCoreExt = "ChainRulesCore"
+    StaticArraysStatisticsExt = "Statistics"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "36b3d696ce6366023a0ea192b4cd442268995a0d"
@@ -1137,6 +1174,7 @@ version = "1.4.2"
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+version = "1.10.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -1150,6 +1188,11 @@ git-tree-sha1 = "5cf7606d6cef84b543b483848d4ae08ad9832b21"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.3"
 
+[[deps.SuiteSparse_jll]]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
+uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
+version = "7.2.1+1"
+
 [[deps.SymPy]]
 deps = ["CommonEq", "CommonSolve", "LinearAlgebra", "PyCall", "SpecialFunctions", "SymPyCore"]
 git-tree-sha1 = "8d727c118eb31ffad73cce569b7bb29eef5fb9ad"
@@ -1162,15 +1205,21 @@ git-tree-sha1 = "4c5a53625f0e53ce1e726a6dab1c870017303728"
 uuid = "458b697b-88f0-4a86-b56b-78b75cfb3531"
 version = "0.1.16"
 
+    [deps.SymPyCore.extensions]
+    SymPyCoreSymbolicUtilsExt = "SymbolicUtils"
+
+    [deps.SymPyCore.weakdeps]
+    SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
+
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.0"
+version = "1.0.3"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.1"
+version = "1.10.0"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1183,10 +1232,13 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-deps = ["Random", "Test"]
 git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.10.7"
+weakdeps = ["Random", "Test"]
+
+    [deps.TranscodingStreams.extensions]
+    TestExt = ["Test", "Random"]
 
 [[deps.Tricks]]
 git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
@@ -1212,10 +1264,15 @@ uuid = "1cfade01-22cf-5700-b092-accc4b62d6e1"
 version = "0.4.1"
 
 [[deps.Unitful]]
-deps = ["ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "Random"]
+deps = ["Dates", "LinearAlgebra", "Random"]
 git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.19.0"
+weakdeps = ["ConstructionBase", "InverseFunctions"]
+
+    [deps.Unitful.extensions]
+    ConstructionBaseUnitfulExt = "ConstructionBase"
+    InverseFunctionsUnitfulExt = "InverseFunctions"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
@@ -1416,7 +1473,7 @@ version = "1.5.0+0"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.12+3"
+version = "1.2.13+1"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1455,9 +1512,9 @@ uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
 version = "0.15.1+0"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.1.1+0"
+version = "5.8.0+1"
 
 [[deps.libevdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1498,12 +1555,12 @@ version = "1.1.6+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 
 [[deps.x264_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1535,20 +1592,6 @@ version = "1.4.1+1"
 # ╟─626fe653-d0ab-4aa9-8118-9fca62893737
 # ╟─a3474d95-5273-4e44-9ba4-279f2439022c
 # ╠═0ab26568-672f-479d-9e29-5bfede3dc7ff
-# ╟─c1601cf6-ded6-422c-b6b9-8d028b1eacf7
-# ╟─f3dbf8bf-9ffa-4e32-9a3f-a60b74473375
-# ╟─f5e1bb64-4eb0-4f34-a416-76a340934c49
-# ╠═f5de9d2b-77dd-4db6-ae82-7ba6d534a2c6
-# ╟─68f559cd-081b-406c-988f-a09a85fed49b
-# ╠═b94c1396-5ddf-4948-8b38-ea77b0d2be95
-# ╟─5c069bbe-2350-4202-9095-9fb0e546ed2d
-# ╠═ccd09ee8-f03b-4ea0-aff2-f82e0cdad1c2
-# ╟─351fb54b-8c10-40e3-9130-b5a727a5e022
-# ╠═530ad7da-8776-4a63-8229-50c1ee2f6b78
-# ╟─8ed603e8-e67b-4561-b281-7de113d7d785
-# ╠═491288ee-9c34-4b0f-a226-997384e07b81
-# ╟─820d3202-728c-4706-8ae9-0cdcb3d59110
-# ╠═1c8a64c2-9912-4d75-afd8-716e6a6d3bdc
 # ╟─83b04957-cdc8-466e-945f-9ac669218fc1
 # ╟─a5b9e427-b488-490e-a6b0-de8c45329858
 # ╟─0d5df730-726d-4aab-8020-7f177ca74930
@@ -1560,6 +1603,8 @@ version = "1.4.1+1"
 # ╟─920255ed-d03f-453b-ab64-a88b62e1087c
 # ╠═12f1dd7b-6fb0-415d-8312-bfbe1b1961ed
 # ╟─7039f022-a74e-42bb-a1dd-a19fe888bafb
+# ╠═3c1db2ff-14f6-49ad-8b52-6aad1f1dc7b9
+# ╠═17e1c64e-334f-4de5-93c8-cc7a056d9887
 # ╠═6251e8fb-5cd1-46eb-bc03-d53df11c2363
 # ╟─dacf0d1f-efa1-4271-9116-15a53b9c94cf
 # ╠═dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
@@ -1580,6 +1625,6 @@ version = "1.4.1+1"
 # ╠═28da7f1b-0355-4f2a-a5a6-039034954d42
 # ╟─9b9917e5-26c4-4e27-a433-188c06d5b274
 # ╠═a3d20b00-2111-45d5-82ec-ea7b18acecdb
-# ╠═3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
+# ╟─3b0f5d24-eb25-4479-b9b3-8c4d1342efcf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

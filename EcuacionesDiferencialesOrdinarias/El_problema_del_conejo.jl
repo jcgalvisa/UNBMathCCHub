@@ -4,238 +4,104 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ 7e5b740b-2e26-4bff-a5a7-710b51cdddf9
+# ╔═╡ 42b1b271-c43f-48c3-bc6d-c07224680e57
 using PlutoUI
 
-# ╔═╡ 3161462a-1cb7-4964-ab6a-365cb75f1b88
+# ╔═╡ fa24bafe-6606-4ac2-9365-ed88c9fa8654
 begin
-	using CalculusWithJulia, Plots, SymPy, DifferentialEquations, NLsolve
+	using Colors, ColorVectorSpace, ImageShow, FileIO, ImageIO
+	using HypertextLiteral
+	using CalculusWithJulia, Plots, SymPy, DifferentialEquations
 end
 
-# ╔═╡ 0133db37-406a-4360-a3c3-c0720cdd12bb
-PlutoUI.TableOfContents(title="Modelo Presa-Depredador", aside=true)
+# ╔═╡ afe9aaac-7f14-474b-b9ff-6b84f0c8abc1
+PlutoUI.TableOfContents(title="El problema del conejo", aside=true)
 
-# ╔═╡ 9ea787d9-6430-40bb-a087-da77d605b1ab
+# ╔═╡ e1ec3b17-f1d4-462a-9324-398d45b3dcea
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ 94dfcd8e-7a4f-4c46-ae25-75d5ba5fabc7
-md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. El cuaderno fue inspirado en [2]. 
+# ╔═╡ e4cd00ea-f51d-4067-acd9-b7cbdbcfaf4f
+md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. El cuaderno fue inspirado en [1].
 """
 
-# ╔═╡ 563ebf25-53c0-421c-b529-879f5b2fbdb6
+# ╔═╡ c11ce2da-c7e5-4752-95da-881dfd1977ca
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ 41db04d9-d250-4c07-b515-41ac51ad4c30
+# ╔═╡ 4b25186e-b286-46ca-ae61-88234b7a0576
 md"""# Introducción
 
-En este cuaderno exploramos la dinámica donde una especie (denominada depredador) se alimenta de otra especie (conocida como presa), mientras que esta última obtiene su sustento de una fuente alimenticia distinta. Un ejemplo de esto sería el de los zorros y conejos en un bosque cerrado, donde los zorros se alimentan de los conejos, mientras que estos últimos se nutren de la vegetación del bosque.
+En este cuaderno se va a considerar un conejo que corre hacia arriba en el eje $y$ con una velocidad constante mientras un perro persigue su movimiento desde un punto inicial en el plano. Esta situación plantea una interesante pregunta: ¿cuál es la trayectoria que sigue el perro en su intento por atrapar al conejo?
 
-Es importante recalcar que un modelo que abarca únicamente dos especies no puede abordar por completo las complejas relaciones entre las especies que se encuentran en la naturaleza. No obstante, el estudio de modelos simples constituye el primer paso hacia la comprensión de fenómenos más complejos."""
+Con conceptos como la derivada y la ecuación diferencial, podemos modelar y comprender cómo interactúan dos objetos en movimiento en un espacio bidimensional.
 
-# ╔═╡ c1c578d7-3da0-4c89-a339-eec920667f9b
-md"""# Ecuaciones Lotka-Volterra
+En este análisis, exploraremos la relación entre la posición y la velocidad del conejo y el perro, derivando ecuaciones que describen la trayectoria del perro en función del tiempo y la distancia entre ambos animales."""
 
-Denotaremos por $x$ e $y$ las poblaciones de la presa y el depredador, respectivamente, en el tiempo $t$. Al construir un modelo de interacción entre las dos especies, hacemos las siguientes suposiciones:
-
-1. En ausencia del depredador, la presa crece a una tasa proporcional a la población actual; así $\frac{dx}{dt} = ax$, donde $a > 0$, cuando $y = 0$.
-2. En ausencia de la presa, el depredador desaparece; así $\frac{dy}{dt} = -cy$, donde $c > 0$, cuando $x = 0$.
-3. El número de encuentros entre depredador y presa es proporcional al producto de sus poblaciones. Cada encuentro tiende a promover el crecimiento del depredador e inhibir el crecimiento de la presa. Por lo tanto, la tasa de crecimiento del depredador se incrementa por un término de la forma $\gamma xy$, mientras que la tasa de crecimiento de la presa se reduce por un término $-\alpha xy$, donde $\gamma$ y $\alpha$ son constantes positivas.
-
-Como consecuencia de estas suposiciones, llegamos a las ecuaciones:
-
-$\frac{dx}{dt} = ax - \alpha xy = x(a - \alpha y),$
-
-$\frac{dy}{dt} = -cy + \gamma xy = y(-c + \gamma x).$
-
-Las constantes $a$, $c$, $\alpha$, y $\gamma$ son todas positivas; $a$ y $c$ representan la tasa de crecimiento de la presa y la tasa de mortalidad del depredador, respectivamente, mientras que $\alpha$ y $\gamma$ son medidas del efecto de la interacción entre las dos especies. Estas ecuaciones son conocidas como las ecuaciones Lotka-Volterra.
-"""
-
-# ╔═╡ 49c64959-086a-45c9-8542-63de2a9ea37a
-md"""## Ejemplo
-Hallemos las soluciones al sistema
-
-$\frac{dx}{dt} = x(1 - 0.5y) = x - 0.5xy = F(x, y),$
-
-$\frac{dy}{dt} = y(-0.75 + 0.25x) = -0.75y + 0.25xy = G(x, y),$
-para $x$ y $y$ positivos."""
-
-# ╔═╡ efab1f1c-ec89-4978-b167-5dde65c012c6
-@bind a Slider(0:0.5:5, show_value=true)
-
-# ╔═╡ 263797de-75f3-4824-8377-b77add80e10b
-@bind α Slider(0:0.5:5, show_value=true)
-
-# ╔═╡ a98b99d2-1e48-4bdf-8015-bf9eceb8fdf3
-@bind c Slider(0:0.25:5, show_value=true)
-
-# ╔═╡ 0838c3fa-060a-4317-8d61-064c4698849d
-@bind γ Slider(0:0.25:5, show_value=true)
-
-# ╔═╡ 9008e68e-0aec-4089-b8b5-239b253bcd41
-md"""### Puntos de equilibrio"""
-
-# ╔═╡ 90d2d7f8-6a0c-4310-83d0-9d487921221c
-md"""
-Los puntos críticos o de equilibrio de este sistema son las soluciones de las ecuaciones algebraicas
-
-$x(1 - 0.5y) = 0, \quad y(-0.75 + 0.25x) = 0,$
-resolvamos el sistema:"""
-
-# ╔═╡ 70c91709-d6d5-4db2-815e-401c72f88c11
-begin
-	# Definir la función que representa el sistema de ecuaciones
-	function system_eq!(F, z)
-    	x, y = z
-    	F[1] = x * (a - α * y)
-    	F[2] = y * (-c + γ * x)
-	end
-
-	# Resolver el sistema de ecuaciones
-	result1 = nlsolve(system_eq!, [1.0, 1.0])
-	result2 = nlsolve(system_eq!, [3.0, 3.0])
-
-	# Obtener la solución
-	solution = []
-	push!(solution, result1.zero)
-	push!(solution, result2.zero)
-end
-
-# ╔═╡ 81dd1390-e217-4b20-beea-d0d26c239064
-md"""Así, los puntos son $(0,0)$ y $(3,2)$. La siguiente grafica muestra los puntos críticos y un campo de direcciones para el sistema."""
-
-# ╔═╡ 882b942f-bef4-4f3c-9ae1-765775665766
-solution[1][1]
-
-# ╔═╡ 1608ab11-960a-45f0-b3c7-985321cd0bf1
+# ╔═╡ 51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
 let
-	F(x,y) = [x*(a-α*y), y*(-c+γ*x)]
-	vectorfieldplot(F; xlim=(-0.1, 6), ylim=(-0.1, 4), nx=12, ny=12, xlabel="x", ylabel="y", title="Campo de Vectores")
-
-	scatter!([solution[1][1]], [solution[1][2]], color="red", label="")
-	scatter!([solution[2][1]], [solution[2][2]], color="red", label="")
+	url = "xd"
+	fname = download(url) #bajamos la imagen a la máquina local
+	imag = load(fname) #declaramos la variable "imag"
 end
 
-# ╔═╡ 554172a5-4178-4d2c-95c5-c6405372d5f3
-md"""### Solución
+# ╔═╡ 53d13f61-1957-4d00-b8d2-d5e0c9dd605a
+md"""Las variables simbólicas que se usarán son las siguientes:"""
 
-Solucionemos el sistema de ecuaciones
+# ╔═╡ ce2100e1-9787-4eb9-b149-49bafbdbf4c1
+@syms y() x y₀ a t
 
-$\frac{dx}{dt} = x - 0.5xy,$
+# ╔═╡ 9ed3e0d1-95b9-4114-936b-1f451c03ee4b
+md"""Iniciamos definiendo la ecuación diferencial."""
 
-$\frac{dy}{dt} = -0.75y + 0.25xy,$
-con $x\geq 0$ y $y\geq 0$, con condiciones inicicales $x(0)=2$ y $y(0)=1$, de la siguiente manera:"""
-
-# ╔═╡ 0e46030e-c84d-43bd-a5cf-3eab911994f1
-@bind x0 Slider(0:5, show_value=true)
-
-# ╔═╡ 8c971eda-b537-4865-842b-3c8b43944b5b
-@bind y0 Slider(0:5, show_value=true)
-
-# ╔═╡ 2fa4e4f1-3c1e-4127-8555-2d658513aef3
+# ╔═╡ 958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
 begin
-	function sistema!(du, u, p, t)
-    	x, y = u[1], u[2]
-    	dxdt = x*(a-α*y)
-    	dydt = y*(-c+γ*x)
-    	du[1] = dxdt
-    	du[2] = dydt
-	end
-
-	# Condiciones iniciales y tiempo de integración
-	u0 = [x0, y0]  # Condiciones iniciales [x0, y0]
-	tspan = (0.0, 25.0)
-
-	# Resolvemos el sistema usando el método de integración de Runge-Kutta de cuarto orden
-	prob = ODEProblem(sistema!, u0, tspan)
-	sol = solve(prob, Tsit5())
+	D = Differential(x)
+	eqn = D(D(z))(θ) ~ -z(θ) + k/h^2 #z'' = -z + k/h^2
 end
 
-# ╔═╡ 53f13a74-e568-4a4d-b325-32e693af5e3f
-md"""Así, la gráfica de la solución es la siguiente:"""
+# ╔═╡ 72a691b7-b3f7-4e5c-ac93-c1c66fef785a
+md"""Luego la resolvemos de la siguiente manera"""
 
-# ╔═╡ 76ca863d-e416-44f1-a2b0-535b17846360
-begin
-	plot(sol, idxs = (1, 2), xlabel="x(t)", ylabel="y(t)", label="", title="Solución del modelo")
-end
+# ╔═╡ a8b3a377-16ab-405d-b85e-587aabaca696
+solucion = dsolve(eqn)
 
-# ╔═╡ 23653c59-b1d2-4671-bfe5-a56a3e12edda
-md"""La siguiente gráfica muestra el plano de fase del sistema. Para algunas condiciones iniciales, la trayectoria representa pequeñas variaciones en $x$ e $y$ alrededor del punto crítico y es casi elíptica. Para otras condiciones iniciales, las oscilaciones en $x$ e $y$ son más pronunciadas, y la forma de la trayectoria es significativamente diferente de una elipse."""
+# ╔═╡ b631844b-3eab-4eae-b850-d9441704791f
+md"""# Referencias
 
-# ╔═╡ 16d92967-9805-4394-beee-fb5a85ba8827
-let 
-	tspan = (0.0, 25.0)
-	
-	sol1 = solve(ODEProblem(sistema!, [2.0, 1.0], tspan), Tsit5())
-	sol2 = solve(ODEProblem(sistema!, [0.5, 0.5], tspan), Tsit5())
-	sol3 = solve(ODEProblem(sistema!, [2.0, 2.0], tspan), Tsit5())
-	sol4 = solve(ODEProblem(sistema!, [1.0, 2.0], tspan), Tsit5())
-	sol5 = solve(ODEProblem(sistema!, [1.5, 1.5], tspan), Tsit5())
-	sol6 = solve(ODEProblem(sistema!, [0.75, 0.75], tspan), Tsit5())
-	sol7 = solve(ODEProblem(sistema!, [0.05, 0.05], tspan), Tsit5())
+[1] Simmons, G. F. (1972). Differential Equations with Applications and Historical Notes. McGraw-Hill.
 
-	plot(sol1, idxs = (1, 2), color="red3", label="x(0)=2, y(0)=1")
-	plot!(sol2, idxs = (1, 2), color="teal", label="x(0)=0.5, y(0)=0.5")
-	plot!(sol3, idxs = (1, 2), color="teal", label="x(0)=2, y(0)=2")
-	plot!(sol4, idxs = (1, 2), color="teal", label="x(0)=1, y(0)=2")
-	plot!(sol5, idxs = (1, 2), color="teal", label="x(0)=1.5, y(0)=1.5")
-	plot!(sol6, idxs = (1, 2), color="teal", label="x(0)=0.75, y(0)=0.75")
-	plot!(sol7, idxs = (1, 2), color="teal", label="x(0)=0.05, y(0)=0.05", xlim=(-0.1, 10), ylim=(-0.1, 6), xlabel="x", ylabel="y", title="Campo de Vectores")
-	scatter!([0], [0], color="darkgoldenrod", label="Pto crítico")
-	scatter!([3], [2], color="darkgoldenrod", label="Pto crítico")
-end
+[2] Bryan, K. (2021). Differential Equations: A Toolbox to Modeling the World. SIMIODE.
 
-# ╔═╡ 1515d135-9ff0-49f0-b224-5e49180fc381
-md"""Las variaciones de las poblaciones de presas (curva azul) y depredadores (curva naranja) en el tiempo para el sistema con condición inicial $x(0) = 2$, $y(0) = 1$, son las presentadas en la siguiente gráfica."""
-
-# ╔═╡ 65abdcc3-5381-4c64-9fe5-5a7b7277e2e2
-# Graficamos las soluciones
-plot(sol, xlabel="Tiempo (t)", ylabel="x, y", label=["x(t) := presa" "y(t) := depredador"])
-
-# ╔═╡ 80937754-daf8-4f7e-af7e-1a61a9be3b1f
-md"""La representación gráfica anterior indica que tanto $x(t)$ como $y(t)$ exhiben un comportamiento periódico en función de $t$. Además, se observa que la oscilación en la población de depredadores tiene lugar después de la oscilación en la población de presas. Al iniciar desde un punto en el que ambas poblaciones son relativamente pequeñas, primero la población de presas aumenta debido a la baja actividad de depredación. Luego, los depredadores, al tener un suministro abundante de alimentos, también incrementan su población. Esto conduce a una mayor actividad de depredación y, como resultado, la población de presas tiende a disminuir. Finalmente, al disminuir la disponibilidad de alimentos, la población de depredadores también disminuye, y el sistema regresa a su estado inicial. A partir de aquí, la secuencia de eventos se repite."""
-
-# ╔═╡ 1a5bd86d-22fb-4a7d-9da4-255f80f685d3
-md"""
-# Referencias
-[1] Bryan, K. (2021). Differential Equations: A Toolbox to Modeling the World. SIMIODE.
-
-[2] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons.
-
-[3] Lin, C. C., & Segel, L. A. (1988). Mathematics Applied to Deterministic Problems in the Natural Sciences (Classics in Applied Mathematics, Series Number 1) (1st ed.). SIAM: Society for Industrial and Applied.
-
-[4] Zinger, A. (2019). Single Variable Calculus: Concepts and Contexts. Cengage Learning.
-
-[5] Strang, G. (1986). Introduction to Applied Mathematics. Wellesley-Cambridge Press
+[3] Boyce, W. E., & DiPrima, R. C. (2004). Elementary Differential Equations (8a ed.). Nueva York: John Wiley and Sons.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CalculusWithJulia = "a2e0e22d-7d4c-5312-9169-8b992201a882"
+ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
+Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
+ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
 CalculusWithJulia = "~0.2.3"
+ColorVectorSpace = "~0.10.0"
+Colors = "~0.12.10"
 DifferentialEquations = "~7.10.0"
-NLsolve = "~4.5.1"
+FileIO = "~1.16.3"
+HypertextLiteral = "~0.9.5"
+ImageIO = "~0.6.7"
+ImageShow = "~0.3.8"
 Plots = "~1.40.4"
-PlutoUI = "~0.7.58"
+PlutoUI = "~0.7.59"
 SymPy = "~2.0.1"
 """
 
@@ -245,7 +111,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "f2bd38ae245c8a433111d6aff1b0e103198afd97"
+project_hash = "5a93427a6a4d76e313ea2e9228611ca4f373ba25"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -339,6 +205,12 @@ weakdeps = ["SparseArrays"]
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+
+[[deps.AxisArrays]]
+deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
+git-tree-sha1 = "16351be62963a67ac4083f748fdb3cca58bfd52f"
+uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
+version = "0.4.7"
 
 [[deps.BandedMatrices]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "PrecompileTools"]
@@ -762,6 +634,12 @@ git-tree-sha1 = "0a59c7d1002f3131de53dc4568a47d15a44daef7"
 uuid = "29a986be-02c6-4525-aec4-84b980013641"
 version = "2.0.2"
 
+[[deps.FileIO]]
+deps = ["Pkg", "Requires", "UUIDs"]
+git-tree-sha1 = "82d8afa92ecf4b52d78d869f038ebfb881267322"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.16.3"
+
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
@@ -959,10 +837,57 @@ git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
 uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
 version = "0.1.1"
 
+[[deps.ImageAxes]]
+deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
+git-tree-sha1 = "2e4520d67b0cef90865b3ef727594d2a58e0e1f8"
+uuid = "2803e5a7-5153-5ecf-9a86-9b4c37f5f5ac"
+version = "0.6.11"
+
+[[deps.ImageBase]]
+deps = ["ImageCore", "Reexport"]
+git-tree-sha1 = "eb49b82c172811fd2c86759fa0553a2221feb909"
+uuid = "c817782e-172a-44cc-b673-b171935fbb9e"
+version = "0.1.7"
+
+[[deps.ImageCore]]
+deps = ["ColorVectorSpace", "Colors", "FixedPointNumbers", "MappedArrays", "MosaicViews", "OffsetArrays", "PaddedViews", "PrecompileTools", "Reexport"]
+git-tree-sha1 = "b2a7eaa169c13f5bcae8131a83bc30eff8f71be0"
+uuid = "a09fc81d-aa75-5fe9-8630-4744c3626534"
+version = "0.10.2"
+
+[[deps.ImageIO]]
+deps = ["FileIO", "IndirectArrays", "JpegTurbo", "LazyModules", "Netpbm", "OpenEXR", "PNGFiles", "QOI", "Sixel", "TiffImages", "UUIDs"]
+git-tree-sha1 = "bca20b2f5d00c4fbc192c3212da8fa79f4688009"
+uuid = "82e4d734-157c-48bb-816b-45c225c6df19"
+version = "0.6.7"
+
+[[deps.ImageMetadata]]
+deps = ["AxisArrays", "ImageAxes", "ImageBase", "ImageCore"]
+git-tree-sha1 = "355e2b974f2e3212a75dfb60519de21361ad3cb7"
+uuid = "bc367c6b-8a6b-528e-b4bd-a4b897500b49"
+version = "0.9.9"
+
+[[deps.ImageShow]]
+deps = ["Base64", "ColorSchemes", "FileIO", "ImageBase", "ImageCore", "OffsetArrays", "StackViews"]
+git-tree-sha1 = "3b5344bcdbdc11ad58f3b1956709b5b9345355de"
+uuid = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
+version = "0.3.8"
+
+[[deps.Imath_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "3d09a9f60edf77f8a4d99f9e015e8fbf9989605d"
+uuid = "905a6f67-0a94-5f89-b386-d35d92009cd1"
+version = "3.1.7+0"
+
 [[deps.Indexing]]
 git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
 uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
 version = "1.1.1"
+
+[[deps.IndirectArrays]]
+git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
+uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
+version = "1.0.0"
 
 [[deps.Inflate]]
 git-tree-sha1 = "ea8031dea4aff6bd41f1df8f2fdfb25b33626381"
@@ -1005,6 +930,11 @@ git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
 
+[[deps.IterTools]]
+git-tree-sha1 = "42d5f897009e7ff2cf88db414a389e5ed1bdd023"
+uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+version = "1.10.0"
+
 [[deps.IteratorInterfaceExtensions]]
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
@@ -1027,6 +957,12 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.4"
+
+[[deps.JpegTurbo]]
+deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]
+git-tree-sha1 = "fa6d0bcff8583bac20f1ffa708c3913ca605c611"
+uuid = "b835a17e-a41a-41e7-81f0-2f016b05efe0"
+version = "0.1.5"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1108,6 +1044,11 @@ version = "0.1.15"
 [[deps.LazyArtifacts]]
 deps = ["Artifacts", "Pkg"]
 uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
+
+[[deps.LazyModules]]
+git-tree-sha1 = "a560dd966b386ac9ae60bdd3a3d3a326062d3c3e"
+uuid = "8cdb02fc-e678-4876-92c5-9defec4f444e"
+version = "0.3.1"
 
 [[deps.LevyArea]]
 deps = ["LinearAlgebra", "Random", "SpecialFunctions"]
@@ -1286,6 +1227,11 @@ git-tree-sha1 = "bcaef4fc7a0cfe2cba636d84cda54b5e4e4ca3cd"
 uuid = "d125e4d3-2237-4719-b19c-fa641b8a4667"
 version = "0.1.8"
 
+[[deps.MappedArrays]]
+git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
+uuid = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
+version = "0.4.2"
+
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -1315,6 +1261,12 @@ version = "1.2.0"
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
+[[deps.MosaicViews]]
+deps = ["MappedArrays", "OffsetArrays", "PaddedViews", "StackViews"]
+git-tree-sha1 = "7b86a5d4d70a9f5cdf2dacb3cbe6d251d1a61dbe"
+uuid = "e94cdb99-869f-56ef-bcf0-1ae2bcbe0389"
+version = "0.3.4"
+
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.1.10"
@@ -1341,6 +1293,12 @@ deps = ["OpenLibm_jll"]
 git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
+
+[[deps.Netpbm]]
+deps = ["FileIO", "ImageCore", "ImageMetadata"]
+git-tree-sha1 = "d92b107dbb887293622df7697a2223f9f8176fcd"
+uuid = "f09324ee-3d7c-5217-9330-fc30815ba969"
+version = "1.1.1"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -1371,6 +1329,18 @@ version = "1.3.5+1"
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 version = "0.3.23+4"
+
+[[deps.OpenEXR]]
+deps = ["Colors", "FileIO", "OpenEXR_jll"]
+git-tree-sha1 = "327f53360fdb54df7ecd01e96ef1983536d1e633"
+uuid = "52e1d378-f018-4a11-a4be-720524705ac7"
+version = "0.3.2"
+
+[[deps.OpenEXR_jll]]
+deps = ["Artifacts", "Imath_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
+git-tree-sha1 = "a4ca623df1ae99d09bc9868b008262d0c0ac1e4f"
+uuid = "18a262bb-aa17-5467-a713-aee519bc75cb"
+version = "3.1.4+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1435,11 +1405,23 @@ git-tree-sha1 = "949347156c25054de2db3b166c52ac4728cbad65"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
 version = "0.11.31"
 
+[[deps.PNGFiles]]
+deps = ["Base64", "CEnum", "ImageCore", "IndirectArrays", "OffsetArrays", "libpng_jll"]
+git-tree-sha1 = "67186a2bc9a90f9f85ff3cc8277868961fb57cbd"
+uuid = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
+version = "0.4.3"
+
 [[deps.PackageExtensionCompat]]
 git-tree-sha1 = "fb28e33b8a95c4cee25ce296c817d89cc2e53518"
 uuid = "65ce6f38-6b18-4e1d-a461-8949797d7930"
 version = "1.0.2"
 weakdeps = ["Requires", "TOML"]
+
+[[deps.PaddedViews]]
+deps = ["OffsetArrays"]
+git-tree-sha1 = "0fac6313486baae819364c52b4f483450a9d793f"
+uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
+version = "0.5.12"
 
 [[deps.Parameters]]
 deps = ["OrderedCollections", "UnPack"]
@@ -1468,6 +1450,12 @@ version = "0.42.2+0"
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 version = "1.10.0"
+
+[[deps.PkgVersion]]
+deps = ["Pkg"]
+git-tree-sha1 = "f9501cc0430a26bc3d156ae1b5b0c1b47af4d6da"
+uuid = "eebad327-c553-4316-9ea0-9fa01ccd7688"
+version = "0.3.3"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1559,11 +1547,23 @@ version = "1.4.3"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[[deps.ProgressMeter]]
+deps = ["Distributed", "Printf"]
+git-tree-sha1 = "763a8ceb07833dd51bb9e3bbca372de32c0605ad"
+uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
+version = "1.10.0"
+
 [[deps.PyCall]]
 deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
 git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
 uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 version = "1.96.4"
+
+[[deps.QOI]]
+deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
+git-tree-sha1 = "18e8f4d1426e965c7b532ddd260599e1510d26ce"
+uuid = "4b34888f-f399-49d4-9bb3-47ed5cae4e65"
+version = "1.0.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
@@ -1596,6 +1596,11 @@ deps = ["Random", "Requires"]
 git-tree-sha1 = "043da614cc7e95c703498a491e2c21f58a2b8111"
 uuid = "e6cf234a-135c-5ec9-84dd-332b85af5143"
 version = "1.5.3"
+
+[[deps.RangeArrays]]
+git-tree-sha1 = "b9039e93773ddcfc828f12aadf7115b4b4d225f5"
+uuid = "b3c3ace0-ae52-54e7-9d0b-2c1406fd6b9d"
+version = "0.3.2"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1784,6 +1789,12 @@ git-tree-sha1 = "58e6353e72cde29b90a69527e56df1b5c3d8c437"
 uuid = "ce78b400-467f-4804-87d8-8f486da07d0a"
 version = "1.1.0"
 
+[[deps.Sixel]]
+deps = ["Dates", "FileIO", "ImageCore", "IndirectArrays", "OffsetArrays", "REPL", "libsixel_jll"]
+git-tree-sha1 = "2da10356e31327c7096832eb9cd86307a50b1eb6"
+uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
+version = "0.1.3"
+
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
@@ -1839,6 +1850,12 @@ deps = ["Dictionaries", "Indexing"]
 git-tree-sha1 = "c06d695d51cfb2187e6848e98d6252df9101c588"
 uuid = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 version = "1.2.3"
+
+[[deps.StackViews]]
+deps = ["OffsetArrays"]
+git-tree-sha1 = "46e589465204cd0c08b4bd97385e4fa79a0c770c"
+uuid = "cae243ae-269e-4f55-b966-ac2d0dc13c15"
+version = "0.1.1"
 
 [[deps.Static]]
 deps = ["IfElse"]
@@ -2001,6 +2018,12 @@ deps = ["ManualMemory"]
 git-tree-sha1 = "eda08f7e9818eb53661b3deb74e3159460dfbc27"
 uuid = "8290d209-cae3-49c0-8002-c8c24d57dab5"
 version = "0.5.2"
+
+[[deps.TiffImages]]
+deps = ["ColorTypes", "DataStructures", "DocStringExtensions", "FileIO", "FixedPointNumbers", "IndirectArrays", "Inflate", "Mmap", "OffsetArrays", "PkgVersion", "ProgressMeter", "UUIDs"]
+git-tree-sha1 = "34cc045dd0aaa59b8bbe86c644679bc57f1d5bd0"
+uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
+version = "0.6.8"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
@@ -2346,6 +2369,12 @@ git-tree-sha1 = "d7015d2e18a5fd9a4f47de711837e980519781a4"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
 version = "1.6.43+1"
 
+[[deps.libsixel_jll]]
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "libpng_jll"]
+git-tree-sha1 = "d4f63314c8aa1e48cd22aa0c17ed76cd1ae48c3c"
+uuid = "075b6546-f08a-558a-be8f-8157d0f608a5"
+version = "1.10.3+0"
+
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
 git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
@@ -2394,36 +2423,20 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─7e5b740b-2e26-4bff-a5a7-710b51cdddf9
-# ╟─0133db37-406a-4360-a3c3-c0720cdd12bb
-# ╟─9ea787d9-6430-40bb-a087-da77d605b1ab
-# ╟─94dfcd8e-7a4f-4c46-ae25-75d5ba5fabc7
-# ╟─563ebf25-53c0-421c-b529-879f5b2fbdb6
-# ╠═3161462a-1cb7-4964-ab6a-365cb75f1b88
-# ╟─41db04d9-d250-4c07-b515-41ac51ad4c30
-# ╟─c1c578d7-3da0-4c89-a339-eec920667f9b
-# ╟─49c64959-086a-45c9-8542-63de2a9ea37a
-# ╠═efab1f1c-ec89-4978-b167-5dde65c012c6
-# ╠═263797de-75f3-4824-8377-b77add80e10b
-# ╠═a98b99d2-1e48-4bdf-8015-bf9eceb8fdf3
-# ╠═0838c3fa-060a-4317-8d61-064c4698849d
-# ╟─9008e68e-0aec-4089-b8b5-239b253bcd41
-# ╟─90d2d7f8-6a0c-4310-83d0-9d487921221c
-# ╠═70c91709-d6d5-4db2-815e-401c72f88c11
-# ╟─81dd1390-e217-4b20-beea-d0d26c239064
-# ╠═882b942f-bef4-4f3c-9ae1-765775665766
-# ╠═1608ab11-960a-45f0-b3c7-985321cd0bf1
-# ╟─554172a5-4178-4d2c-95c5-c6405372d5f3
-# ╠═0e46030e-c84d-43bd-a5cf-3eab911994f1
-# ╠═8c971eda-b537-4865-842b-3c8b43944b5b
-# ╠═2fa4e4f1-3c1e-4127-8555-2d658513aef3
-# ╟─53f13a74-e568-4a4d-b325-32e693af5e3f
-# ╟─76ca863d-e416-44f1-a2b0-535b17846360
-# ╟─23653c59-b1d2-4671-bfe5-a56a3e12edda
-# ╟─16d92967-9805-4394-beee-fb5a85ba8827
-# ╟─1515d135-9ff0-49f0-b224-5e49180fc381
-# ╟─65abdcc3-5381-4c64-9fe5-5a7b7277e2e2
-# ╟─80937754-daf8-4f7e-af7e-1a61a9be3b1f
-# ╟─1a5bd86d-22fb-4a7d-9da4-255f80f685d3
+# ╟─42b1b271-c43f-48c3-bc6d-c07224680e57
+# ╟─afe9aaac-7f14-474b-b9ff-6b84f0c8abc1
+# ╟─e1ec3b17-f1d4-462a-9324-398d45b3dcea
+# ╟─e4cd00ea-f51d-4067-acd9-b7cbdbcfaf4f
+# ╟─c11ce2da-c7e5-4752-95da-881dfd1977ca
+# ╠═fa24bafe-6606-4ac2-9365-ed88c9fa8654
+# ╟─4b25186e-b286-46ca-ae61-88234b7a0576
+# ╠═51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
+# ╟─53d13f61-1957-4d00-b8d2-d5e0c9dd605a
+# ╠═ce2100e1-9787-4eb9-b149-49bafbdbf4c1
+# ╟─9ed3e0d1-95b9-4114-936b-1f451c03ee4b
+# ╠═958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
+# ╟─72a691b7-b3f7-4e5c-ac93-c1c66fef785a
+# ╠═a8b3a377-16ab-405d-b85e-587aabaca696
+# ╟─b631844b-3eab-4eae-b850-d9441704791f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
