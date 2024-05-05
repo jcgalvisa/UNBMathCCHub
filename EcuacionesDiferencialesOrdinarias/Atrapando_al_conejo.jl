@@ -10,8 +10,7 @@ using PlutoUI
 # ╔═╡ fa24bafe-6606-4ac2-9365-ed88c9fa8654
 begin
 	using Colors, ColorVectorSpace, ImageShow, FileIO, ImageIO
-	using HypertextLiteral
-	using CalculusWithJulia, Plots, SymPy, DifferentialEquations
+	using Plots, DifferentialEquations
 end
 
 # ╔═╡ afe9aaac-7f14-474b-b9ff-6b84f0c8abc1
@@ -38,33 +37,62 @@ Con conceptos como la derivada y la ecuación diferencial, podemos modelar y com
 
 En este análisis, exploraremos la relación entre la posición y la velocidad del conejo y el perro, derivando ecuaciones que describen la trayectoria del perro en función del tiempo y la distancia entre ambos animales."""
 
+# ╔═╡ 4ebcac4e-97b7-4346-aad3-1b643c49fb29
+md"""# Problema"""
+
+# ╔═╡ 7afcbd08-4b92-4e11-9e81-40ed27417e2c
+md"""Un conejo comienza en el origen y corre hacia arriba en el eje $y$ con velocidad $a$. Al mismo tiempo, un perro, corriendo con velocidad $b$, comienza en el punto $(c,0)$ y persigue al conejo. ¿Cuál es la trayectoria del perro?
+
+**Solución**
+
+En el tiempo $t$, medido desde el instante en que ambos animales comienzan, el conejo estará en el punto $R = (0, at)$ y el perro estará en $D = (x, y)$, tal como se muestra en la siguiente figura. """
+
 # ╔═╡ 51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
 let
-	url = "xd"
+	url = "https://github.com/laboratoriodealgebralineal/laboratoriodealgebralineal.github.io/blob/main/Im%C3%A1genes/conejo1.png?raw=true"
 	fname = download(url) #bajamos la imagen a la máquina local
 	imag = load(fname) #declaramos la variable "imag"
 end
 
-# ╔═╡ 53d13f61-1957-4d00-b8d2-d5e0c9dd605a
-md"""Las variables simbólicas que se usarán son las siguientes:"""
+# ╔═╡ b4268232-f7c1-41d1-b7bc-cdc5c9adc07b
+md"""Dado que el segmento de recta $DR$ es tangente a la trayectoria, tenemos
 
-# ╔═╡ ce2100e1-9787-4eb9-b149-49bafbdbf4c1
-@syms y() x y₀ a t
+$\frac{dy}{dx} = \frac{(y - at)}{x},$
+o lo que es equivalente
 
-# ╔═╡ 9ed3e0d1-95b9-4114-936b-1f451c03ee4b
-md"""Iniciamos definiendo la ecuación diferencial."""
+$x y' - y = - a t.$
+Para eliminar $t$, vamos a derivar la ecuación anterior con respecto a $x$, así
 
-# ╔═╡ 958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
-begin
-	D = Differential(x)
-	eqn = D(D(z))(θ) ~ -z(θ) + k/h^2 #z'' = -z + k/h^2
-end
+$y'+xy''-y' = - a  \frac{dt}{dx},$
+esto es
 
-# ╔═╡ 72a691b7-b3f7-4e5c-ac93-c1c66fef785a
-md"""Luego la resolvemos de la siguiente manera"""
+$xy'' = - a  \frac{dt}{dx},$
+así
 
-# ╔═╡ a8b3a377-16ab-405d-b85e-587aabaca696
-solucion = dsolve(eqn)
+$\frac{dt}{dx}=-\frac{xy''}{a}$
+Dado que tanto el conejo como el perro tienen la misma velocidad, entonces han recorrido la misma distancia $\alpha$, que es la longitud de arco de la curva $y = f(x)$. Así que
+
+$\alpha = \int_{0}^{x} \sqrt{1 + (y')^2} \, dx \implies \frac{d\alpha}{dx} = \sqrt{1 + (y')^2}.$
+Dado que $\frac{ds}{dt} = b$, tenemos
+
+$\frac{dt}{dx} = \frac{dt}{ds}\frac{ds}{dx} = - \frac{1}{b}\sqrt{1 + (y') ^ 2},$
+donde el signo menos aparece porque $s$ aumenta a medida que $x$ disminuye. Al igualar ambas definiciones que tenemos para $\frac{dt}{dx}$ obtenemos la ecuación diferencial de la trayectoria:
+
+$-\frac{xy''}{a}= - \frac{1}{b}\sqrt{1 + (y') ^ 2},$
+es decir
+
+$xy''=\frac{a}{b}\sqrt{1+(y')^2}.$
+Resolvamos dicha ecuación diferencial ordinaria. Para ello vamos a considerar las siguientes variables:
+"""
+
+# ╔═╡ cfc17cdf-3980-4982-9bc4-4a1ed1377882
+a,b=1,1
+
+# ╔═╡ 467acad6-535d-43c1-9b4a-cd3d4872406a
+sol=solve(SecondOrderODEProblem((v,u,p,x)->(a/b)*sqrt(1+v^2)/x,0.5,3.0,(0.1,1)))
+
+# ╔═╡ 33a9f419-f8e9-4ca0-9c6d-555b2d099cbc
+plot(sol, idxs = (2))
 
 # ╔═╡ b631844b-3eab-4eae-b850-d9441704791f
 md"""# Referencias
@@ -79,30 +107,24 @@ md"""# Referencias
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-CalculusWithJulia = "a2e0e22d-7d4c-5312-9169-8b992201a882"
 ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
 ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
-CalculusWithJulia = "~0.2.3"
 ColorVectorSpace = "~0.10.0"
 Colors = "~0.12.10"
 DifferentialEquations = "~7.10.0"
 FileIO = "~1.16.3"
-HypertextLiteral = "~0.9.5"
 ImageIO = "~0.6.7"
 ImageShow = "~0.3.8"
 Plots = "~1.40.4"
 PlutoUI = "~0.7.59"
-SymPy = "~2.0.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -111,7 +133,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "5a93427a6a4d76e313ea2e9228611ca4f373ba25"
+project_hash = "e36b84331e40cd046268f9866f68e22a5155f8a5"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -123,27 +145,6 @@ deps = ["Pkg"]
 git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.2"
-
-[[deps.Accessors]]
-deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
-git-tree-sha1 = "c0d491ef0b135fd7d63cbc6404286bc633329425"
-uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-version = "0.1.36"
-
-    [deps.Accessors.extensions]
-    AccessorsAxisKeysExt = "AxisKeys"
-    AccessorsIntervalSetsExt = "IntervalSets"
-    AccessorsStaticArraysExt = "StaticArrays"
-    AccessorsStructArraysExt = "StructArrays"
-    AccessorsUnitfulExt = "Unitful"
-
-    [deps.Accessors.weakdeps]
-    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    Requires = "ae029012-a4dd-5104-9daa-d747884805df"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -271,17 +272,6 @@ git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
 uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 version = "0.5.1"
 
-[[deps.CalculusWithJulia]]
-deps = ["Base64", "Contour", "ForwardDiff", "IntervalSets", "LinearAlgebra", "PlotUtils", "Random", "Reexport", "Roots", "SpecialFunctions", "SplitApplyCombine", "Test"]
-git-tree-sha1 = "16af1583d14f9eb588936cc963ef98b51051fdc8"
-uuid = "a2e0e22d-7d4c-5312-9169-8b992201a882"
-version = "0.2.3"
-weakdeps = ["Plots", "SymPyCore"]
-
-    [deps.CalculusWithJulia.extensions]
-    CalculusWithJuliaPlotsExt = "Plots"
-    CalculusWithJuliaSymPyCoreExt = "SymPyCore"
-
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
 git-tree-sha1 = "575cd02e080939a33b6df6c5853d14924c08e35b"
@@ -332,11 +322,6 @@ git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
 
-[[deps.CommonEq]]
-git-tree-sha1 = "6b0f0354b8eb954cdba708fb262ef00ee7274468"
-uuid = "3709ef60-1bee-4518-9f2f-acd86f176c50"
-version = "0.2.1"
-
 [[deps.CommonSolve]]
 git-tree-sha1 = "0eee5eb66b1cf62cd6ad1b460238e60e4b09400c"
 uuid = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -363,15 +348,6 @@ deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "1.1.1+0"
 
-[[deps.CompositionsBase]]
-git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
-uuid = "a33af91c-f02d-484b-be07-31d278c5ca2b"
-version = "0.1.2"
-weakdeps = ["InverseFunctions"]
-
-    [deps.CompositionsBase.extensions]
-    CompositionsBaseInverseFunctionsExt = "InverseFunctions"
-
 [[deps.ConcreteStructs]]
 git-tree-sha1 = "f749037478283d372048690eb3b5f92a79432b34"
 uuid = "2569d6c7-a4a2-43d3-a901-331e8e4be471"
@@ -382,12 +358,6 @@ deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.4.1"
-
-[[deps.Conda]]
-deps = ["Downloads", "JSON", "VersionParsing"]
-git-tree-sha1 = "51cab8e982c5b598eea9c8ceaced4b58d9dd37c9"
-uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-version = "1.10.0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -442,12 +412,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.Dictionaries]]
-deps = ["Indexing", "Random", "Serialization"]
-git-tree-sha1 = "35b66b6744b2d92c778afd3a88d2571875664a2a"
-uuid = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-version = "0.4.2"
 
 [[deps.DiffEqBase]]
 deps = ["ArrayInterface", "ChainRulesCore", "DataStructures", "DocStringExtensions", "EnumX", "FastBroadcast", "ForwardDiff", "FunctionWrappers", "FunctionWrappersWrappers", "LinearAlgebra", "Logging", "Markdown", "MuladdMacro", "Parameters", "PreallocationTools", "PrecompileTools", "Printf", "RecursiveArrayTools", "Reexport", "Requires", "SciMLBase", "SciMLOperators", "Setfield", "SparseArrays", "Static", "StaticArraysCore", "Statistics", "Tricks", "TruncatedStacktraces", "ZygoteRules"]
@@ -879,11 +843,6 @@ git-tree-sha1 = "3d09a9f60edf77f8a4d99f9e015e8fbf9989605d"
 uuid = "905a6f67-0a94-5f89-b386-d35d92009cd1"
 version = "3.1.7+0"
 
-[[deps.Indexing]]
-git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
-uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
-version = "1.1.1"
-
 [[deps.IndirectArrays]]
 git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
 uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
@@ -914,16 +873,6 @@ weakdeps = ["Random", "RecipesBase", "Statistics"]
     IntervalSetsRandomExt = "Random"
     IntervalSetsRecipesBaseExt = "RecipesBase"
     IntervalSetsStatisticsExt = "Statistics"
-
-[[deps.InverseFunctions]]
-deps = ["Test"]
-git-tree-sha1 = "e7cbed5032c4c397a6ac23d1493f3289e01231c4"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.14"
-weakdeps = ["Dates"]
-
-    [deps.InverseFunctions.extensions]
-    DatesExt = "Dates"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
@@ -1553,12 +1502,6 @@ git-tree-sha1 = "763a8ceb07833dd51bb9e3bbca372de32c0605ad"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "1.10.0"
 
-[[deps.PyCall]]
-deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
-git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
-uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-version = "1.96.4"
-
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
 git-tree-sha1 = "18e8f4d1426e965c7b532ddd260599e1510d26ce"
@@ -1672,24 +1615,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "6ed52fdd3382cf21947b15e8870ac0ddbff736da"
 uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
 version = "0.4.0+0"
-
-[[deps.Roots]]
-deps = ["Accessors", "ChainRulesCore", "CommonSolve", "Printf"]
-git-tree-sha1 = "1ab580704784260ee5f45bffac810b152922747b"
-uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "2.1.5"
-
-    [deps.Roots.extensions]
-    RootsForwardDiffExt = "ForwardDiff"
-    RootsIntervalRootFindingExt = "IntervalRootFinding"
-    RootsSymPyExt = "SymPy"
-    RootsSymPyPythonCallExt = "SymPyPythonCall"
-
-    [deps.Roots.weakdeps]
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    IntervalRootFinding = "d2bf35a9-74e0-55ec-b149-d360ff49b807"
-    SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
-    SymPyPythonCall = "bc8888f7-b21e-4b7c-a06a-5d9c9496438c"
 
 [[deps.RuntimeGeneratedFunctions]]
 deps = ["ExprTools", "SHA", "Serialization"]
@@ -1845,12 +1770,6 @@ weakdeps = ["ChainRulesCore"]
     [deps.SpecialFunctions.extensions]
     SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
 
-[[deps.SplitApplyCombine]]
-deps = ["Dictionaries", "Indexing"]
-git-tree-sha1 = "c06d695d51cfb2187e6848e98d6252df9101c588"
-uuid = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
-version = "1.2.3"
-
 [[deps.StackViews]]
 deps = ["OffsetArrays"]
 git-tree-sha1 = "46e589465204cd0c08b4bd97385e4fa79a0c770c"
@@ -1912,11 +1831,14 @@ deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Re
 git-tree-sha1 = "cef0472124fab0695b58ca35a77c6fb942fdab8a"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 version = "1.3.1"
-weakdeps = ["ChainRulesCore", "InverseFunctions"]
 
     [deps.StatsFuns.extensions]
     StatsFunsChainRulesCoreExt = "ChainRulesCore"
     StatsFunsInverseFunctionsExt = "InverseFunctions"
+
+    [deps.StatsFuns.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.SteadyStateDiffEq]]
 deps = ["DiffEqBase", "DiffEqCallbacks", "LinearAlgebra", "NLsolve", "Reexport", "SciMLBase"]
@@ -1956,24 +1878,6 @@ deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Su
 git-tree-sha1 = "ba4d38faeb62de7ef47155ed321dce40a549c305"
 uuid = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 version = "5.2.2+0"
-
-[[deps.SymPy]]
-deps = ["CommonEq", "CommonSolve", "LinearAlgebra", "PyCall", "SpecialFunctions", "SymPyCore"]
-git-tree-sha1 = "8d727c118eb31ffad73cce569b7bb29eef5fb9ad"
-uuid = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
-version = "2.0.1"
-
-[[deps.SymPyCore]]
-deps = ["CommonEq", "CommonSolve", "Latexify", "LinearAlgebra", "Markdown", "RecipesBase", "SpecialFunctions"]
-git-tree-sha1 = "d2e8b52c18ad76cc8827eb134b9ba4bb7699ec59"
-uuid = "458b697b-88f0-4a86-b56b-78b75cfb3531"
-version = "0.1.18"
-
-    [deps.SymPyCore.extensions]
-    SymPyCoreSymbolicUtilsExt = "SymbolicUtils"
-
-    [deps.SymPyCore.weakdeps]
-    SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
 
 [[deps.SymbolicIndexingInterface]]
 deps = ["DocStringExtensions"]
@@ -2079,11 +1983,14 @@ deps = ["Dates", "LinearAlgebra", "Random"]
 git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.19.0"
-weakdeps = ["ConstructionBase", "InverseFunctions"]
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+
+    [deps.Unitful.weakdeps]
+    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
@@ -2101,11 +2008,6 @@ deps = ["ArrayInterface", "CPUSummary", "HostCPUFeatures", "IfElse", "LayoutPoin
 git-tree-sha1 = "ac377f0a248753a1b1d58bbc92a64f5a726dfb71"
 uuid = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
 version = "0.21.66"
-
-[[deps.VersionParsing]]
-git-tree-sha1 = "58d6e80b4ee071f5efd07fda82cb9fbe17200868"
-uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
-version = "1.3.0"
 
 [[deps.VertexSafeGraphs]]
 deps = ["Graphs"]
@@ -2430,13 +2332,13 @@ version = "1.4.1+1"
 # ╟─c11ce2da-c7e5-4752-95da-881dfd1977ca
 # ╠═fa24bafe-6606-4ac2-9365-ed88c9fa8654
 # ╟─4b25186e-b286-46ca-ae61-88234b7a0576
-# ╠═51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
-# ╟─53d13f61-1957-4d00-b8d2-d5e0c9dd605a
-# ╠═ce2100e1-9787-4eb9-b149-49bafbdbf4c1
-# ╟─9ed3e0d1-95b9-4114-936b-1f451c03ee4b
-# ╠═958e0b65-91f2-44b9-9d6a-0eb3ab4175ff
-# ╟─72a691b7-b3f7-4e5c-ac93-c1c66fef785a
-# ╠═a8b3a377-16ab-405d-b85e-587aabaca696
+# ╟─4ebcac4e-97b7-4346-aad3-1b643c49fb29
+# ╟─7afcbd08-4b92-4e11-9e81-40ed27417e2c
+# ╟─51fe4228-8b1c-4b55-a0fd-5c20c9c6bcef
+# ╟─b4268232-f7c1-41d1-b7bc-cdc5c9adc07b
+# ╠═cfc17cdf-3980-4982-9bc4-4a1ed1377882
+# ╠═467acad6-535d-43c1-9b4a-cd3d4872406a
+# ╠═33a9f419-f8e9-4ca0-9c6d-555b2d099cbc
 # ╟─b631844b-3eab-4eae-b850-d9441704791f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
