@@ -23,7 +23,7 @@ begin
 end
 
 # ╔═╡ a2edb9ed-e3b2-42f5-a91a-f543a0f0eb42
-PlutoUI.TableOfContents(title="Compresión de imágenes", aside=true)
+PlutoUI.TableOfContents(title="PCA", aside=true)
 
 # ╔═╡ 7a3eb75b-6972-4c70-a1c5-bbd602a65c48
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
@@ -145,11 +145,23 @@ md"""La imagen comprimida es la siguiente"""
 # ╔═╡ 03d110fb-57cb-4162-abf1-5936348d826d
 imagenc_omprida = colorview(RGB, matriz_reconstruida)
 
+# ╔═╡ 9443a8bc-44b8-475e-be04-97811555103e
+md"""Con la siguiente función podemos hallar la diferencia (error) entre dos imagenes"""
+
+# ╔═╡ 01236d8e-a74f-44dc-ad89-9e7b0ea653bd
+function error(imagen1, imagen2)
+	error_red = norm(red.(imagen1)-red.(imagen2)) #Error del canal R
+	error_green = norm(green.(imagen1)-green.(imagen2)) #Error del canal G
+	error_blue = norm(blue.(imagen1)-blue.(imagen2)) #Error del canal B
+	error_tot = (error_red + error_green + error_blue)/3 #Promedio de los tres errores
+	println("$(round(Float64(error_tot), sigdigits=2))")
+end
+
 # ╔═╡ 68f7ea49-0c6c-4ecf-aecd-55d54692ced8
 md"""El error de esta imagen y la original es de"""
 
 # ╔═╡ ee44dbf0-3f10-4606-9c80-c8c289820af4
-#error(imag₆, imagenc_omprida)
+error(imag₆, imagenc_omprida)
 
 # ╔═╡ f925f254-659f-44d5-b899-af2948e9d09b
 md"""Con los pasos anteriores creamos la siguiente función que comprime una imagen usando PCA"""
@@ -178,26 +190,35 @@ end
 md"""Realizamos varios ejemplos, tomando diferentes valores para el número de componentes principales a usar"""
 
 # ╔═╡ 3b183095-809c-40ce-ad8d-c44bb5189968
-[pca(imag₆, 1)     pca(imag₆, 5)
-pca(imag₆, 50)    pca(imag₆, 1000)]
+[Im1=pca(imag₆, 1)     Im2=pca(imag₆, 5)
+Im3=pca(imag₆, 50)    Im4=pca(imag₆, 1000)]
 
 # ╔═╡ 1f56e7fb-a482-41b4-8012-f3f5266763fc
 md"""Los errores de estas compresiones respectivamente son"""
 
+# ╔═╡ f3afcf7f-eabd-4ba9-8208-fc7abbd724d1
+[error(imag₆, Im1)    error(imag₆, Im2);
+error(imag₆, Im3)    error(imag₆, Im4)]
+
 # ╔═╡ 979bce49-7169-4ed9-85aa-9b4b06501eec
-md"""Realizamos otros ejemplos, con las imagenes presentadas a lo largo del cuaderno"""
+md"""Realizamos otro ejemplo."""
 
 # ╔═╡ 64cc47fa-144c-4c53-8049-cb6aecfc6f52
-[pca(imag₁, 1)     pca(imag₁, 5)
-pca(imag₁, 50)     pca(imag₁, 500)]
+url₂="https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png"
+
+# ╔═╡ 2819bd88-4059-4a9b-9e7c-b7481ef70c8a
+fname₂ = download(url₂)
+
+# ╔═╡ b93d69c7-18ee-4b25-a5b7-0b7d6ddddb9d
+imag₂ = load(fname₂)
 
 # ╔═╡ ce3d3ff4-859d-4569-9cc0-9d2db457b195
-[pca(imag₂, 1)      pca(imag₂, 5)
-pca(imag₂, 50)      pca(imag₂, 500)]
+[IM1=pca(imag₂, 1)      IM2=pca(imag₂, 5)
+IM3=pca(imag₂, 50)      IM4=pca(imag₂, 500)]
 
-# ╔═╡ 97741f9d-d8a5-4624-914a-9823ee71a359
-[pca(imag₃, 1)     pca(imag₃, 5)
-pca(imag₃, 50)      pca(imag₃, 1000)]
+# ╔═╡ e6e6c46b-1470-4cbb-9fa1-997ab6ff08f2
+[error(imag₂, IM1)    error(imag₂, IM2);
+error(imag₂, IM3)    error(imag₂, IM4)]
 
 # ╔═╡ 73ae4d41-ed33-4dc9-a86d-3457a9016de8
 md"""# Referencias"""
@@ -1965,8 +1986,8 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╠═06a2c4a0-bc9a-11ee-1465-b91710eb12bb
-# ╠═a2edb9ed-e3b2-42f5-a91a-f543a0f0eb42
+# ╟─06a2c4a0-bc9a-11ee-1465-b91710eb12bb
+# ╟─a2edb9ed-e3b2-42f5-a91a-f543a0f0eb42
 # ╟─7a3eb75b-6972-4c70-a1c5-bbd602a65c48
 # ╟─40284592-3d39-44a2-bdc3-de94c1ce6658
 # ╟─d491c087-b18b-4e44-80fc-919a1f4653a9
@@ -1978,14 +1999,14 @@ version = "1.4.1+1"
 # ╠═4c0152e7-84fb-4372-a578-892cd5358a23
 # ╟─4d8b94f0-5719-4548-b088-637de34f98ae
 # ╠═485d894c-65c9-4702-8203-036840f8038a
-# ╠═5ce31dc3-b706-46b4-872d-5ee2989628b6
+# ╟─5ce31dc3-b706-46b4-872d-5ee2989628b6
 # ╠═7d0e4529-7259-4254-ac1c-05352db366e3
 # ╠═735ff117-61f2-4bca-ae4d-79fe9591dbd1
-# ╠═aa0435fb-af35-4167-ad65-600d487a81cc
+# ╟─aa0435fb-af35-4167-ad65-600d487a81cc
 # ╠═d820e799-a8d6-4731-a320-d4420e67514a
-# ╠═9e937218-5d59-4d3f-a6c4-40505133a7f6
+# ╟─9e937218-5d59-4d3f-a6c4-40505133a7f6
 # ╠═b1f01b34-1df3-4212-8d69-4bd53ca093ac
-# ╠═001f4fe7-8614-434b-8854-6a225822bd8b
+# ╟─001f4fe7-8614-434b-8854-6a225822bd8b
 # ╠═e68c01e0-8bc3-4e4d-aa9f-fa24fc30bd73
 # ╟─daf006c8-9046-439e-b05d-86875abf79e7
 # ╠═28e96357-e553-463e-a11d-4c295298881e
@@ -1996,29 +2017,34 @@ version = "1.4.1+1"
 # ╟─d4fb9417-d482-425f-9795-2ec1ec578d44
 # ╠═4f5bf706-4c7f-4589-9cfe-fdc7a187fd7f
 # ╠═6aae255b-4976-4152-9153-4e794bd537a2
-# ╠═1fd8f03e-80e4-4d5e-aa81-0d8dd726218c
+# ╟─1fd8f03e-80e4-4d5e-aa81-0d8dd726218c
 # ╠═269b5064-9d95-4976-b035-adfabe2df61f
-# ╠═2105ebaa-550b-4691-8caf-8c2454dee3fc
+# ╟─2105ebaa-550b-4691-8caf-8c2454dee3fc
 # ╠═a1d98b25-2d77-45e8-b7ea-d6209d384416
-# ╠═11efcdf4-ddc2-4755-9257-16c1fee09246
+# ╟─11efcdf4-ddc2-4755-9257-16c1fee09246
 # ╠═43b4931b-4e88-431e-a0d2-2f8ce6759085
-# ╠═fc49f5d2-5ed6-4f13-a49c-d8cfa36df54c
+# ╟─fc49f5d2-5ed6-4f13-a49c-d8cfa36df54c
 # ╠═9b1b6c27-aad5-49b6-a92b-5cc522e88ea9
-# ╠═5edc05a9-5b8f-420e-bc2b-3e0417855ea7
+# ╟─5edc05a9-5b8f-420e-bc2b-3e0417855ea7
 # ╠═23765b14-3bb9-43fc-995d-e0ca7ca63391
-# ╠═9156af1d-fd9a-4dd7-a379-45d4fa9e654b
+# ╟─9156af1d-fd9a-4dd7-a379-45d4fa9e654b
 # ╠═03d110fb-57cb-4162-abf1-5936348d826d
-# ╠═68f7ea49-0c6c-4ecf-aecd-55d54692ced8
+# ╟─9443a8bc-44b8-475e-be04-97811555103e
+# ╠═01236d8e-a74f-44dc-ad89-9e7b0ea653bd
+# ╟─68f7ea49-0c6c-4ecf-aecd-55d54692ced8
 # ╠═ee44dbf0-3f10-4606-9c80-c8c289820af4
-# ╠═f925f254-659f-44d5-b899-af2948e9d09b
+# ╟─f925f254-659f-44d5-b899-af2948e9d09b
 # ╠═9e4d6a72-2648-478e-92f9-6970aa854dd2
-# ╠═2615abc6-945e-4ad7-94f1-70991acc80e6
+# ╟─2615abc6-945e-4ad7-94f1-70991acc80e6
 # ╠═3b183095-809c-40ce-ad8d-c44bb5189968
-# ╠═1f56e7fb-a482-41b4-8012-f3f5266763fc
-# ╠═979bce49-7169-4ed9-85aa-9b4b06501eec
-# ╠═64cc47fa-144c-4c53-8049-cb6aecfc6f52
+# ╟─1f56e7fb-a482-41b4-8012-f3f5266763fc
+# ╠═f3afcf7f-eabd-4ba9-8208-fc7abbd724d1
+# ╟─979bce49-7169-4ed9-85aa-9b4b06501eec
+# ╟─64cc47fa-144c-4c53-8049-cb6aecfc6f52
+# ╠═2819bd88-4059-4a9b-9e7c-b7481ef70c8a
+# ╠═b93d69c7-18ee-4b25-a5b7-0b7d6ddddb9d
 # ╠═ce3d3ff4-859d-4569-9cc0-9d2db457b195
-# ╠═97741f9d-d8a5-4624-914a-9823ee71a359
+# ╠═e6e6c46b-1470-4cbb-9fa1-997ab6ff08f2
 # ╟─73ae4d41-ed33-4dc9-a86d-3457a9016de8
 # ╟─05ec590b-aab4-489e-b139-9134063df0a2
 # ╟─00000000-0000-0000-0000-000000000001
