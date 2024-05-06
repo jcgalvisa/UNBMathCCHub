@@ -105,7 +105,7 @@ A₁ = [1 2 4 5; 1 4 5 6; 1 4 6 8; 7 50 2 5; 75 5 9 3]
 b₁ = [0; 3; 4; 10; 0]
 
 # ╔═╡ ec7ebb9a-4c47-4c63-a654-7cfccd8e3b39
-md"""Note que el rango de $A$ es $4$ que coindice con $n$."""
+md"""Note que el rango de $A$ es $4$ que coincide con $n$."""
 
 # ╔═╡ 2723ef6c-8e52-4d35-a44e-efd50b74bd6f
 rank(A₁)
