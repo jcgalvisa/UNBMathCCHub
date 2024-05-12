@@ -7,14 +7,9 @@ using InteractiveUtils
 # ╔═╡ 06a2c4a0-bc9a-11ee-1465-b91710eb12bb
 using PlutoUI
 
-# ╔═╡ f1c043f9-2e10-4715-818b-833d17fe6306
-using LinearAlgebra
-
-# ╔═╡ db3ec247-22a1-4f69-81ad-2fe814880c55
-using Statistics
-
 # ╔═╡ 4c0152e7-84fb-4372-a578-892cd5358a23
 begin
+	using LinearAlgebra,Statistics
 	using Colors, ColorVectorSpace, ImageShow, FileIO, ImageIO
 	using HypertextLiteral
 	using Images, ImageTransformations
@@ -37,17 +32,14 @@ md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. """
 md"""Vamos a usar las siguientes librerías:"""
 
 # ╔═╡ ff1b8269-2528-4172-9c32-8edcc6b63d14
-md"""# Introducción"""
+md"""# Introducción
+
+El método de Análisis de Componentes Principales (PCA, por sus siglas en inglés) es una técnica de reducción de dimensionalidad que se utiliza comúnmente en análisis de datos y procesamiento de imágenes. La idea es encontrar una nueva base para describir los datos, de manera que la mayor cantidad de variabilidad en los datos esté contenida en las primeras componentes principales."""
 
 # ╔═╡ be5ac3ab-f37f-4691-a7fb-4c67ae178423
-md"""# PCA
-
-El método de Análisis de Componentes Principales (PCA, por sus siglas en inglés) es una técnica de reducción de dimensionalidad que se utiliza comúnmente en análisis de datos y procesamiento de imágenes. La idea es encontrar una nueva base para describir los datos, de manera que la mayor cantidad de variabilidad en los datos esté contenida en las primeras componentes principales.
+md"""# Compresión de imágenes
 
 Este proceso utiliza las componentes principales para representar la información de la imagen de entrada en un espacio de dimensionalidad reducida, lo que puede conducir a una compresión efectiva de la información manteniendo la mayor parte de la variabilidad importante en la imagen original."""
-
-# ╔═╡ aedd8052-cc9a-4a94-b082-a3a57ff8b095
-md"""Usaremos la siguiente libreria"""
 
 # ╔═╡ 4d8b94f0-5719-4548-b088-637de34f98ae
 md"""Cargamos la imagen deseada"""
@@ -1991,12 +1983,9 @@ version = "1.4.1+1"
 # ╟─7a3eb75b-6972-4c70-a1c5-bbd602a65c48
 # ╟─40284592-3d39-44a2-bdc3-de94c1ce6658
 # ╟─d491c087-b18b-4e44-80fc-919a1f4653a9
-# ╠═f1c043f9-2e10-4715-818b-833d17fe6306
+# ╠═4c0152e7-84fb-4372-a578-892cd5358a23
 # ╟─ff1b8269-2528-4172-9c32-8edcc6b63d14
 # ╟─be5ac3ab-f37f-4691-a7fb-4c67ae178423
-# ╟─aedd8052-cc9a-4a94-b082-a3a57ff8b095
-# ╠═db3ec247-22a1-4f69-81ad-2fe814880c55
-# ╠═4c0152e7-84fb-4372-a578-892cd5358a23
 # ╟─4d8b94f0-5719-4548-b088-637de34f98ae
 # ╠═485d894c-65c9-4702-8203-036840f8038a
 # ╟─5ce31dc3-b706-46b4-872d-5ee2989628b6
