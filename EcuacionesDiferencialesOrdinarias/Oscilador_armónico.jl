@@ -73,7 +73,7 @@ $x''+\omega^2x= 0.$
 Es importante comprender la forma matemática de esta ecuación, ya que se presenta en diversos contextos físicos y se conoce como la ecuación del movimiento armónico simple (SHM)."""
 
 # ╔═╡ 51a6712c-5f57-4704-a6f7-61fa8e600c49
-md"""Solucionemos la ecuación anterior:"""
+md"""Solucionemos la ecuación anterior."""
 
 # ╔═╡ 93f4f695-6bbc-4eaf-8dd2-8308de3954b6
 md"""Las variables simbólicas que se usarán son las siguientes:"""
@@ -185,7 +185,7 @@ solucion₂ = dsolve(eqn₂)
 md"""Ahora, resolvamos el problema de valor inicial, primero hallemos $C_1$, recordemos que $y'(0)=-1$."""
 
 # ╔═╡ aefdbaa2-1af5-4dbf-9ac4-10bf172662ec
-@bind Dy0 Slider(-5:5, show_value=true)
+@bind Dy0 Slider(-5:5, show_value=true, default=-1)
 
 # ╔═╡ ec0905cb-f246-4ead-ad88-714c0f156201
 md"""Trabajemos solo con la solución dada, definimos la siguiente ecuación:"""
@@ -219,7 +219,7 @@ md"""Así, $y(t)=$"""
 eq1 = eq(C1 => c1)
 
 # ╔═╡ 083a1c78-b850-4c42-a49c-53c0d195577d
-@bind y0 Slider(0:0.001:1, show_value=true)
+@bind y0 Slider(0:0.001:1, show_value=true, default=0.167)
 
 # ╔═╡ 68cc5e27-c274-4fff-be1b-7dd7edb1d5d1
 md"""Nos falta hallar el valor de $C_2$ para esto consideremos la condición inicial $y(0)=\frac{1}{6}$ (0.167). Así $C_2=$"""

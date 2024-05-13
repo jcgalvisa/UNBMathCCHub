@@ -402,7 +402,7 @@ begin
 end
 
 # ╔═╡ be342e4a-0086-4dc6-b623-7e0760265356
-md"""Vamos a seleccionar 20 puntos que delineen cada elipse."""
+md"""Vamos a seleccionar $20$ puntos que delineen cada elipse."""
 
 # ╔═╡ 8abf8ea9-5d7e-43d6-9f81-4714dd30c9d4
 begin

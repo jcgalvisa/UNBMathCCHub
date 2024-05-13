@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ a8bba679-f278-4bec-bead-a2db35b22480
 using PlutoUI
 
@@ -92,16 +102,19 @@ $N(t)=N_0e^{\frac{\ln{\left(\frac{N_i}{N_0}\right)}}{t_i}t}$
 
 Recordemos que $N_0=500$ y el problema nos dice que luego de $6$ meses hay 1000 peces en el estanque, así $t_i=6$ y $N_i=1000$. Esto es
 
-$N(t)= 500e^{\frac{\ln{\left(\frac{1000}{500}\right)}}{6}t}= 500e^{\frac{\ln{\left(2\right)}}{6}t}.$
+$N(t)= 500e^{\frac{\ln{\left(\frac{1000}{500}\right)}}{6}t}.$
 
 Mostremos la solución y los valores mencionados."""
+
+# ╔═╡ 5d52608f-a665-4396-bcc2-e9528bc5122d
+@bind N0 Slider(100:1000, show_value=true, default=500) #Valor inicial
 
 # ╔═╡ 6251e8fb-5cd1-46eb-bc03-d53df11c2363
 begin
 	x₂ = range(0, 30, length=100)
-	y₂ = 500 * exp.((log(2)/6) .* x₂)
+	y₂ = N0 * exp.((log(1000/N0)/6) .* x₂)
 	plot(x₂, y₂, title="Solución", label="N(t)", linewidth=2)
-	scatter!([0], [500], color="red", label="N₀")
+	scatter!([0], [N0], color="red", label="N₀")
 	scatter!([6], [1000], color="blue", label="N₆")
 end
 
@@ -115,7 +128,7 @@ Esto se resuelve de la siguiente forma:"""
 
 # ╔═╡ dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1
 begin
-	f(tₚ) = 500 * exp((log(2)/6) * tₚ) - 10000 #definimos la función
+	f(tₚ) = N0 * exp((log(1000/N0)/6) * tₚ) - 10000 #definimos la función
 	tₚ_sol = fzero(f, 0)  # Encuentra la raíz de la función f cerca de tₚ = 0
 end
 
@@ -127,7 +140,7 @@ md"""El campo de vectores la solución general de la EDO es el siguiente:"""
 
 # ╔═╡ 75a584e7-e772-4161-8ba0-a8ca632cfd19
 begin
-	F₂(N, t) =  (log(2)/6) * N
+	F₂(N, t) =  (log(1000/N0)/6) * N
 	plot(legend=false)
 	vectorfieldplot!((t,y) -> [1, F₂(y,t)], xlims=(0, 30), ylims=(0, 10000))
 	plot!(x₂, y₂, title="Solución", label="N(t)", linewidth=2) #solución del pvi
@@ -1589,6 +1602,7 @@ version = "1.4.1+1"
 # ╟─920255ed-d03f-453b-ab64-a88b62e1087c
 # ╠═12f1dd7b-6fb0-415d-8312-bfbe1b1961ed
 # ╟─7039f022-a74e-42bb-a1dd-a19fe888bafb
+# ╠═5d52608f-a665-4396-bcc2-e9528bc5122d
 # ╠═6251e8fb-5cd1-46eb-bc03-d53df11c2363
 # ╟─dacf0d1f-efa1-4271-9116-15a53b9c94cf
 # ╠═dbcd4a06-0024-4cf1-ab4b-6d4fbdb0c3e1

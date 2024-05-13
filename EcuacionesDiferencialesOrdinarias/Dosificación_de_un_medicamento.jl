@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 321d99e9-aeef-4f32-a567-55579c87bf0d
 using PlutoUI
 
@@ -433,14 +443,17 @@ end
 # ╔═╡ 2cc2b82f-2c4c-414b-bb14-341cd8d08838
 md"""De aquí, se concluye que la concentración mínima efectiva es de:"""
 
+# ╔═╡ 6a9fee11-3f1c-4668-8468-f381ea99d798
+@bind peso Slider(30:100, show_value=true, default=60)
+
 # ╔═╡ 6e932266-a899-4b76-bc36-2ac70f671132
-(500/60)*(r/(1-r)) #mg/kg
+(500/peso)*(r/(1-r)) #mg/kg
 
 # ╔═╡ c7c63755-9680-4b2f-a4af-cfd2bb44f5d1
 md"""Ahora para la concentración máxima tolerada se toman los mismos datos, sabiendo que $r=0.2337$ se sigue que la $CMT$ está dada por"""
 
 # ╔═╡ 0a2a335b-616f-47ca-a4a0-79c3c389e5f4
-(500/60)*(1/(1-r)) #mg/kg
+(500/peso)*(1/(1-r)) #mg/kg
 
 # ╔═╡ 743659cf-e32f-4a3e-b6d3-067ac6585dbf
 md"""Visualicemos la concentración del medicamento en el cuerpo a lo largo de 48 horas."""
@@ -453,11 +466,11 @@ let
 	T = 6
 	tm = 3
 	tmax = 45 / 60
-	f = 50 / 6
+	f = 500 / peso
 	n = 6
 
-	CMT(t) = (500/60)*(1/(1-r))
-	CME(t) = (500/60)*(r/(1-r))
+	CMT(t) = (500/peso)*(1/(1-r))
+	CME(t) = (500/peso)*(r/(1-r))
 
 	C1 = f*(beta/(alpha-beta))*(exp(-beta*T)-exp(-alpha*T))+exp(-beta*T)
 
@@ -500,10 +513,10 @@ Se sabe que una persona no debe ingerir más de $4000\text{mg}$ al día y que si
 Es así que, nuestros parámetros son: $T=6$, $f=\frac{1000\text{mg}}{60\text{kg}}=\frac{50}{3}\text{mg/kg}$ y seguimos considerando la constante de eliminación $\alpha = 0.2535$ (1/h) y la constante de absorción $\beta= 3.8972$ (1/h), con estos valores se obtiene que: """
 
 # ╔═╡ 3081e7e1-faf6-4f25-8dbd-f79fcdb371dc
-(1000/60)*(r/(1-r)) #mg/kg #Cmin
+(1000/peso)*(r/(1-r)) #mg/kg #Cmin
 
 # ╔═╡ 6470f52e-ff2e-4017-a420-a5e28d3cdc50
-(1000/60)*(1/(1-r)) #mg/kg #Cmax
+(1000/peso)*(1/(1-r)) #mg/kg #Cmax
 
 # ╔═╡ 0e04c225-042a-4642-8e01-b755f122bb14
 md"""Visualicemos la concentración del medicamento en el cuerpo a lo largo de 48 horas."""
@@ -516,11 +529,11 @@ let
 	T = 6
 	tm = 3
 	tmax = 45 / 60
-	f = 50 / 3
+	f = 1000 / peso
 	n = 6
 
-	CMT(t) = (1000/60)*(1/(1-r))
-	CME(t) = (1000/60)*(r/(1-r))
+	CMT(t) = (1000/peso)*(1/(1-r))
+	CME(t) = (1000/peso)*(r/(1-r))
 
 	C1 = f*(beta/(alpha-beta))*(exp(-beta*T)-exp(-alpha*T))+exp(-beta*T)
 
@@ -2970,6 +2983,7 @@ version = "1.4.1+1"
 # ╟─1ec04274-801b-49df-9914-d4126f6720ce
 # ╠═873acad0-28b0-46d8-94b6-d0e9c6d374de
 # ╟─2cc2b82f-2c4c-414b-bb14-341cd8d08838
+# ╠═6a9fee11-3f1c-4668-8468-f381ea99d798
 # ╠═6e932266-a899-4b76-bc36-2ac70f671132
 # ╟─c7c63755-9680-4b2f-a4af-cfd2bb44f5d1
 # ╠═0a2a335b-616f-47ca-a4a0-79c3c389e5f4

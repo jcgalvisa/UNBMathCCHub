@@ -72,16 +72,16 @@ $\frac{dy}{dt} = y(-0.75 + 0.25x) = -0.75y + 0.25xy = G(x, y),$
 para $x$ y $y$ positivos."""
 
 # ╔═╡ efab1f1c-ec89-4978-b167-5dde65c012c6
-@bind a Slider(0:0.5:5, show_value=true)
+@bind a Slider(0:0.25:5, show_value=true, default=1)
 
 # ╔═╡ 263797de-75f3-4824-8377-b77add80e10b
-@bind α Slider(0:0.5:5, show_value=true)
+@bind α Slider(0:0.25:5, show_value=true, default=0.5)
 
 # ╔═╡ a98b99d2-1e48-4bdf-8015-bf9eceb8fdf3
-@bind c Slider(0:0.25:5, show_value=true)
+@bind c Slider(0:0.25:5, show_value=true, default=0.75)
 
 # ╔═╡ 0838c3fa-060a-4317-8d61-064c4698849d
-@bind γ Slider(0:0.25:5, show_value=true)
+@bind γ Slider(0:0.25:5, show_value=true, default=0.25)
 
 # ╔═╡ 9008e68e-0aec-4089-b8b5-239b253bcd41
 md"""### Puntos de equilibrio"""
@@ -138,10 +138,10 @@ $\frac{dy}{dt} = -0.75y + 0.25xy,$
 con $x\geq 0$ y $y\geq 0$, con condiciones inicicales $x(0)=2$ y $y(0)=1$, de la siguiente manera:"""
 
 # ╔═╡ 0e46030e-c84d-43bd-a5cf-3eab911994f1
-@bind x0 Slider(0:5, show_value=true)
+@bind x0 Slider(0:5, show_value=true, default=2)
 
 # ╔═╡ 8c971eda-b537-4865-842b-3c8b43944b5b
-@bind y0 Slider(0:5, show_value=true)
+@bind y0 Slider(0:5, show_value=true, default=1)
 
 # ╔═╡ 2fa4e4f1-3c1e-4127-8555-2d658513aef3
 begin
