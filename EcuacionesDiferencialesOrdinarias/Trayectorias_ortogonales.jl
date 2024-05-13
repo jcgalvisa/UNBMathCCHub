@@ -54,7 +54,7 @@ Una familia de curvas se refiere a un conjunto de curvas que comparten una carac
 md"""Por ejemplo, $x^2 + y^2 = c^2$ es la ecuación de la familia de todos los círculos con centros en el origen."""
 
 # ╔═╡ 65874f41-5609-47aa-9d05-17755a523062
-@bind c Slider(1:10, show_value=true)
+@bind c Slider(1:10, show_value=true, default=5)
 
 # ╔═╡ 53155f86-121b-4a63-9672-1990d1c70cbd
 begin
@@ -77,7 +77,7 @@ esta es la ecuación diferencial de la familia de círculos dada."""
 md"""De manera similar, $x^2+y^2=2ax$ es la ecuación de la familia de todos los círculos tangentes al eje $y$ en el origen"""
 
 # ╔═╡ 99f8749b-79ac-4709-8ac3-4fb54d3f61db
-@bind a Slider(-10:10, show_value=true)
+@bind a Slider(-10:10, show_value=true, default=5)
 
 # ╔═╡ d2c5c60f-e1fc-4ca4-8b93-47ae7a0aebcd
 let
@@ -143,10 +143,10 @@ solucion = dsolve(eqn)
 md"""Note que esto es $y^2-x^2=C_1$. Grafiquemos"""
 
 # ╔═╡ d1a9e2e6-44a2-402c-ade0-28e03ea3feb8
-@bind C₁ Slider(-10:10, show_value=true)
+@bind C₁ Slider(-10:10, show_value=true, default=1)
 
 # ╔═╡ 5be01396-7c98-4929-a843-abcbe6fcca2c
-@bind C Slider(-10:10, show_value=true)
+@bind C Slider(-10:10, show_value=true, default=4)
 
 # ╔═╡ aae6f211-d7aa-4b9c-a9ad-d6cf9c16659d
 let
@@ -202,10 +202,10 @@ solucion1 = dsolve(eqn1)
 md"""Note que la familia de curvas buscada es $x^2+\frac{y^2}{2}=C_2$. Grafiquemos"""
 
 # ╔═╡ 28606497-df6d-444e-90ea-82dbe8a45557
-@bind C₂ Slider(0:10, show_value=true)
+@bind C₂ Slider(0:10, show_value=true, default=5)
 
 # ╔═╡ 307fdecc-bd12-45b0-94a0-09e07822abf8
-@bind k Slider(-10:10, show_value=true)
+@bind k Slider(-10:10, show_value=true, default=2)
 
 # ╔═╡ 357cdcc2-6204-4239-8ae8-4f70b96fd6b0
 let
