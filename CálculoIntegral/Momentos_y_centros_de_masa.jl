@@ -4,413 +4,39 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ dfd3255f-bfc9-4ab2-9015-f32731c30059
+# ╔═╡ 99032693-c631-4050-aa7d-86c44f720ebd
 using PlutoUI
 
-# ╔═╡ ffeca8c0-8cda-4763-8d94-8edb66624e9e
+# ╔═╡ d13ed197-22d3-400e-901f-b43957adf995
 using Plots, SymPy, QuadGK, CalculusWithJulia
 
-# ╔═╡ 3f18cff1-e3ca-4dc4-858b-e281b0243f29
-PlutoUI.TableOfContents(title="Coordenadas polares", aside=true)
+# ╔═╡ ab835d87-11cd-4f37-9001-af8379699a76
+PlutoUI.TableOfContents(title="Momentos y centros de masa", aside=true)
 
-# ╔═╡ d3a204b5-e273-4bf7-b2af-cf86fba9af24
+# ╔═╡ 09a2f1c6-36cb-4487-9905-dd4d04f3183a
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ 6e10dab0-1bc1-4dcd-9557-217e1a0bcff0
+# ╔═╡ aecea3ac-4cce-4f93-b14f-7baa1a7156f9
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
 """
 
-# ╔═╡ eaf69bdc-41dd-4df0-8303-7b4d3b4fa49a
+# ╔═╡ 84b57b37-c608-4478-b018-50e5845808e2
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ 3d446520-7f81-490a-aed1-42b033e9c57b
+# ╔═╡ b34e50d4-e982-4c57-8418-85cebf990d85
 md"""
 # Introducción"""
 
-# ╔═╡ 71c9ab1e-d2fa-477c-8594-0b039a8bc41d
-md"""**Definición:**
-La pareja $(r,\theta)$ se denomina coordenadas polares de $P$ y se denota $P(r, \theta)$, $r$ es llamado radio vector y $\theta$ es el ángulo polar.
+# ╔═╡ ff1d55a5-474d-4bb8-b380-03a8e2077fcf
+md"""# Momentos"""
 
-Si tenemos un punto $P$ con coordenadas cartesianas $(x, y)$ y coordenadas polares $(r, \theta)$, podemos expresar las siguientes relaciones:
+# ╔═╡ fffdc1d2-534a-4340-a1aa-549d5c06d9b0
+md"""# Centros de masa"""
 
-$\cos \theta = \frac{x}{r},$
-
-$\sin \theta = \frac{y}{r}.$
-
-Para encontrar $x$ y $y$ dados $r$ y $\theta$, usamos las siguientes ecuaciones:
-
-$x = r \cos \theta,$
-$y = r \sin \theta.$
-
-Para encontrar $r$ y $\theta$ dados $x$ y $y$, usamos las siguientes ecuaciones:
-
-$r^2 = x^2 + y^2,$
-$\tan \theta = \frac{y}{x}, \text{ con } 0 < \theta < \frac{\pi}{2}.$
-"""
-
-# ╔═╡ 09b9509d-dbb0-40f7-a4ce-1ce5d58bc2cd
-md"""**Ejemplo:**
-
-Pasemos el punto $(1,-1)$ dado en coordenadas cartesianas a coordenadas polares $(r, \theta)$."""
-
-# ╔═╡ 88b5358b-1029-4971-905d-5c1f0851f75a
-begin
-	x,y = 1, -1 #definimos el punto (x,y)
-	rad, theta = sqrt(x^2 + y^2), atan(y, x) #punto (r,θ)
-end
-
-# ╔═╡ 82dbd56f-40ce-48eb-8275-9542f6f1845b
-md"""Los siguientes gráficos muestran el punto en el plano cartesiano y en el plano polar, respectivamente, unidos al origen."""
-
-# ╔═╡ 9a203198-735f-4790-a761-427d1dcacd90
-begin
-	scatter([x], [y], label="P", aspect_ratio=:equal)
-	scatter!([0], [0], label="(0, 0)")
-	cartesian_plot = plot!([0, x], [0, y], color=:red, label="")
-	xlabel!("x")
-	ylabel!("y")
-	title!("Plano cartesiano")
-	
-	θ₁ = [0,π/3]
-	r₁ = [0,1]
-	polar_plot = plot(θ₁, r₁, proj = :polar, m = 2, legend=false)
-	title!("Plano polar")
-	
-	plot(cartesian_plot, polar_plot, layout=(1, 2), size=(800, 400))
-end
-
-# ╔═╡ 6107e54a-3d18-4041-983a-4e280d13ed5a
-md"""#### Distancia entre dos puntos en coordenadas polares
-
-La distancia entre los puntos $(r_1,\theta_1)$ y $(r_2, \theta_2)$ está dada por
-
-$d=\sqrt{r_1^2+r_2^2-2r_1r_2\cos{(\theta_2-\theta_1)}}.$
-
-*Ejemplo:* Consideremos los puntos $(-2,\frac{\pi}{6})$ y $(5, \frac{7\pi}{12})$ y hallemos la distancia entre ellos.
-
-Observe que queremos hallar la longitud del segmento que une dichos puntos."""
-
-# ╔═╡ 5c104776-861b-4dbc-8be0-f78a12993f09
-begin
-	θ₃ = [π/6, 7π/12]
-	r₃ = [-2,5]
-	plot(θ₃, r₃, proj = :polar, m = 2, legend=false)
-end
-
-# ╔═╡ ec14a4a0-be45-4cb1-aa93-f10c8925cd3f
-md"""Para esto, definamos la siguiente función:"""
-
-# ╔═╡ b55932ad-256e-4a2a-bded-d2a9911464b5
-function distancia(r,theta)
-	r₁ = r[1]
-	r₂ = r[2]
-	θ₁ = theta[1]
-	θ₂ = theta[2]
-	d = sqrt(r₁^2 + r₂^2 - 2*r₁*r₂*cos(θ₂-θ₁))
-	return d
-end
-
-# ╔═╡ cd190e6c-d181-4ba0-88e7-9b5867a581a2
-md"""Así, la distancia buscada es la siguiente:"""
-
-# ╔═╡ d447ac09-c514-40f8-8706-9125e7845d42
-distancia(r₃,θ₃)
-
-# ╔═╡ 37435937-2250-4d6c-b9d8-cb56a5b329d5
-md"""# Gráfica de una curva polar"""
-
-# ╔═╡ ab06c7a4-091f-4280-808e-69d5ed213ac1
-md"""Si $r = r(\theta)$, entonces la curva parametrizada $(r(\theta), \theta)$ es simplemente el conjunto de puntos generados a medida que $\theta$ varía sobre algún conjunto de valores.
-
-Por ejemplo, un círculo tiene la forma $x^2 + y^2 = R^2$. Mientras que parametrizado por coordenadas polares es simplemente $r(\theta) = R$, o una función constante.
-
-El círculo centrado en $(r_0, \gamma) $ (en coordenadas polares) con radio $R$ se ve de la siguiente forma en coordenadas polares:
-
-$r(\theta) = r_0 \cos(\theta - \gamma) + \sqrt{R^2 - r_0^2 \sin^2(\theta - \gamma)}$
-
-El caso donde $r_0 > R$ no estará definido para todos los valores de $\theta$, solo cuando $|\sin(\theta - \gamma)| \leq R/r_0$.
-"""
-
-# ╔═╡ e1f9a63e-4904-433f-8607-d7e5e5994a09
-md"""**Ejemplo:**
-
-Consideremos la ecuación $x^2+(y-2)^2=4$, y determinemos la ecuación polar para dicha circunferencia.
-
-Observe que $R=2, r_0= \sqrt{0^2 + 2^2} = 2, \gamma=\arctan{(\frac{2}{0})}=\frac{\pi}{2}$, luego
-
-$r(\theta) = 2 \cos(\theta-\frac{\pi}{2}) + \sqrt{2^2 - 2^2 \sin^2(\theta-\frac{\pi}{2})}=2 \sin(\theta) + 2\sqrt{1 - \cos^2(\theta)}=2 \sin(\theta).$
-
-Graficando, se obtiene lo siguiente:"""
-
-# ╔═╡ b0846245-093d-4431-9cea-7dd8a98a3494
-begin
-	# Ecuación del círculo
-	F(x) = sqrt(4 - (x^2)) + 2
-	G(x) = -sqrt(4 - (x^2)) + 2
-
-	# Gráfica en el plano cartesiano
-	cartesian_plot₁=plot(-2:0.01:2, [F, G], label="", color=:green)
-	xlabel!("x")
-	ylabel!("y")
-	title!("Plano cartesiano")
-
-	# Gráfica en el plano polar
-	R, r0, gamma = 2, sqrt(0^2 + 2^2), atan(2, 0)
-	r(theta) = r0 * cos(theta-gamma) + sqrt(R^2 - r0^2*sin(theta-gamma)^2)
-	ts = range(0, 2pi, length=100)
-	rs = r.(ts)
-	polar_plot₁ = plot(ts, rs, proj=:polar, legend=false)
-	title!("Plano polar")
-
-	plot(cartesian_plot₁, polar_plot₁, layout=(1, 2), size=(800, 400))
-end
-
-# ╔═╡ 3fc95283-0773-4b35-9a45-67c0d26e1cf1
-md"""**Ejemplo**: 
-
-Grafiquemos el **cardioide**, dicha curva es $r=1+\sin{\theta}$. Es llamada así porque tiene forma de corazón."""
-
-# ╔═╡ 0ea19daa-6b11-4f1b-862d-652380722c99
-begin
-	# Gráfica en el plano cartesiano
-	F₁(x)=1+sin(x)
-	cartesian_plot₂=plot(0:0.01:2*pi, F₁, label="", color=:green)
-	xlabel!("x")
-	ylabel!("y")
-	title!("Plano cartesiano")
-
-	# Gráfica en el polar
-	r₄(theta) = 1+sin(theta)
-	θ₄ = range(0, 2pi, length=100)
-	rs₄ = r₄.(θ₄)
-	polar_plot₂ = plot(θ₄, rs₄, proj=:polar, legend=false)
-	title!("Plano polar")
-
-	plot(cartesian_plot₂, polar_plot₂, layout=(1, 2), size=(800, 400))
-end
-
-# ╔═╡ 721966d0-9c0c-46f1-bbcb-74cde1851617
-md"""Para evitar tener que crear valores para $\theta$ y $r$, el paquete CalculusWithJulia proporciona una función auxiliar, plot_polar. Esta es:
-"""
-
-# ╔═╡ 51dbf990-e353-42e7-889c-297265b42fe0
-plot_polar(r, a, b; kwargs...) = plot(t -> r(t)*cos(t), t -> r(t)*sin(t), a, b; kwargs...)
-
-# ╔═╡ 2760da42-aea9-43ab-bf3b-d322f822ce30
-plot_polar!(r, a, b; kwargs...) = plot!(t -> r(t)*cos(t), t -> r(t)*sin(t), a, b; kwargs...)
-
-# ╔═╡ e62e4a84-8dd0-4ed8-9c4c-5e692e6a66fb
-md"""Usaremos esto a continuación, ya que los gráficos son un poco más familiares y el patrón de llamada es similar a cómo hemos graficado funciones.
-
-**Ejemplo:**
-
-Grafiquemos la misma función anterior, el cardioide."""
-
-# ╔═╡ e9ff05f4-a7c1-4b44-8074-43476d24c887
-begin
-	r₁₂(theta) = 1+sin(theta)
-	plot_polar(r₁₂, 0, 2pi, aspect_ratio=:equal, legend=false)
-end
-
-# ╔═╡ cad6ea29-fc9e-4fec-8e1b-d0acb28a939e
-md"""**Ejemplo:**
-
-Grafiquemos la curva $r=cos{(2\theta)}$. Dicha curva se llama **rosa de cuatro hojas.**"""
-
-# ╔═╡ 73f03680-dd2c-4ed1-8088-994fb883b556
-begin
-	r₅(theta) = cos(2*theta)
-	plot_polar(r₅, 0, 2pi, aspect_ratio=:equal, legend=false)
-end
-
-# ╔═╡ 85af8ba4-78a4-47a5-a307-b52e27126a67
-md"""Note que si tenemos $r=\cos{(n\theta)}$, su gráfica es una rosa de $n$ hojas si $n$ es impar, y una rosa de $2n$ hojas si $n$ es par."""
-
-# ╔═╡ c906b6f3-0e16-4cc6-b744-091199800654
-@bind n Slider(1:10, show_value=true, default=5)
-
-# ╔═╡ 291fdf85-33e7-4628-a54f-2275d441a403
-let
-	r₅(theta) = cos(n*theta)
-	plot_polar(r₅, 0, 2pi, aspect_ratio=:equal, legend=false)
-end
-
-# ╔═╡ 8da1b653-2410-40f1-b6aa-64865c8d1da1
-md"""# Áreas
-"""
-
-# ╔═╡ f69132ae-3782-4bc8-9180-0016fda1a260
-md"""
-#### Área región polar
-**Definición:**
-Sea $R$ la región acotada por la curva polar $r = f(\theta)$ y por los rayos $\theta = a$ y $\theta = b$. Entonces el área de $R$ está dada por:
-
-$A = \int_{a}^{b} \frac{1}{2} r^2 \, d\theta = \int_{a}^{b} \frac{1}{2} [f(\theta)]^2 \, d\theta$"""
-
-# ╔═╡ 442967df-50ed-4b03-b63c-07cb7e2c61e0
-@syms θ #definimos la variable θ
-
-# ╔═╡ 816ad089-2f2d-49c8-83a5-7aa05fdb301e
-md"""**Ejemplo:**
-
-Encontremos el área de la región en el plano, acotada por el cardioide $r=3(1+\cos{(\theta)})$."""
-
-# ╔═╡ 23354dee-9e02-4992-ae7c-2336d07d8448
-begin
-	r₈ = 3*(1+cos(θ))
-	plot_polar(r₈, 0, 2pi, aspect_ratio=:equal, fillrange=0, fillalpha=0.3, color=:green, legend=false)
-end
-
-# ╔═╡ 3f522c7a-8f2f-4948-b178-b44263f3543e
-md"""Dado que $\theta$ varia de $0$ a $2\pi$, entonces el área es:"""
-
-# ╔═╡ fce4283e-3967-4452-90ab-8ec3f5d43554
-(1/2)*integrate(r₈^2, (θ, 0, 2π))
-
-# ╔═╡ 313bed1b-4e29-4361-9156-ab248ada04b4
-md"""**Ejemplo:**
-
-Hallemos el área de la región definida por un pétalo de la rosa de 8 horas $r=\cos{(4\theta)}$."""
-
-# ╔═╡ 6f27c840-25ce-4916-90a3-7faab4990bcc
-begin
-	r₆ = cos(4*θ)
-	plot_polar(r₆, 0, 2pi, aspect_ratio=:equal, legend=false)
-	plot_polar!(r₆, -pi/8, pi/8, aspect_ratio=:equal, fillrange=0, fillalpha=0.3, color=:green, legend=false)
-end
-
-# ╔═╡ e813cf09-7702-402f-8687-c1146f1849ac
-md"""Consideremos el pétalo coloreado, observe que esta región es rellenada por los rayos entre $\theta = -\frac{\pi}{8}$ a $\theta = \frac{\pi}{8}$. Por lo tanto, el área de la región es:"""
-
-# ╔═╡ 6622df29-90a2-4b64-947a-8a26226b21dd
-(1/2)*integrate(r₆^2, (θ, -π/8, π/8))
-
-# ╔═╡ c7e6a51e-d974-4fff-8b08-42a43b62f092
-md"""
-#### Área entre dos curvas polares
-**Definición:**
-En general, sea $R$ una región acotada por curvas con ecuaciones polares $r = f(\theta)$, $r = g(\theta)$, $\theta = a$ y $\theta = b$ donde $f(\theta) > g(\theta)$ y $0< b - a \leq 2\pi$. El área de la región $R$ es:
-
-$A = \int_{a}^{b} \frac{1}{2} (r_{\text{ext}})^2 \, d\theta - \int_{a}^{b} \frac{1}{2} (r_{\text{sup}})^2 \, d\theta = \int_{a}^{b} \frac{1}{2} (r_{\text{ext}}^2 - r_{\text{sup}}^2) \, d\theta$"""
-
-# ╔═╡ 66087e05-caba-4ac9-8bc0-d53bd3f394fc
-md"""**Ejemplo:**
-
-Encontremos el área de la región que se encuentra dentro del cardioide $r= 1+\cos{\theta}$ y fuera del cardioide $r= 1-\cos{\theta}$."""
-
-# ╔═╡ a2f267d1-813d-4530-b3da-7b75d49a036a
-begin
-	r₇ = 1-cos(θ)
-	r₉ = 1+cos(θ)
-	plot_polar(r₉, 0, 2pi, aspect_ratio=:equal, fillrange=0, fillalpha=0.3, color=:green, legend=false)
-	plot_polar!(r₇, 0, 2pi, aspect_ratio=:equal, legend=false, fill=(0, :white))
-	plot_polar!(r₉, 0, 2pi)
-end
-
-# ╔═╡ 435867f9-b60e-408f-b57b-ebfc4cf95db0
-md"""Observe que la curva exterior es $r_{\text{ext}}=1+\cos{\theta}$, la curva interior es $r_{\text{int}}=1-\cos{\theta}$, y $\theta$ varia de $-\frac{\pi}{2}$ a $\frac{\pi}{2}$. Así el área buscada es:"""
-
-# ╔═╡ 4b218fff-f007-4f95-8c01-f8c355b0131e
-(1/2)*integrate(r₉^2-r₇^2, (θ,  -π/2, π/2))
-
-# ╔═╡ d15fce73-ad0a-444a-af1d-746d4d38ec56
-md"""**Ejemplo:**
-
-Encontremos el área de la región sombreada, donde la circunferencia es $r=\frac{1}{2}$ y la rosa es $r=\cos{2\theta}$."""
-
-# ╔═╡ 188e0ae0-1fb9-472f-8f7b-5ed18e9a69da
-begin
-	r₁₁ = cos(2*θ)
-	r₁₃ = 1/2+0*θ
-	plot_polar(r₁₁, 0, pi/6, aspect_ratio=:equal, fillrange=0, fillalpha=0.3, color=:green, legend=false)
-	plot_polar!(r₁₃, 0, 2pi, aspect_ratio=:equal, legend=false, fill=(0, :white))
-	plot_polar!(r₁₁, 0, 2pi, legend=false)
-end
-
-# ╔═╡ a6e11acc-3fd0-45eb-abf9-5b4c8866201d
-md"""Primero hallemos los puntos de intersección de las curvas $r=\frac{1}{2}$ y $r=\cos{2\theta}$, igualando se tiene que $\cos{2\theta}=\frac{1}{2}$."""
-
-# ╔═╡ 1c1ec13a-1319-496a-84a6-7359068facab
-solve(cos(2θ) - Rational(1, 2), θ) # Resolver la ecuación
-
-# ╔═╡ 9754f821-bc3d-4c68-b81b-8903e2e54001
-md"""Hemos hallado 2 puntos de la intersección, sin embargo, se puede ver de la figura que las curvas tienen otros 6 puntos de intersección, estos se pueden hallar por medio de simetrías. Pero por ahora hemos obtenido el que necesitamos $(\theta=\frac{\pi}{6})$."""
-
-# ╔═╡ 9e89f7af-c674-44bb-b223-16fecadbec17
-md"""Observe que la curva exterior es $r_{\text{ext}}=\cos{2*\theta}$, la curva interior es $r_{\text{int}}=\frac{1}{2}$, y $\theta$ varia de $0$ a $\frac{\pi}{6}$. Así el área buscada es:"""
-
-# ╔═╡ d46354ff-888c-47c6-9941-2020a0e442ec
-(1/2)*integrate(r₁₁^2-r₁₃^2, (θ, 0, π/6))
-
-# ╔═╡ 6e9aab42-6cb8-46fb-a79e-f89250923932
-md"""# Longitud de curva
-
-**Definición:**
-Si la función $r = f(\theta)$ tiene una derivada continua en el intervalo $a\leq \theta \leq b$ y el punto $(r, \theta)$ traza la curva exactamente una vez al variar $\theta$ de $a$ a $b$, entonces la longitud de la curva está dada por
-
-$L = \int_{a}^{b} \sqrt{r^2 + \left(\frac{dr}{d\theta}\right)^2} \, d\theta$"""
-
-# ╔═╡ ea2f52fb-b72d-47a4-9cef-5e0b2ddb1404
-md"""**Ejemplo:**
-
-Encontremos la longitud del cardioide $r=1+\cos{\theta}$, con $0\leq \theta\leq 2\pi$."""
-
-# ╔═╡ b6c18a46-bcd3-44d7-a6ce-e332a1a83daf
-begin
-	r₁₀(theta) = 1+cos(theta)
-	plot_polar(r₁₀, 0, 2pi, aspect_ratio=:equal, legend=false)
-end
-
-# ╔═╡ 73b430ec-d91b-4c15-8426-a7921e8fa8d8
-md"""Observe que la longitud de la curva es:"""
-
-# ╔═╡ b8bf3cde-4f2c-441a-8a85-2c09cb4e427a
-begin
-	f₁₀ = 1+cos(θ)
-	g₁₀ = simplify(sqrt(f₁₀^2 + (diff(f₁₀, θ))^2))
-
-	quadgk(g₁₀, 0, 2π)[1]
-end
-
-# ╔═╡ 6543d04f-846b-474b-86c4-062ef47bd38e
-md"""**Ejemplo:**
-
-Encontremos la longitud del lado derecho de la lemniscata $r^2=\cos{2\theta}$."""
-
-# ╔═╡ 9fdcc34b-6a08-43b4-a98b-ac7898913e0c
-begin
-	r₁₄(theta) = sqrt(cos(2*theta))
-	r₁₅(theta) = -sqrt(cos(2*theta))
-	plot_polar(r₁₄, -pi/4, pi/4, aspect_ratio=:equal, legend=false, color=:red)
-	plot_polar!(r₁₅, -pi/4, pi/4, aspect_ratio=:equal, legend=false, color=:red)
-end
-
-# ╔═╡ 31f21167-3aaa-4719-8838-358be6c9afb8
-md"""Observe que el lado derecho se recoore una vez cuando $\theta$ varia de $\frac{-\pi}{4}$ a $\frac{\pi}{4}$, así la longitud de la curva es:"""
-
-# ╔═╡ 511a4a58-251f-4fb4-acfd-aae19e6b1fef
-begin
-	f₁₄ = sqrt(cos(2*θ))
-	g₁₄ = simplify(sqrt(f₁₄^2 + (diff(f₁₄, θ))^2))
-
-	quadgk(g₁₄, -pi/4, pi/4)[1]
-end
-
-# ╔═╡ 29b16a07-498b-4afe-a44c-f878b53a2bfd
-md"""
-# Referencias"""
+# ╔═╡ 7121c0ad-4fd5-4530-9d97-ea10fce36267
+md"""# Referencias"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -422,9 +48,9 @@ QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
-CalculusWithJulia = "~0.1.4"
-Plots = "~1.40.3"
-PlutoUI = "~0.7.58"
+CalculusWithJulia = "~0.2.3"
+Plots = "~1.40.4"
+PlutoUI = "~0.7.59"
 QuadGK = "~2.9.4"
 SymPy = "~2.0.1"
 """
@@ -435,13 +61,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "222daefe69e240d008c1546791ace4200aa9c113"
+project_hash = "2f157461febbb559ad79dec4fc492cd63a8e035f"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "0f748c81756f2e5e6854298f11ad8b2dfae6911a"
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.3.0"
+version = "1.3.2"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
@@ -492,10 +118,15 @@ uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.0+1"
 
 [[deps.CalculusWithJulia]]
-deps = ["Base64", "Contour", "ForwardDiff", "HCubature", "IntervalSets", "JSON", "LinearAlgebra", "PlotUtils", "Random", "RecipesBase", "Reexport", "Requires", "Roots", "SpecialFunctions", "SplitApplyCombine", "Test"]
-git-tree-sha1 = "df0608635021120c3d2e19a70edbb6506549fe14"
+deps = ["Base64", "Contour", "ForwardDiff", "IntervalSets", "LinearAlgebra", "PlotUtils", "Random", "Reexport", "Roots", "SpecialFunctions", "SplitApplyCombine", "Test"]
+git-tree-sha1 = "16af1583d14f9eb588936cc963ef98b51051fdc8"
 uuid = "a2e0e22d-7d4c-5312-9169-8b992201a882"
-version = "0.1.4"
+version = "0.2.3"
+weakdeps = ["Plots", "SymPyCore"]
+
+    [deps.CalculusWithJulia.extensions]
+    CalculusWithJuliaPlotsExt = "Plots"
+    CalculusWithJuliaSymPyCoreExt = "SymPyCore"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
@@ -515,9 +146,9 @@ version = "0.7.4"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "67c1f244b991cad9b0aa4b7540fb758c2488b129"
+git-tree-sha1 = "4b270d6465eb21ae89b732182c20dc165f8bf9f2"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.24.0"
+version = "3.25.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -537,14 +168,9 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
+git-tree-sha1 = "362a287c3aa50601b0bc359053d5c2468f0e7ce0"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.12.10"
-
-[[deps.Combinatorics]]
-git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
-uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
-version = "1.0.2"
+version = "0.12.11"
 
 [[deps.CommonEq]]
 git-tree-sha1 = "6b0f0354b8eb954cdba708fb262ef00ee7274468"
@@ -564,9 +190,9 @@ version = "0.3.0"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "c955881e3c981181362ae4088b35995446298b80"
+git-tree-sha1 = "b1c55339b7c6c350ee89f2c1604299660525b248"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.14.0"
+version = "4.15.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -603,11 +229,14 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 version = "1.5.5"
-weakdeps = ["IntervalSets", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
     ConstructionBaseIntervalSetsExt = "IntervalSets"
     ConstructionBaseStaticArraysExt = "StaticArrays"
+
+    [deps.ConstructionBase.weakdeps]
+    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -621,9 +250,9 @@ version = "1.16.0"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "0f4b5d62a88d8f59003e43c25a8a90de9eb76317"
+git-tree-sha1 = "1d0a14036acb104d9e89698bd408f63ab58cdc82"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.18"
+version = "0.18.20"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -637,9 +266,9 @@ version = "1.9.1"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random", "Serialization"]
-git-tree-sha1 = "573c92ef22ee0783bfaa4007c732b044c791bc6d"
+git-tree-sha1 = "35b66b6744b2d92c778afd3a88d2571875664a2a"
 uuid = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-version = "0.4.1"
+version = "0.4.2"
 
 [[deps.DiffResults]]
 deps = ["StaticArraysCore"]
@@ -678,9 +307,9 @@ version = "0.1.10"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "4558ab818dcceaab612d1bb8c19cee87eda2b83c"
+git-tree-sha1 = "1c6317308b9dc757616f0b5cb379db10494443a7"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.5.0+0"
+version = "2.6.2+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -699,15 +328,15 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
-git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
+git-tree-sha1 = "05882d6995ae5c12bb5f36dd2ed3f61c98cbb172"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
-version = "0.8.4"
+version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
-deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "21efd19106a55620a188615da6d3d06cd7f6ee03"
+deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
+git-tree-sha1 = "db16beca600632c95fc8aca29890d83788dd8b23"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.13.93+0"
+version = "2.13.96+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
@@ -719,10 +348,12 @@ deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "Lo
 git-tree-sha1 = "cf0fe81336da9fb90944683b8c41984b08793dad"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.36"
-weakdeps = ["StaticArrays"]
 
     [deps.ForwardDiff.extensions]
     ForwardDiffStaticArraysExt = "StaticArrays"
+
+    [deps.ForwardDiff.weakdeps]
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -731,10 +362,10 @@ uuid = "d7e528f0-a631-5988-bf34-fe36492bcfd7"
 version = "2.13.1+0"
 
 [[deps.FriBidi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "aa31987c2ba8704e23c6c8ba8a4f769d5d7e4f91"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "1ed150b39aebcc805c26b93a8d0122c940f64ce2"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
-version = "1.0.10+0"
+version = "1.0.14+0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll"]
@@ -743,16 +374,16 @@ uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.9+0"
 
 [[deps.GR]]
-deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "3437ade7073682993e092ca570ad68a2aba26983"
+deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
+git-tree-sha1 = "ddda044ca260ee324c5fc07edb6d7cf3f0b9c350"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.3"
+version = "0.73.5"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "a96d5c713e6aa28c242b0d25c1347e258d6541ab"
+git-tree-sha1 = "278e5e0f820178e8a26df3184fcb2280717c79b1"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.3+0"
+version = "0.73.5+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -762,9 +393,9 @@ version = "0.21.0+0"
 
 [[deps.Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "359a1ba2e320790ddbe4ee8b4d54a305c0ea2aff"
+git-tree-sha1 = "7c82e6a6cd34e9d935e9aa4051b66c6ff3af59ba"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.80.0+0"
+version = "2.80.2+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -777,17 +408,11 @@ git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
 uuid = "42e2da0e-8278-4e71-bc24-59509adca0fe"
 version = "1.0.2"
 
-[[deps.HCubature]]
-deps = ["Combinatorics", "DataStructures", "LinearAlgebra", "QuadGK", "StaticArrays"]
-git-tree-sha1 = "10f37537bbd83e52c63abf6393f209dbd641fedc"
-uuid = "19dc6840-f33b-545b-b366-655c7e3ffd49"
-version = "1.6.0"
-
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "8e59b47b9dc525b70550ca082ce85bcd7f5477cd"
+git-tree-sha1 = "d1d712be3164d61d1fb98e7ce9bcbc6cc06b45ed"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.5"
+version = "1.10.8"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -835,9 +460,9 @@ weakdeps = ["Random", "RecipesBase", "Statistics"]
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
-git-tree-sha1 = "896385798a8d49a255c398bd49162062e4a4c435"
+git-tree-sha1 = "e7cbed5032c4c397a6ac23d1493f3289e01231c4"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.13"
+version = "0.1.14"
 weakdeps = ["Dates"]
 
     [deps.InverseFunctions.extensions]
@@ -868,15 +493,15 @@ version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3336abae9a713d2210bb57ab484b1e065edd7d23"
+git-tree-sha1 = "c84a835e1a09b289ffcd2271bf2a337bbdda6637"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.0.2+0"
+version = "3.0.3+0"
 
 [[deps.LAME_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.1+0"
+version = "3.100.2+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -891,10 +516,10 @@ uuid = "1d63c593-3942-5779-bab2-d838dc0a180e"
 version = "15.0.7+0"
 
 [[deps.LZO_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "70c5da094887fd2cae843b8db33920bac4b6f07d"
 uuid = "dd4b983a-f0e5-5f8d-a1b7-129d4a5fb1ac"
-version = "2.10.1+0"
+version = "2.10.2+0"
 
 [[deps.LaTeXStrings]]
 git-tree-sha1 = "50901ebc375ed41dbf8058da26f9de442febbbec"
@@ -903,9 +528,9 @@ version = "1.3.1"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cad560042a7cc108f5a4c24ea1431a9221f22c1b"
+git-tree-sha1 = "e0b5cd21dc1b44ec6e64f351976f961e6f31d6c4"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.2"
+version = "0.16.3"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -949,10 +574,10 @@ uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
 version = "3.2.2+1"
 
 [[deps.Libgcrypt_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll", "Pkg"]
-git-tree-sha1 = "64613c82a59c120435c067c2b809fc61cf5166ae"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll"]
+git-tree-sha1 = "9fd170c4bbfd8b935fdc5f8b7aa33532c991a673"
 uuid = "d4300ac3-e22c-5743-9152-c294e39db1e4"
-version = "1.8.7+0"
+version = "1.8.11+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -961,10 +586,10 @@ uuid = "7e76a0d4-f3c7-5321-8279-8d96eeed0f29"
 version = "1.6.0+0"
 
 [[deps.Libgpg_error_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "c333716e46366857753e273ce6a69ee0945a6db9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "fbb1f2bef882392312feb1ede3615ddc1e9b99ed"
 uuid = "7add5ba3-2f88-524e-9cd5-f83b8a55f7b8"
-version = "1.42.0+0"
+version = "1.49.0+0"
 
 [[deps.Libiconv_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -974,9 +599,9 @@ version = "1.17.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "dae976433497a2f841baadea93d27e68f1a12a97"
+git-tree-sha1 = "0c4f9c4f1a50d8f35048fa0532dabbadf702f81e"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.39.3+0"
+version = "2.40.1+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -986,9 +611,9 @@ version = "4.5.1+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "0a04a1318df1bf510beb2562cf90fb0c386f58c4"
+git-tree-sha1 = "5ee6203157c120d79034c748a2acba45b82b8807"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.39.3+1"
+version = "2.40.1+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -1091,9 +716,9 @@ version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "af81a32750ebc831ee28bdaaba6e1067decef51e"
+git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.2"
+version = "1.4.3"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1136,9 +761,9 @@ version = "1.3.0"
 
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
-git-tree-sha1 = "64779bc4c9784fee475689a1752ef4d5747c5e87"
+git-tree-sha1 = "35621f10a7531bc8fa58f74610b1bfb70a3cfc6b"
 uuid = "30392449-352a-5448-841d-b1acce4e97dc"
-version = "0.42.2+0"
+version = "0.43.4+0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
@@ -1159,9 +784,9 @@ version = "1.4.1"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3bdfa4fa528ef21287ef659a89d686e8a1bcb1a9"
+git-tree-sha1 = "442e1e7ac27dd5ff8825c3fa62fbd1e86397974b"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.3"
+version = "1.40.4"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1179,9 +804,9 @@ version = "1.40.3"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "71a22244e352aa8c5f0f2adde4150f62368a3f2e"
+git-tree-sha1 = "ab55ee1510ad2af0ff674dbcced5e94921f867a9"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.58"
+version = "0.7.59"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1312,9 +937,9 @@ version = "1.10.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "e2cfc4012a19088254b3950b85c3c1d8882d864d"
+git-tree-sha1 = "2f5d4697f21388cbe1ff299430dd169ef97d7e14"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.3.1"
+version = "2.4.0"
 weakdeps = ["ChainRulesCore"]
 
     [deps.SpecialFunctions.extensions]
@@ -1325,17 +950,6 @@ deps = ["Dictionaries", "Indexing"]
 git-tree-sha1 = "c06d695d51cfb2187e6848e98d6252df9101c588"
 uuid = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 version = "1.2.3"
-
-[[deps.StaticArrays]]
-deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "bf074c045d3d5ffd956fa0a461da38a44685d6b2"
-uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.3"
-weakdeps = ["ChainRulesCore", "Statistics"]
-
-    [deps.StaticArrays.extensions]
-    StaticArraysChainRulesCoreExt = "ChainRulesCore"
-    StaticArraysStatisticsExt = "Statistics"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "36b3d696ce6366023a0ea192b4cd442268995a0d"
@@ -1372,9 +986,9 @@ version = "2.0.1"
 
 [[deps.SymPyCore]]
 deps = ["CommonEq", "CommonSolve", "Latexify", "LinearAlgebra", "Markdown", "RecipesBase", "SpecialFunctions"]
-git-tree-sha1 = "4c5a53625f0e53ce1e726a6dab1c870017303728"
+git-tree-sha1 = "d2e8b52c18ad76cc8827eb134b9ba4bb7699ec59"
 uuid = "458b697b-88f0-4a86-b56b-78b75cfb3531"
-version = "0.1.16"
+version = "0.1.18"
 
     [deps.SymPyCore.extensions]
     SymPyCoreSymbolicUtilsExt = "SymbolicUtils"
@@ -1403,9 +1017,9 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
+git-tree-sha1 = "5d54d076465da49d6746c647022f3b3674e64156"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.7"
+version = "0.10.8"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
@@ -1436,9 +1050,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
+git-tree-sha1 = "352edac1ad17e018186881b051960bfca78a075a"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.19.0"
+version = "1.19.1"
 weakdeps = ["ConstructionBase", "InverseFunctions"]
 
     [deps.Unitful.extensions]
@@ -1498,16 +1112,16 @@ uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
 version = "5.4.6+0"
 
 [[deps.Xorg_libICE_jll]]
-deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "e5becd4411063bdcac16be8b66fc2f9f6f1e8fe5"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "326b4fea307b0b39892b3e85fa451692eda8d46c"
 uuid = "f67eecfb-183a-506d-b269-f58e52b52d7c"
-version = "1.0.10+1"
+version = "1.1.1+0"
 
 [[deps.Xorg_libSM_jll]]
-deps = ["Libdl", "Pkg", "Xorg_libICE_jll"]
-git-tree-sha1 = "4a9d9e4c180e1e8119b5ffc224a7b59d3a7f7e18"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libICE_jll"]
+git-tree-sha1 = "3796722887072218eabafb494a13c963209754ce"
 uuid = "c834827a-8449-5923-a945-d239c165b7dd"
-version = "1.2.3+0"
+version = "1.2.4+0"
 
 [[deps.Xorg_libX11_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xtrans_jll"]
@@ -1534,10 +1148,10 @@ uuid = "a3789734-cfe1-5b06-b2d0-1dd0d9d62d05"
 version = "1.1.4+0"
 
 [[deps.Xorg_libXext_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
-git-tree-sha1 = "b7c0aa8c376b31e4852b360222848637f481f8c3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
+git-tree-sha1 = "d2d1a5c49fae4ba39983f63de6afcbea47194e85"
 uuid = "1082639a-0dae-5f34-9b06-72781eeb8cb3"
-version = "1.3.4+4"
+version = "1.3.6+0"
 
 [[deps.Xorg_libXfixes_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
@@ -1564,10 +1178,10 @@ uuid = "ec84b674-ba8e-5d96-8ba1-2a689ba10484"
 version = "1.5.2+4"
 
 [[deps.Xorg_libXrender_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
-git-tree-sha1 = "19560f30fd49f4d4efbe7002a1037f8c43d43b96"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
+git-tree-sha1 = "47e45cd78224c53109495b3e324df0c37bb61fbe"
 uuid = "ea2f1a96-1ddc-540d-b46f-429655e07cfa"
-version = "0.9.10+4"
+version = "0.9.11+0"
 
 [[deps.Xorg_libpthread_stubs_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1753,72 +1367,15 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─dfd3255f-bfc9-4ab2-9015-f32731c30059
-# ╟─3f18cff1-e3ca-4dc4-858b-e281b0243f29
-# ╟─d3a204b5-e273-4bf7-b2af-cf86fba9af24
-# ╟─6e10dab0-1bc1-4dcd-9557-217e1a0bcff0
-# ╟─eaf69bdc-41dd-4df0-8303-7b4d3b4fa49a
-# ╠═ffeca8c0-8cda-4763-8d94-8edb66624e9e
-# ╟─3d446520-7f81-490a-aed1-42b033e9c57b
-# ╟─71c9ab1e-d2fa-477c-8594-0b039a8bc41d
-# ╟─09b9509d-dbb0-40f7-a4ce-1ce5d58bc2cd
-# ╠═88b5358b-1029-4971-905d-5c1f0851f75a
-# ╟─82dbd56f-40ce-48eb-8275-9542f6f1845b
-# ╠═9a203198-735f-4790-a761-427d1dcacd90
-# ╟─6107e54a-3d18-4041-983a-4e280d13ed5a
-# ╠═5c104776-861b-4dbc-8be0-f78a12993f09
-# ╟─ec14a4a0-be45-4cb1-aa93-f10c8925cd3f
-# ╠═b55932ad-256e-4a2a-bded-d2a9911464b5
-# ╟─cd190e6c-d181-4ba0-88e7-9b5867a581a2
-# ╠═d447ac09-c514-40f8-8706-9125e7845d42
-# ╟─37435937-2250-4d6c-b9d8-cb56a5b329d5
-# ╟─ab06c7a4-091f-4280-808e-69d5ed213ac1
-# ╟─e1f9a63e-4904-433f-8607-d7e5e5994a09
-# ╠═b0846245-093d-4431-9cea-7dd8a98a3494
-# ╟─3fc95283-0773-4b35-9a45-67c0d26e1cf1
-# ╠═0ea19daa-6b11-4f1b-862d-652380722c99
-# ╟─721966d0-9c0c-46f1-bbcb-74cde1851617
-# ╠═51dbf990-e353-42e7-889c-297265b42fe0
-# ╠═2760da42-aea9-43ab-bf3b-d322f822ce30
-# ╟─e62e4a84-8dd0-4ed8-9c4c-5e692e6a66fb
-# ╠═e9ff05f4-a7c1-4b44-8074-43476d24c887
-# ╟─cad6ea29-fc9e-4fec-8e1b-d0acb28a939e
-# ╠═73f03680-dd2c-4ed1-8088-994fb883b556
-# ╟─85af8ba4-78a4-47a5-a307-b52e27126a67
-# ╠═c906b6f3-0e16-4cc6-b744-091199800654
-# ╠═291fdf85-33e7-4628-a54f-2275d441a403
-# ╟─8da1b653-2410-40f1-b6aa-64865c8d1da1
-# ╟─f69132ae-3782-4bc8-9180-0016fda1a260
-# ╠═442967df-50ed-4b03-b63c-07cb7e2c61e0
-# ╟─816ad089-2f2d-49c8-83a5-7aa05fdb301e
-# ╠═23354dee-9e02-4992-ae7c-2336d07d8448
-# ╟─3f522c7a-8f2f-4948-b178-b44263f3543e
-# ╠═fce4283e-3967-4452-90ab-8ec3f5d43554
-# ╟─313bed1b-4e29-4361-9156-ab248ada04b4
-# ╠═6f27c840-25ce-4916-90a3-7faab4990bcc
-# ╟─e813cf09-7702-402f-8687-c1146f1849ac
-# ╠═6622df29-90a2-4b64-947a-8a26226b21dd
-# ╟─c7e6a51e-d974-4fff-8b08-42a43b62f092
-# ╟─66087e05-caba-4ac9-8bc0-d53bd3f394fc
-# ╠═a2f267d1-813d-4530-b3da-7b75d49a036a
-# ╟─435867f9-b60e-408f-b57b-ebfc4cf95db0
-# ╠═4b218fff-f007-4f95-8c01-f8c355b0131e
-# ╟─d15fce73-ad0a-444a-af1d-746d4d38ec56
-# ╠═188e0ae0-1fb9-472f-8f7b-5ed18e9a69da
-# ╟─a6e11acc-3fd0-45eb-abf9-5b4c8866201d
-# ╠═1c1ec13a-1319-496a-84a6-7359068facab
-# ╟─9754f821-bc3d-4c68-b81b-8903e2e54001
-# ╟─9e89f7af-c674-44bb-b223-16fecadbec17
-# ╠═d46354ff-888c-47c6-9941-2020a0e442ec
-# ╟─6e9aab42-6cb8-46fb-a79e-f89250923932
-# ╟─ea2f52fb-b72d-47a4-9cef-5e0b2ddb1404
-# ╠═b6c18a46-bcd3-44d7-a6ce-e332a1a83daf
-# ╟─73b430ec-d91b-4c15-8426-a7921e8fa8d8
-# ╠═b8bf3cde-4f2c-441a-8a85-2c09cb4e427a
-# ╟─6543d04f-846b-474b-86c4-062ef47bd38e
-# ╠═9fdcc34b-6a08-43b4-a98b-ac7898913e0c
-# ╟─31f21167-3aaa-4719-8838-358be6c9afb8
-# ╠═511a4a58-251f-4fb4-acfd-aae19e6b1fef
-# ╟─29b16a07-498b-4afe-a44c-f878b53a2bfd
+# ╟─99032693-c631-4050-aa7d-86c44f720ebd
+# ╟─ab835d87-11cd-4f37-9001-af8379699a76
+# ╟─09a2f1c6-36cb-4487-9905-dd4d04f3183a
+# ╟─aecea3ac-4cce-4f93-b14f-7baa1a7156f9
+# ╟─84b57b37-c608-4478-b018-50e5845808e2
+# ╠═d13ed197-22d3-400e-901f-b43957adf995
+# ╟─b34e50d4-e982-4c57-8418-85cebf990d85
+# ╟─ff1d55a5-474d-4bb8-b380-03a8e2077fcf
+# ╟─fffdc1d2-534a-4340-a1aa-549d5c06d9b0
+# ╟─7121c0ad-4fd5-4530-9d97-ea10fce36267
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

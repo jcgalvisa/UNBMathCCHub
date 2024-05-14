@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ b763cd10-d1e7-4613-b738-9fb1c1cfa1e5
 using PlutoUI
 
@@ -89,7 +99,7 @@ $L_n := f(x_0) \Delta x + f(x_2) \Delta x + \cdots + f(x_{n-1}) \Delta x = \sum_
 """
 
 # ╔═╡ 2d606958-6b7d-4603-a617-fcd77d2f3eeb
-md"""*Ejemplo:*
+md"""**Ejemplo:**
 
 Calcule el área de la región que se encuentra bajo la parábola $y=x^2$ y por arriba del eje $x$, en intervalo $[0,3]$."""
 
@@ -98,10 +108,7 @@ md"""Observe que la región pedida es la siguiente:"""
 
 # ╔═╡ da66b476-1a8a-4c23-b21e-8e6a7532be44
 begin
-# Definir la función
-f(x) = x^2  
-	
-# Definir el intervalo y el número de subdivisiones
+f(x) = x^2  # Definir la función
 a = 0.0  # Límite inferior del intervalo
 b = 3.0  # Límite superior del intervalo
 
@@ -115,23 +122,25 @@ title!("Región pedida")
 end
 
 # ╔═╡ e480632e-fe63-4de3-bfd0-462a104c99ec
-md"""Ahora, calculemos la L-estimación del área usando 5 rectángulos, cada uno de ancho $\Delta x=\frac{b-a}{n}=\frac{3}{5}.$"""
+md"""Ahora, calculemos la L-estimación del área usando $n$ rectángulos, cada uno de ancho $\Delta x=\frac{b-a}{n}=\frac{3}{n}.$"""
 
-# ╔═╡ 666548e6-8a3b-448c-8fae-e6c614e461ac
-begin
-n = 5   # Número de subdivisiones
-	
-# Calcular la suma de Riemann izquierda
-delta_x = (b - a) / n
-x_vals = range(a, stop=b, length=n)
-riemann_sum_vals = [f(a + i * delta_x) for i in 0:(n - 1)]
-sum_izquierda = sum(riemann_sum_vals) * delta_x
-end
+# ╔═╡ 0a941a4a-5e4a-4e80-b353-2ed575485ebf
+@bind n Slider(2:15, show_value=true, default=5) # Número de subdivisiones
 
 # ╔═╡ 5c60422b-e9c1-490e-8f27-48dcf85d762f
 md"""De esto se tiene que 
 
-$L_5=\sum_{i=1}^5f(x_{i-1})\Delta x= 6.48$"""
+$L_5=\sum_{i=1}^5f(x_{i-1})\Delta x=$"""
+
+# ╔═╡ 666548e6-8a3b-448c-8fae-e6c614e461ac
+begin
+	# Calcular la suma de Riemann izquierda
+	delta_x = (b - a) / n
+	x_vals = range(a, stop=b, length=n)
+	riemann_sum_vals = [f(a + i * delta_x) for i in 0:(n - 1)]
+	sum_izquierda = sum(riemann_sum_vals) * delta_x
+	println(sum_izquierda)
+end
 
 # ╔═╡ cfcb8377-784d-444e-aa04-c91d973b9bae
 begin
@@ -145,23 +154,11 @@ begin
 
 	xlabel!("x")
 	ylabel!("y")
-	title!("Suma de Riemann Izquierda")
+	title!("Suma de Riemann Izquierda, n= $n")
 end
 
 # ╔═╡ a07ef609-6fee-436d-a090-18c7823a9bb5
-md"""De la misma forma calculemos la $R-$ estimación del área usando 5 rectángulos."""
-
-# ╔═╡ 5c716e6b-1161-4e8e-b683-ce6f0bd2f2e9
-begin
-	# Calcular la suma de Riemann derecha
-	riemann_sum_vals₂ = [f(a + i * delta_x + delta_x) for i in 0:(n - 1)]
-	sum_derecha = sum(riemann_sum_vals₂) * delta_x
-end
-
-# ╔═╡ 24686b31-0f62-4b8a-afa9-f74bf7e96a08
-md"""Así 
-
-$R_5=\sum_{i=1}^5f(x_{i})\Delta x= 11.88$"""
+md"""De la misma forma calculemos la $R-$ estimación del área usando $n$ rectángulos."""
 
 # ╔═╡ 4a6cae37-1a4d-4e2a-8b20-fd74709d6368
 begin
@@ -175,90 +172,40 @@ begin
 
 	xlabel!("x")
 	ylabel!("y")
-	title!("Suma de Riemann Derecha")
+	title!("Suma de Riemann Derecha, n= $n")
 end
 
-# ╔═╡ b7c31f6d-6eab-49aa-9517-e86e5011a246
-md"""Repitamos los cálculos con 10 rectángulos, cada uno de ancho $\Delta x=\frac{3}{10}$. Iniciemos calculando la L-estimación."""
-
-# ╔═╡ e626b455-487b-469c-814c-52039677f725
-begin
-	m = 10   # Número de subdivisiones (menor para una visualización más clara)
-
-	# Calcular la suma de Riemann izquierda
-	delta_x₃ = (b - a) / m
-	x_vals₃ = range(a, stop=b, length=m)
-	riemann_sum_vals₃ = [f(a + i * delta_x₃) for i in 0:(m - 1)]
-	sum_izquierda₃ = sum(riemann_sum_vals₃) * delta_x₃
-end
-
-# ╔═╡ fd8c8af7-ffcf-43a1-a8a9-17b38693c649
-md"""De esto se tiene que 
-
-$L_{10}=\sum_{i=1}^{10}f(x_{i-1})\Delta x= 7.695$"""
-
-# ╔═╡ 1e6a4d50-0cb7-42ce-89a7-fb92b9201667
-begin
-	# Graficar la función y los rectángulos de la suma de Riemann izquierda
-	plot(x -> f(x), a, b, label="Función")
-	for i in 1:m
-    	x_rect = [a + (i - 1) * delta_x₃, a + (i - 1) * delta_x₃, a + i * delta_x₃, a + i * delta_x₃]
-    	y_rect = [0, f(a + (i - 1) * delta_x₃), f(a + (i - 1) * delta_x₃), 0]
-    	plot!(x_rect, y_rect, fill=(0, :blue, 0.3), label="")
-	end
-
-	xlabel!("x")
-	ylabel!("y")
-	title!("Suma de Riemann Izquierda, n=10")
-end
-
-# ╔═╡ 200fa796-36a5-44a9-b19e-c1da04a503f6
-md"""De la misma forma calculemos la $R-$ estimación del área usando 10 rectángulos."""
-
-# ╔═╡ 2b10d098-220d-4a4f-99f9-df78d736613b
-begin
-	# Calcular la suma de Riemann derecha
-	riemann_sum_vals₄ = [f(a + i * delta_x₃ + delta_x₃) for i in 0:(m - 1)]
-	sum_derecha₄ = sum(riemann_sum_vals₄) * delta_x₃
-end
-
-# ╔═╡ f0eb8687-601c-443e-ab56-697bcca34f45
+# ╔═╡ 24686b31-0f62-4b8a-afa9-f74bf7e96a08
 md"""Así 
 
-$R_{10}=\sum_{i=1}^{10}f(x_{i})\Delta x= 10.395$"""
+$R_5=\sum_{i=1}^5f(x_{i})\Delta x=$"""
 
-# ╔═╡ f1511a18-ad03-4621-9af7-9d869db91fca
+# ╔═╡ 5c716e6b-1161-4e8e-b683-ce6f0bd2f2e9
 begin
-	# Graficar la función y los rectángulos de la suma de Riemann derecha
-	plot(x -> f(x), a, b, label="Función")
-	for i in 1:m
-    	x_rect = [a + (i - 1) * delta_x₃, a + i * delta_x₃, a + i * delta_x₃, a + (i - 1) * delta_x₃]
-    	y_rect = [0, 0, f(a + i * delta_x₃), f(a + i * delta_x₃)]
-    	plot!(x_rect, y_rect, fill=(0, :green, 0.3), label="")
-	end
-
-	xlabel!("x")
-	ylabel!("y")
-	title!("Suma de Riemann Derecha")
+	# Calcular la suma de Riemann derecha
+	riemann_sum_vals₂ = [f(a + i * delta_x + delta_x) for i in 0:(n - 1)]
+	sum_derecha = sum(riemann_sum_vals₂) * delta_x
+	println(sum_derecha)
 end
 
 # ╔═╡ e2d545b8-936b-49c7-b067-065995527820
 md"""Note que si usamos $n=100000$, se obtiene lo siguiente:"""
 
+# ╔═╡ af4877d1-303c-4afb-99bf-86357ceeb58e
+@bind n₁ Slider(0:1000:200000, show_value=true, default=100000)
+
 # ╔═╡ 3c4e7f0e-701c-4a74-abc8-e6e2f94997c1
 begin
-	m₅ = 100000   # Número de subdivisiones (menor para una visualización más clara)
-
 	# Calcular la suma de Riemann izquierda
-	delta_x₅ = (b - a) / m₅
-	x_vals₅ = range(a, stop=b, length=m₅)
-	sum_izquierda₅ = sum([f(a + i * delta_x₅) for i in 0:(m₅ - 1)]) * delta_x₅
-	sum_derecha₅ = sum([f(a + i * delta_x₅ + delta_x₅) for i in 0:(m₅ - 1)]) * delta_x₅
+	delta_x₅ = (b - a) / n₁
+	x_vals₅ = range(a, stop=b, length=n₁)
+	sum_izquierda₅ = sum([f(a + i * delta_x₅) for i in 0:(n₁ - 1)]) * delta_x₅
+	sum_derecha₅ = sum([f(a + i * delta_x₅ + delta_x₅) for i in 0:(n₁ - 1)]) * delta_x₅
 	println("L=",sum_izquierda₅, ", R=", sum_derecha₅)
 end
 
 # ╔═╡ 6a24167a-7397-457f-97a5-f979405782b8
-md"""Vamos a calcular el área exacta de la región bajo la gráfica de $f(x) = x^2$ en el intervalo $[0, 3]$. Dividiremos el intervalo $[0, 3]$ en $n$ subintervalos, todos de la misma longitud. Entonces, tenemos que $\Delta x = \frac{b - a}{n} = \frac{3}{n}$ y $x_i = 0 + i\Delta x = \frac{i}{n}3$ para $i = 0, 1, 2, \ldots, n$.
+md"""Ahora, vamos a calcular el área exacta de la región bajo la gráfica de $f(x) = x^2$ en el intervalo $[0, 3]$. Dividiremos el intervalo $[0, 3]$ en $n$ subintervalos, todos de la misma longitud. Entonces, tenemos que $\Delta x = \frac{b - a}{n} = \frac{3}{n}$ y $x_i = 0 + i\Delta x = \frac{i}{n}3$ para $i = 0, 1, 2, \ldots, n$.
 
 Por lo tanto,
 
@@ -268,6 +215,95 @@ De la definición de área, sabemos que
 
 $A = \displaystyle\lim_{n\to\infty} \sum_{i=1}^{n} f(x_i) \Delta x = \displaystyle\lim_{n\to\infty} \frac{27}{n^3} \frac{n(n+1)(2n+1)}{6} = 9.$
 """
+
+# ╔═╡ b94a425d-afe7-485c-9410-67ceb764669c
+md"""**Ejemplo:**
+
+Calculemos el área de la región que se encuentra bajo la curva $y=e^{x^2}$ y por arriba del eje $x$, en intervalo $[0,1]$.
+
+Observe que la región pedida es la siguiente."""
+
+# ╔═╡ b1d4a0ee-f079-4fdd-a11c-273c9bbb34d5
+begin
+	g(x)=exp(x^2) # Definir la función
+	a₁=0
+	b₁=1
+
+	x_vls = range(a₁, stop=b₁, length=10000)
+	plot(x -> g(x), 0, 1, label="y=exp(x^2)")
+	plot!(x_vls, g.(x_vls), fill=(0, :green, 0.3), label="")
+
+	xlabel!("x")
+	ylabel!("y")
+	title!("Región pedida")
+end
+
+# ╔═╡ 8efdade8-3ba0-417b-87e2-72c0f38fca41
+md"""Vamos a considerar"""
+
+# ╔═╡ 47227dbd-e9c1-4a8d-b495-5bd849b8eade
+@bind m Slider(2:20, show_value=true, default=10) # Número de subdivisiones
+
+# ╔═╡ 6ab360ef-341b-4af7-a648-f3e3add13294
+md"""Hallaremos el área bajo la curva con $m$ rectángulos, cada uno de ancho $\Delta x=\frac{1}{m}$. Iniciemos calculando la L-estimación y la R-estimación."""
+
+# ╔═╡ 0819888a-1eaf-487c-b78b-cbff8110a0f5
+md"""De esto se tiene que 
+
+$L_m=\sum_{i=1}^mf(x_{i-1})\Delta x=$"""
+
+# ╔═╡ 84065673-ae8c-46db-8cbe-22bc9ac02f89
+begin
+	# Calcular la suma de Riemann izquierda
+	delta_x₃ = (b₁ - a₁) / m
+	x_vals₃ = range(a₁, stop=b₁, length=m)
+	riemann_sum_vals₃ = [g(a₁ + i * delta_x₃) for i in 0:(m - 1)]
+	sum_izquierda₃ = sum(riemann_sum_vals₃) * delta_x₃
+	println(sum_izquierda₃)
+end
+
+# ╔═╡ 19d7d34f-e932-4655-ab43-544f31200f68
+begin
+# Graficar la función y los rectángulos de la suma de Riemann izquierda
+	p1=plot(x -> g(x), a₁, b₁, label="Función")
+	for i in 1:m
+    	x_rect = [a₁ + (i - 1) * delta_x₃, a₁ + (i - 1) * delta_x₃, a₁ + i * delta_x₃, a₁ + i * delta_x₃]
+    	y_rect = [0, g(a₁ + (i - 1) * delta_x₃), g(a₁ + (i - 1) * delta_x₃), 0]
+    	p1=plot!(x_rect, y_rect, fill=(0, :blue, 0.3), label="")
+	end
+
+	xlabel!("x")
+	ylabel!("y")
+	title!("Suma de Riemann Izquierda, m=$m")
+
+
+	# Graficar la función y los rectángulos de la suma de Riemann derecha
+	p2=plot(x -> g(x), a₁, b₁, label="Función")
+	for i in 1:m
+    	x_rect = [a₁ + (i - 1) * delta_x₃, a₁ + i * delta_x₃, a₁ + i * delta_x₃, a₁ + (i - 1) * delta_x₃]
+    	y_rect = [0, 0, g(a₁ + i * delta_x₃), g(a₁ + i * delta_x₃)]
+    	p2=plot!(x_rect, y_rect, fill=(0, :green, 0.3), label="")
+	end
+
+	xlabel!("x")
+	ylabel!("y")
+	title!("Suma de Riemann Derecha, m=$m")
+
+	plot(p1,p2, layout=(1,2),size=(900,400))
+end
+
+# ╔═╡ 2319af53-e86d-4a4c-be85-23dcb991d1c8
+md"""Y
+
+$R_m=\sum_{i=1}^mg(x_{i})\Delta x=$"""
+
+# ╔═╡ 67e064ec-9c83-4c89-9730-ff9619c735d1
+begin
+	# Calcular la suma de Riemann derecha
+	riemann_sum_vals₄ = [g(a₁ + i * delta_x₃ + delta_x₃) for i in 0:(m - 1)]
+	sum_derecha₄ = sum(riemann_sum_vals₄) * delta_x₃
+	println(sum_derecha₄)
+end
 
 # ╔═╡ 4788edc5-5379-42cb-91e3-c65d235ed1f0
 md"""Creemos una función que nos ayude a calcular L$_n$ y R$_n$"""
@@ -282,29 +318,11 @@ function sumas(f,a,b,n)
 	println("L=",sum_izquierda, ", R=", sum_derecha)
 end
 
-# ╔═╡ b94a425d-afe7-485c-9410-67ceb764669c
-md"""*Ejemplo:*
-
-Calculemos el área de la región que se encuentra bajo la curva $y=e^{x^2}$ y por arriba del eje $x$, en intervalo $[0,1]$.
-
-Observe que la región pedida es la siguiente."""
-
-# ╔═╡ b1d4a0ee-f079-4fdd-a11c-273c9bbb34d5
-begin
-# Definir la función
-g(x)=exp(x^2)
-
-x_vls = range(0, stop=1, length=10000)
-plot(x -> g(x), 0, 1, label="y=exp(x^2)")
-plot!(x_vls, g.(x_vls), fill=(0, :green, 0.3), label="")
-
-xlabel!("x")
-ylabel!("y")
-title!("Región pedida")
-end
+# ╔═╡ 6d759b6e-49a6-4d70-930e-0d94759e3027
+md"""Así note que para $m=100$ se tiene que el área bajo la curva es"""
 
 # ╔═╡ 7f623df3-4c42-4b4f-8972-1a878dbfe466
-sumas(g,0,1,5)
+sumas(g,0,1,100)
 
 # ╔═╡ 9e673884-7996-4677-b715-51ea3d2437ec
 md"""# Regla del Trapecio
@@ -349,21 +367,20 @@ function regla_trapecio(f, a, b, n)
 end
 
 # ╔═╡ 8a834486-3396-4ef9-80e3-00939edb93d9
-md"""*Ejemplo:*
+md"""**Ejemplo:**
 
 Calculemos el área de la región que se encuentra bajo la curva $y=x^2$ y por arriba del eje $x$, en intervalo $[0,1]$. Con $n=3$."""
 
+# ╔═╡ 0b652bae-676d-46c4-9c6a-27a9fb3f74e3
+@bind n₃ Slider(1:20, show_value=true, default=3) # Número de subdivisiones
+
 # ╔═╡ 5f153edb-dcfc-4edf-8a5e-8ba2286b3733
 begin
-	# Definir la función a integrar
-	f₃(x) = x^2
+	f₃(x) = x^2 # Definir la función a integrar
 
 	# Límites de integración
 	a₃ = 0
 	b₃ = 1
-
-	# Número de subdivisiones
-	n₃ = 3
 
 	resultado, trapecios_x, trapecios_y = regla_trapecio(f₃, a₃, b₃, n₃)
 	print(resultado)
@@ -390,21 +407,20 @@ begin
 end
 
 # ╔═╡ cd83d14d-8639-438f-af28-6ac1d9952cf9
-md"""*Ejemplo:*
+md"""**Ejemplo:**
 
 Calculemos el área de la región que se encuentra bajo la curva $y=\cos{x}$ y por arriba del eje $x$, en intervalo $[-1,1]$. Con $n=4$."""
 
+# ╔═╡ d9704f55-7233-4d37-8a28-d786fe04455f
+@bind n₄ Slider(1:20, show_value=true, default=4) # Número de subdivisiones
+
 # ╔═╡ 6cb98152-f76f-489a-a3ab-255d0df52861
 begin
-	# Definir la función a integrar
-	f₄(x) = cos(x)
+	f₄(x) = cos(x) # Definir la función a integrar
 
 	# Límites de integración
 	a₄ = -1
 	b₄ = 1
-
-	# Número de subdivisiones
-	n₄ = 4
 
 	resultado₄, trapecios_x₄, trapecios_y₄ = regla_trapecio(f₄, a₄, b₄, n₄)
 	print(resultado₄)
@@ -478,24 +494,60 @@ function regla_simpson(f, a, b, n)
 end
 
 # ╔═╡ 4ad6923a-b391-430e-99cd-e6a1a888aaca
-md"""*Ejemplo:*
+md"""**Ejemplo:**
 
 Calculemos el área de la región que se encuentra bajo la curva $y=x^3$ y por arriba del eje $x$, en intervalo $[0,1]$. Con $n=6$."""
 
-# ╔═╡ 37b2c8e6-32ba-400c-aaeb-9e16e8f91b2a
+# ╔═╡ 9328568e-147e-4960-bd7a-5a385d2b2b48
 begin
-	# Definir la función a integrar
-f₅(x) = x^3
+	f₅(x) = x^3 # Definir la función a integrar
 
-# Límites de integración
-a₅ = 0
-b₅ = 1
+	# Límites de integración
+	a₅ = 0
+	b₅ = 1
 
-# Número de subdivisiones
-n₅ = 6
+	x_vls₅ = range(a₅, stop=b₅, length=10000)
+	plot(x -> f₅(x), a₅, b₅, label="y=x^3")
+	plot!(x_vls₅, f₅.(x_vls₅), fill=(0, :green, 0.3), label="")
 
-println(regla_simpson(f₅, a₅, b₅, n₅))
+	xlabel!("x")
+	ylabel!("y")
+	title!("Región pedida")
 end
+
+# ╔═╡ d385430e-c808-4b64-a145-774ad06fd19e
+@bind n₅ Slider(1:20, show_value=true, default=6) # Número de subdivisiones
+
+# ╔═╡ 37b2c8e6-32ba-400c-aaeb-9e16e8f91b2a
+println(regla_simpson(f₅, a₅, b₅, n₅))
+
+# ╔═╡ 275fff2a-63cf-4d4e-ad53-7a7b1b16f80d
+md"""**Ejemplo:**
+
+Calculemos el área de la región que se encuentra bajo la curva $y=\sin{x}$ y por arriba del eje $x$, en intervalo $[0,\pi]$. Con $n=8$."""
+
+# ╔═╡ aa1bbf1d-385a-4235-8ba0-62e195fd436c
+begin
+	f₆(x) = sin(x) # Definir la función a integrar
+
+	# Límites de integración
+	a₆ = 0
+	b₆ = pi
+
+	x_vls₆ = range(a₆, stop=b₆, length=10000)
+	plot(x -> f₆(x), a₆, b₆, label="y=sin(x)")
+	plot!(x_vls₆, f₆.(x_vls₆), fill=(0, :green, 0.3), label="")
+
+	xlabel!("x")
+	ylabel!("y")
+	title!("Región pedida")
+end
+
+# ╔═╡ f6286189-4595-4cb1-ab81-fcecd5b5d975
+@bind n₆ Slider(1:30, show_value=true, default=8) # Número de subdivisiones
+
+# ╔═╡ 7263b264-e54a-4f6e-8914-fdbef419dd0e
+println(regla_simpson(f₆, a₆, b₆, n₆))
 
 # ╔═╡ 6d32fe79-daeb-44dd-adc4-74484d3ced01
 md"""# Referencias"""
@@ -517,7 +569,7 @@ PlutoUI = "~0.7.58"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.5"
+julia_version = "1.10.3"
 manifest_format = "2.0"
 project_hash = "c7c6e630d077b70f300b12500f28975fb121e337"
 
@@ -554,18 +606,6 @@ git-tree-sha1 = "a4c43f59baa34011e303e76f5c8c91bf58415aaf"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.0+1"
 
-[[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "575cd02e080939a33b6df6c5853d14924c08e35b"
-uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.23.0"
-
-[[deps.ChangesOfVariables]]
-deps = ["InverseFunctions", "LinearAlgebra", "Test"]
-git-tree-sha1 = "2fba81a302a7be671aefe194f0525ef231104e7f"
-uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.8"
-
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "59939d8a997469ee05c4b4944560a820f9ba0d73"
@@ -590,6 +630,12 @@ git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.10.0"
 
+    [deps.ColorVectorSpace.extensions]
+    SpecialFunctionsExt = "SpecialFunctions"
+
+    [deps.ColorVectorSpace.weakdeps]
+    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
@@ -597,27 +643,25 @@ uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
 
 [[deps.Compat]]
-deps = ["Dates", "LinearAlgebra", "TOML", "UUIDs"]
+deps = ["TOML", "UUIDs"]
 git-tree-sha1 = "c955881e3c981181362ae4088b35995446298b80"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
 version = "4.14.0"
+weakdeps = ["Dates", "LinearAlgebra"]
+
+    [deps.Compat.extensions]
+    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.1+0"
+version = "1.1.1+0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.4.1"
-
-[[deps.ConstructionBase]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
-uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.5"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -641,7 +685,9 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelimitedFiles]]
 deps = ["Mmap"]
+git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+version = "1.9.1"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -791,12 +837,6 @@ version = "0.2.4"
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
-[[deps.InverseFunctions]]
-deps = ["Dates", "Test"]
-git-tree-sha1 = "896385798a8d49a255c398bd49162062e4a4c435"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.13"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
@@ -861,24 +901,37 @@ git-tree-sha1 = "cad560042a7cc108f5a4c24ea1431a9221f22c1b"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 version = "0.16.2"
 
+    [deps.Latexify.extensions]
+    DataFramesExt = "DataFrames"
+    SymEngineExt = "SymEngine"
+
+    [deps.Latexify.weakdeps]
+    DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -932,14 +985,24 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.39.3+1"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "libblastrampoline_jll"]
+deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
-deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
+deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
 git-tree-sha1 = "18144f3e9cbe9b15b070288eef858f71b291ce37"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 version = "0.3.27"
+
+    [deps.LogExpFunctions.extensions]
+    LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
+    LogExpFunctionsChangesOfVariablesExt = "ChangesOfVariables"
+    LogExpFunctionsInverseFunctionsExt = "InverseFunctions"
+
+    [deps.LogExpFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -974,7 +1037,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.0+0"
+version = "2.28.2+1"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -992,7 +1055,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.2.1"
+version = "2023.1.10"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1013,12 +1076,12 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.20+0"
+version = "0.3.23+4"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+0"
+version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1046,7 +1109,7 @@ version = "1.6.3"
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
-version = "10.40.0+0"
+version = "10.42.0+1"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1066,9 +1129,9 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.42.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.8.0"
+version = "1.10.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1087,6 +1150,20 @@ deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers"
 git-tree-sha1 = "ccee59c6e48e6f2edf8a5b64dc817b6729f99eb5"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.39.0"
+
+    [deps.Plots.extensions]
+    FileIOExt = "FileIO"
+    GeometryBasicsExt = "GeometryBasics"
+    IJuliaExt = "IJulia"
+    ImageInTerminalExt = "ImageInTerminal"
+    UnitfulExt = "Unitful"
+
+    [deps.Plots.weakdeps]
+    FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+    GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+    IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+    ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
+    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -1121,7 +1198,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.RecipesBase]]
@@ -1187,12 +1264,14 @@ uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
 version = "1.2.1"
 
 [[deps.SparseArrays]]
-deps = ["LinearAlgebra", "Random"]
+deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+version = "1.10.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -1206,15 +1285,20 @@ git-tree-sha1 = "5cf7606d6cef84b543b483848d4ae08ad9832b21"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.3"
 
+[[deps.SuiteSparse_jll]]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
+uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
+version = "7.2.1+1"
+
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-version = "1.0.0"
+version = "1.0.3"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.1"
+version = "1.10.0"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1227,10 +1311,13 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-deps = ["Random", "Test"]
 git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.10.7"
+weakdeps = ["Random", "Test"]
+
+    [deps.TranscodingStreams.extensions]
+    TestExt = ["Test", "Random"]
 
 [[deps.Tricks]]
 git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
@@ -1256,10 +1343,18 @@ uuid = "1cfade01-22cf-5700-b092-accc4b62d6e1"
 version = "0.4.1"
 
 [[deps.Unitful]]
-deps = ["ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "Random"]
+deps = ["Dates", "LinearAlgebra", "Random"]
 git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.19.0"
+
+    [deps.Unitful.extensions]
+    ConstructionBaseUnitfulExt = "ConstructionBase"
+    InverseFunctionsUnitfulExt = "InverseFunctions"
+
+    [deps.Unitful.weakdeps]
+    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
@@ -1455,7 +1550,7 @@ version = "1.5.0+0"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.12+3"
+version = "1.2.13+1"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1494,9 +1589,9 @@ uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
 version = "0.15.1+0"
 
 [[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.1.1+0"
+version = "5.8.0+1"
 
 [[deps.libevdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1537,12 +1632,12 @@ version = "1.1.6+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 
 [[deps.x264_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1579,43 +1674,54 @@ version = "1.4.1+1"
 # ╟─8e265a55-c796-4c3c-b93f-4d4431ac436d
 # ╠═da66b476-1a8a-4c23-b21e-8e6a7532be44
 # ╟─e480632e-fe63-4de3-bfd0-462a104c99ec
-# ╠═666548e6-8a3b-448c-8fae-e6c614e461ac
+# ╠═0a941a4a-5e4a-4e80-b353-2ed575485ebf
+# ╟─cfcb8377-784d-444e-aa04-c91d973b9bae
 # ╟─5c60422b-e9c1-490e-8f27-48dcf85d762f
-# ╠═cfcb8377-784d-444e-aa04-c91d973b9bae
+# ╟─666548e6-8a3b-448c-8fae-e6c614e461ac
 # ╟─a07ef609-6fee-436d-a090-18c7823a9bb5
-# ╠═5c716e6b-1161-4e8e-b683-ce6f0bd2f2e9
+# ╟─4a6cae37-1a4d-4e2a-8b20-fd74709d6368
 # ╟─24686b31-0f62-4b8a-afa9-f74bf7e96a08
-# ╠═4a6cae37-1a4d-4e2a-8b20-fd74709d6368
-# ╟─b7c31f6d-6eab-49aa-9517-e86e5011a246
-# ╠═e626b455-487b-469c-814c-52039677f725
-# ╟─fd8c8af7-ffcf-43a1-a8a9-17b38693c649
-# ╟─1e6a4d50-0cb7-42ce-89a7-fb92b9201667
-# ╟─200fa796-36a5-44a9-b19e-c1da04a503f6
-# ╠═2b10d098-220d-4a4f-99f9-df78d736613b
-# ╟─f0eb8687-601c-443e-ab56-697bcca34f45
-# ╟─f1511a18-ad03-4621-9af7-9d869db91fca
+# ╟─5c716e6b-1161-4e8e-b683-ce6f0bd2f2e9
 # ╟─e2d545b8-936b-49c7-b067-065995527820
+# ╠═af4877d1-303c-4afb-99bf-86357ceeb58e
 # ╟─3c4e7f0e-701c-4a74-abc8-e6e2f94997c1
 # ╟─6a24167a-7397-457f-97a5-f979405782b8
-# ╟─4788edc5-5379-42cb-91e3-c65d235ed1f0
-# ╠═e1a8c52d-21bb-4547-b0d1-2da4c2c206b2
 # ╟─b94a425d-afe7-485c-9410-67ceb764669c
 # ╟─b1d4a0ee-f079-4fdd-a11c-273c9bbb34d5
+# ╟─8efdade8-3ba0-417b-87e2-72c0f38fca41
+# ╠═47227dbd-e9c1-4a8d-b495-5bd849b8eade
+# ╟─6ab360ef-341b-4af7-a648-f3e3add13294
+# ╟─19d7d34f-e932-4655-ab43-544f31200f68
+# ╟─0819888a-1eaf-487c-b78b-cbff8110a0f5
+# ╟─84065673-ae8c-46db-8cbe-22bc9ac02f89
+# ╟─2319af53-e86d-4a4c-be85-23dcb991d1c8
+# ╟─67e064ec-9c83-4c89-9730-ff9619c735d1
+# ╟─4788edc5-5379-42cb-91e3-c65d235ed1f0
+# ╠═e1a8c52d-21bb-4547-b0d1-2da4c2c206b2
+# ╟─6d759b6e-49a6-4d70-930e-0d94759e3027
 # ╠═7f623df3-4c42-4b4f-8972-1a878dbfe466
 # ╟─9e673884-7996-4677-b715-51ea3d2437ec
 # ╟─157f36ad-7cbb-47a4-bde6-63aab56e4433
 # ╠═f6a01f44-3cd7-4246-85f9-cb1ae5c161a4
 # ╟─8a834486-3396-4ef9-80e3-00939edb93d9
+# ╠═0b652bae-676d-46c4-9c6a-27a9fb3f74e3
 # ╟─72d02e3a-7594-4c0d-9b7c-8caa8112e536
 # ╠═5f153edb-dcfc-4edf-8a5e-8ba2286b3733
 # ╟─cd83d14d-8639-438f-af28-6ac1d9952cf9
+# ╠═d9704f55-7233-4d37-8a28-d786fe04455f
 # ╟─b7a79b82-9cb3-41a1-acab-63d0b11825d2
 # ╠═6cb98152-f76f-489a-a3ab-255d0df52861
 # ╟─a088d527-03e5-494e-b40c-6ea5c878e9a8
 # ╟─cc638806-d21d-47a5-a53d-14b68596687a
 # ╠═df33ddb2-d465-432d-ad4f-d3f813288684
 # ╟─4ad6923a-b391-430e-99cd-e6a1a888aaca
+# ╟─9328568e-147e-4960-bd7a-5a385d2b2b48
+# ╠═d385430e-c808-4b64-a145-774ad06fd19e
 # ╠═37b2c8e6-32ba-400c-aaeb-9e16e8f91b2a
+# ╟─275fff2a-63cf-4d4e-ad53-7a7b1b16f80d
+# ╟─aa1bbf1d-385a-4235-8ba0-62e195fd436c
+# ╠═f6286189-4595-4cb1-ab81-fcecd5b5d975
+# ╠═7263b264-e54a-4f6e-8914-fdbef419dd0e
 # ╟─6d32fe79-daeb-44dd-adc4-74484d3ced01
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
