@@ -8,7 +8,10 @@ using InteractiveUtils
 using PlutoUI
 
 # ╔═╡ d675dc10-eae6-11ee-096c-a184ec597d1f
-using Plots
+begin
+	using Plots
+	#using PyPlot
+end
 
 # ╔═╡ a7d3298e-0138-4149-a189-0b5a92cfa0e7
 PlutoUI.TableOfContents(title="Conceptos básicos", aside=true)
@@ -28,6 +31,26 @@ md"""Usaremos las siguientes librerías:"""
 # ╔═╡ 2dbac2d7-681a-49a3-a105-5e551f9a5089
 md"""
 # Introducción"""
+
+# ╔═╡ f3aa6a8a-8307-4294-ba63-f4f082deec40
+begin
+	nums = ComplexF64.([1,2,4],[2,2,-1])
+	polar.(Base.vect.(0.0,angle.(nums)),Base.vect.(0.0,abs.(nums)),marker="o")
+end
+
+# ╔═╡ 4c48c8d0-1531-4c7b-8c48-036b6664bc00
+d = [0.0000000+0.0000000im, 0.1111111+0.0000000im,
+            0.1666667+0.0962250im, 0.2222222+0.0000000im,
+            0.3333333+0.0000000im, 0.3888889+0.0962250im,
+            0.3333333+0.1924501im, 0.4444444+0.1924501im,
+            0.5000000+0.2886751im, 0.5555556+0.1924501im,
+            0.6666667+0.1924501im, 0.6111111+0.0962250im,
+            0.6666667+0.0000000im, 0.7777778+0.0000000im,
+            0.8333333+0.0962250im, 0.8888889+0.0000000im,
+            1.0000000+0.0000000im]
+
+# ╔═╡ aa3c031b-07a7-4769-9b08-f0c8803c1f31
+plot(real(d),imag(d))
 
 # ╔═╡ 6d32fe79-daeb-44dd-adc4-74484d3ced01
 md"""# Referencias"""
@@ -1144,6 +1167,9 @@ version = "1.4.1+1"
 # ╟─fe274212-e2f3-4604-b746-109576d79f5e
 # ╠═d675dc10-eae6-11ee-096c-a184ec597d1f
 # ╟─2dbac2d7-681a-49a3-a105-5e551f9a5089
+# ╠═f3aa6a8a-8307-4294-ba63-f4f082deec40
+# ╠═4c48c8d0-1531-4c7b-8c48-036b6664bc00
+# ╠═aa3c031b-07a7-4769-9b08-f0c8803c1f31
 # ╟─6d32fe79-daeb-44dd-adc4-74484d3ced01
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

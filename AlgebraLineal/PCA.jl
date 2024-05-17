@@ -36,6 +36,167 @@ md"""# Introducción
 
 El método de Análisis de Componentes Principales (PCA, por sus siglas en inglés) es una técnica de reducción de dimensionalidad que se utiliza comúnmente en análisis de datos y procesamiento de imágenes. La idea es encontrar una nueva base para describir los datos, de manera que la mayor cantidad de variabilidad en los datos esté contenida en las primeras componentes principales."""
 
+# ╔═╡ 512076a4-0074-4f03-917c-df784c8976cc
+md"""Para entender el método, es necesario tener en cuenta los siguientes conceptos.
+
+**Media:** También conocida como promedio, representa el valor central o típico de un conjunto de datos. Sea $\{x_1,x_2,\cdots, x_n\}$ un conjunto de datos, la media de dicho conjunto es
+
+$\overline{x}=\frac{1}{n}\sum_{i=1}^nx_i$"""
+
+# ╔═╡ bb258438-fe87-455e-9a82-ab17bd68009a
+md"""*Ejemplo:*
+
+Consideremos los siguientes datos:"""
+
+# ╔═╡ f2fcc147-bbb7-4469-99a2-9a2f2befb843
+datos = [3, 5, 7, 7]
+
+# ╔═╡ 82edebdb-b7d3-4bee-9e63-da15640a1d25
+md"""La media es:"""
+
+# ╔═╡ 1fddf32c-45e0-46ec-b0e3-c15e91ffd542
+mean(datos)
+
+# ╔═╡ 22e3f2cd-1891-42d5-a469-578e622b60c9
+md"""**Varianza:**
+
+La varianza indica el grado de dispersión o variabilidad de un conjunto de datos, es decir, muestra cuánto se alejan los valores de un conjunto de datos respecto a su media. Sea $\{x_1,x_2,\cdots, x_n\}$ un conjunto de datos, la varianza del conjunto esta dada por
+
+$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \mu)^2,$
+donde $\mu$ es la media del conjunto."""
+
+# ╔═╡ ee0e0df2-f08f-4f92-a0d1-eb826559c64b
+md"""*Ejemplo:*
+
+Consideremos el conjunto anterior:"""
+
+# ╔═╡ a90a7865-47e4-47e8-9651-bcbfc11b0870
+datos
+
+# ╔═╡ acf7330f-7703-4b85-932e-9b57750fe4ad
+md"""La varianza del conjunto es:"""
+
+# ╔═╡ 6e34dfed-8daa-4816-bcbe-0efa05b6d9d7
+var(datos)
+
+# ╔═╡ d2b87bdb-ebb6-4d6b-854d-b1b91dcb15d3
+md"""**Covarianza**
+
+La covarianza es una medida que indica cómo dos variables cambian juntas. 
+Consideremos los conjuntos de datos $X=\{x_1,x_2,\cdots,x_n\}$ y $Y=\{y_1,y_2,\cdots,y_n\}$, y $\mu_X$, $\mu_Y$ las medias de cada conjunto de datos, respectivamente. Así la convarianza se calcula de la siguiente forma
+
+$\text{Cov}(X, Y) = \frac{1}{n} \sum_{i=1}^n (x_i - \mu_X)(y_i - \mu_Y).$"""
+
+# ╔═╡ 6d40a9b2-3f89-4aad-8546-75aa3804613e
+md"""*Ejemplo:*
+
+Consideremos los siguientes conjuntos de datos:"""
+
+# ╔═╡ 0bf3e2ba-ae6b-4e0a-9dc4-5cb3490360c3
+datosX = [1, 2, 3, 5]
+
+# ╔═╡ 4617881d-9d6d-4a33-8bb9-6630edb850cd
+datosY = [4, 5, 9, 5]
+
+# ╔═╡ a0e67ea0-1ce3-478d-9103-3cc39463132d
+md"""La covarianza de estos conjuntos es:"""
+
+# ╔═╡ 2f2c25b6-cd25-42b3-8510-26cf84df7c03
+cov(datosX, datosY)
+
+# ╔═╡ 3691294d-92b9-4885-921c-deedff3d0c92
+md"""**Matriz de covarianza**
+
+La matriz de covarianza tiene dimensión $n\times n$, y se define de la siguiente forma
+
+$C = \begin{bmatrix}
+\text{Var}(X_{1}) & \text{Cov}(X_{1}, X_{2}) & \cdots & \text{Cov}(X_{1}, X_{n}) \\
+\text{Cov}(X_{2}, X_{1}) & \text{Var}(X_{2}) & \cdots & \text{Cov}(X_{2}, X_{n}) \\
+\vdots & \vdots & \ddots & \vdots \\
+\text{Cov}(X_{n}, X_{1}) & \text{Cov}(X_{n}, X_{2}) & \cdots & \text{Var}(X_{n})
+\end{bmatrix}$"""
+
+# ╔═╡ b856cf51-fe7e-4a16-9cfd-e6518794c874
+md"""*Ejemplo:*
+
+Si deseamos hallar la matriz de covariana de una matriz, el código $\texttt{cov}$ considera cada columna de la matriz como un conjunto de datos. Así si tenemos la siguiente matriz:"""
+
+# ╔═╡ 246edec1-35fe-4ab9-ab76-8b6950b5ecbe
+M = [3 5 4 2; 7 4 4 1]
+
+# ╔═╡ b953821e-b0ed-4b59-9c28-eae8c7a7761d
+md"""se tiene que su matriz de covarianza es:"""
+
+# ╔═╡ 544b5f93-be62-4677-b0d6-6321be1587a1
+cov(M)
+
+# ╔═╡ c4aa1560-aaeb-4891-94ee-add387befdfc
+md"""# Análisis de componentes principales
+
+Ahora veamos como se emplea el método PCA. Consideremos la siguiente matriz, $M$."""
+
+# ╔═╡ c8543faa-94a0-4700-ae3c-dc3a5fa50241
+M
+
+# ╔═╡ d545e484-7e55-409e-ad4a-878e4cf6dea9
+md"""Ahora hallamos la media de la matriz, esta se halla calculando la media $\mu$ de cada columna, de la siguiente forma:"""
+
+# ╔═╡ 369b35e5-1a23-41e5-b823-4026dab0bf49
+μ = mean(M, dims=1)
+
+# ╔═╡ 467db4ea-ad5d-432b-8152-96757ed9e1a0
+md"""Con la media y la desviación estandar $(\sigma)$, vamos a centralizar los datos de la matriz. Así
+
+$M_{estandarizada} = M-\mu.$"""
+
+# ╔═╡ 8dda24c6-eb6d-47d1-a120-fd4f48192ca2
+Me = M .- μ
+
+# ╔═╡ 9ed28cc6-ad2a-452f-946a-8b9c2bfce7be
+md"""Ahora calculamos la matriz de covarianza de los datos estandarizados. Esta matriz describe cómo varían las variables juntas. La matriz resultante es:"""
+
+# ╔═╡ a1747123-ffa7-45ba-97d9-7902ed2c08ca
+C = cov(Me)
+
+# ╔═╡ 9932a3e9-b35c-45b1-96cc-0414e9a47b7d
+md"""Realicemos la descomposición en valores propios de la matriz de covarianza. Con el código $\texttt{eig}$ calculamos los autovalores y autovectores asociados a la matriz."""
+
+# ╔═╡ 133c35cc-ce54-4d58-8d00-3be96b81dc11
+autval, autvec = eigen(C)
+
+# ╔═╡ 5637ef82-3d31-430c-89d0-6735cd85e1ef
+md"""Ahora, ordenamos los vectores propios en orden descendente. Los primeros $k$ vectores propios son las componentes principales que retienen la mayor parte de la información de la matriz."""
+
+# ╔═╡ ad454d5d-e42b-4131-b546-4d256c777d5d
+indordenados = sortperm(autval, rev=true)
+
+# ╔═╡ 3d49c4a2-7800-48fc-93a8-3fafb494a910
+autordenados = autvec[:, indordenados]
+
+# ╔═╡ 24d2cd5b-c329-4f4e-83ef-2b9a874df14a
+md"""Vamos a considerar las primeras 2 componentes, así los autovectores seleccionados son:"""
+
+# ╔═╡ 2906e82a-c99e-4aed-b9eb-a5cd141d3af2
+aseleccionados = autvec[:, 3:4]
+
+# ╔═╡ 1f152e56-fe3c-4858-8eee-9090d301cd77
+md"""Ahora, transformamos los datos originales a las nuevas coordenadas de las componentes principales. Esto se hace multiplicando los datos estandarizados por la matriz de vectores propios. De esto obtenemos la matriz comprimida, que posee la misma información que la matriz $M$."""
+
+# ╔═╡ 0815b530-2172-422a-81bf-4796bfae86f7
+Mc = Me * aseleccionados
+
+# ╔═╡ 516ed1c9-daa9-4f25-9ce0-ea0af5048beb
+md"""Podemos recuperar la matriz original multiplicando la matriz comprimida con la matriz transpuesta de los vectores seleccionados, y luego sumandole $\mu$. De la siguiente forma:"""
+
+# ╔═╡ 698a51ac-f8bb-498e-86ca-8abb3402e104
+Mreconstruid = Mc * aseleccionados' .+ μ
+
+# ╔═╡ 3de32e69-245e-4cb6-aafd-e4b30c4db2be
+md"""El error para esta matriz considerando 2 componentes principales es de"""
+
+# ╔═╡ 70428a1b-1e25-4471-8efe-24bb290abefb
+norm(M-Mreconstruid)
+
 # ╔═╡ be5ac3ab-f37f-4691-a7fb-4c67ae178423
 md"""# Compresión de imágenes
 
@@ -1985,6 +2146,48 @@ version = "1.4.1+1"
 # ╟─d491c087-b18b-4e44-80fc-919a1f4653a9
 # ╠═4c0152e7-84fb-4372-a578-892cd5358a23
 # ╟─ff1b8269-2528-4172-9c32-8edcc6b63d14
+# ╟─512076a4-0074-4f03-917c-df784c8976cc
+# ╟─bb258438-fe87-455e-9a82-ab17bd68009a
+# ╠═f2fcc147-bbb7-4469-99a2-9a2f2befb843
+# ╟─82edebdb-b7d3-4bee-9e63-da15640a1d25
+# ╠═1fddf32c-45e0-46ec-b0e3-c15e91ffd542
+# ╟─22e3f2cd-1891-42d5-a469-578e622b60c9
+# ╟─ee0e0df2-f08f-4f92-a0d1-eb826559c64b
+# ╠═a90a7865-47e4-47e8-9651-bcbfc11b0870
+# ╟─acf7330f-7703-4b85-932e-9b57750fe4ad
+# ╠═6e34dfed-8daa-4816-bcbe-0efa05b6d9d7
+# ╟─d2b87bdb-ebb6-4d6b-854d-b1b91dcb15d3
+# ╟─6d40a9b2-3f89-4aad-8546-75aa3804613e
+# ╠═0bf3e2ba-ae6b-4e0a-9dc4-5cb3490360c3
+# ╠═4617881d-9d6d-4a33-8bb9-6630edb850cd
+# ╟─a0e67ea0-1ce3-478d-9103-3cc39463132d
+# ╠═2f2c25b6-cd25-42b3-8510-26cf84df7c03
+# ╟─3691294d-92b9-4885-921c-deedff3d0c92
+# ╟─b856cf51-fe7e-4a16-9cfd-e6518794c874
+# ╠═246edec1-35fe-4ab9-ab76-8b6950b5ecbe
+# ╟─b953821e-b0ed-4b59-9c28-eae8c7a7761d
+# ╠═544b5f93-be62-4677-b0d6-6321be1587a1
+# ╟─c4aa1560-aaeb-4891-94ee-add387befdfc
+# ╠═c8543faa-94a0-4700-ae3c-dc3a5fa50241
+# ╟─d545e484-7e55-409e-ad4a-878e4cf6dea9
+# ╠═369b35e5-1a23-41e5-b823-4026dab0bf49
+# ╟─467db4ea-ad5d-432b-8152-96757ed9e1a0
+# ╠═8dda24c6-eb6d-47d1-a120-fd4f48192ca2
+# ╟─9ed28cc6-ad2a-452f-946a-8b9c2bfce7be
+# ╠═a1747123-ffa7-45ba-97d9-7902ed2c08ca
+# ╟─9932a3e9-b35c-45b1-96cc-0414e9a47b7d
+# ╠═133c35cc-ce54-4d58-8d00-3be96b81dc11
+# ╟─5637ef82-3d31-430c-89d0-6735cd85e1ef
+# ╠═ad454d5d-e42b-4131-b546-4d256c777d5d
+# ╠═3d49c4a2-7800-48fc-93a8-3fafb494a910
+# ╟─24d2cd5b-c329-4f4e-83ef-2b9a874df14a
+# ╠═2906e82a-c99e-4aed-b9eb-a5cd141d3af2
+# ╟─1f152e56-fe3c-4858-8eee-9090d301cd77
+# ╠═0815b530-2172-422a-81bf-4796bfae86f7
+# ╟─516ed1c9-daa9-4f25-9ce0-ea0af5048beb
+# ╠═698a51ac-f8bb-498e-86ca-8abb3402e104
+# ╟─3de32e69-245e-4cb6-aafd-e4b30c4db2be
+# ╠═70428a1b-1e25-4471-8efe-24bb290abefb
 # ╟─be5ac3ab-f37f-4691-a7fb-4c67ae178423
 # ╟─4d8b94f0-5719-4548-b088-637de34f98ae
 # ╠═485d894c-65c9-4702-8203-036840f8038a
