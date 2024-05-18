@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 06a2c4a0-bc9a-11ee-1465-b91710eb12bb
 using PlutoUI
 
@@ -269,10 +279,13 @@ md"""Los autovectores se ordenan de acuerdo a la importancia de los autovalores,
 autovectores_ordenados = autovectores[:, indices_ordenados];
 
 # ╔═╡ 2105ebaa-550b-4691-8caf-8c2454dee3fc
-md"""Se eligen las primeras 32 columnas de la matriz de autovectores, que representan las componentes principales seleccionadas."""
+md"""Se eligen las primeras 32 (y) columnas de la matriz de autovectores, que representan las componentes principales seleccionadas."""
+
+# ╔═╡ a5dfcfa4-6b13-4875-8bbf-f923e684590b
+@bind y Slider(0:size(autovectores)[1], show_value=true,default=32)
 
 # ╔═╡ a1d98b25-2d77-45e8-b7ea-d6209d384416
-autovectores_seleccionados = autovectores[:, 4000:4032];
+autovectores_seleccionados = autovectores[:, size(autovectores)[1] - y :size(autovectores)[1]];
 
 # ╔═╡ 11efcdf4-ddc2-4755-9257-16c1fee09246
 md"""Se proyecta la matriz de píxeles centralizada en el nuevo espacio de características definido por las componentes principales seleccionadas."""
@@ -2212,6 +2225,7 @@ version = "1.4.1+1"
 # ╟─1fd8f03e-80e4-4d5e-aa81-0d8dd726218c
 # ╠═269b5064-9d95-4976-b035-adfabe2df61f
 # ╟─2105ebaa-550b-4691-8caf-8c2454dee3fc
+# ╠═a5dfcfa4-6b13-4875-8bbf-f923e684590b
 # ╠═a1d98b25-2d77-45e8-b7ea-d6209d384416
 # ╟─11efcdf4-ddc2-4755-9257-16c1fee09246
 # ╠═43b4931b-4e88-431e-a0d2-2f8ce6759085
