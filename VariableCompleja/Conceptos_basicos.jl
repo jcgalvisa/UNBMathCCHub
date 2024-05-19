@@ -4,14 +4,21 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ b763cd10-d1e7-4613-b738-9fb1c1cfa1e5
 using PlutoUI
 
 # ╔═╡ d675dc10-eae6-11ee-096c-a184ec597d1f
-begin
-	using Plots
-	#using PyPlot
-end
+using Interact, Plots, ComplexPlots, ComplexValues
 
 # ╔═╡ a7d3298e-0138-4149-a189-0b5a92cfa0e7
 PlutoUI.TableOfContents(title="Conceptos básicos", aside=true)
@@ -30,39 +37,605 @@ md"""Usaremos las siguientes librerías:"""
 
 # ╔═╡ 2dbac2d7-681a-49a3-a105-5e551f9a5089
 md"""
-# Introducción"""
+# Representación de datos
+A continuación se mostrará la representación de números enteros y de punto flotante,  así como los límites de representación para distintos tipos de números."""
 
-# ╔═╡ f3aa6a8a-8307-4294-ba63-f4f082deec40
-begin
-	nums = ComplexF64.([1,2,4],[2,2,-1])
-	polar.(Base.vect.(0.0,angle.(nums)),Base.vect.(0.0,abs.(nums)),marker="o")
+# ╔═╡ 88181bfd-223d-4b2d-b913-bf3daad7baf2
+md"""## Enteros 
+Presentamos ejemplos sencillos de la representación de los datos enteros en Julia.
+En particular, un entero de $k$ bits biene representado de la forma
+
+$n=(b_{k-1}b_{k-2}\cdots b_2 b_1b_0)_2=b_0+b_1 2^1+b_22^2+\cdots+b_{k-2}2^{k-2}-b_{k-1}2^{k-1}.$ 
+
+Donde $b_i\in\{0,1\}$.
+
+Acontinuación se muestran ejemplos de esto.
+"""
+
+# ╔═╡ e4f9582a-9e9c-41e9-bb91-ef7aa5386235
+# ╠═╡ disabled = true
+#=╠═╡
+@bind n Slider(-50:50, show_value=true, default=0)
+  ╠═╡ =#
+
+# ╔═╡ 995bfd52-77ac-4703-ae15-2f3ce22dc369
+md"""La representación como un entero de 64 bits es la siguiente"""
+
+# ╔═╡ 1e2a9f02-94b7-4ead-b073-540e1607cc51
+md"""De la siguiente forma podemos representar a $n$ como un entero de 8 bits."""
+
+# ╔═╡ 3f89cd72-92fe-4565-92f5-b01720689369
+md"""**Nota:** La función $\texttt{Int8}$ representa números enteros con signo de 8 bits, el rango de valores que puede almacenar es de -128 a 127. Puede representar números negativos."""
+
+# ╔═╡ 9619f81f-e38a-40d5-8dce-843662bcf875
+md"""También podemos representar a $n$ como un entero de 8 bits, de la siguiente forma."""
+
+# ╔═╡ 7f1782a0-2b5c-4687-b0b7-39057b9cb6cc
+md"""**Nota:** La función $\texttt{UInt8}$ representa números enteros sin signo de 8 bits, el rango de valores que puede almacenar es de 0 a 255. No puede representar números negativos."""
+
+# ╔═╡ 3889b1c4-2466-45d5-9c87-0fa72b014164
+md"""Este tipo de representaciones tiene varias consecuencias, como la existencia de un número finito de valores enteros que se pueden representar.
+
+En Julia podemos ver explícitamente los límites para cada uno de los tipos de representaciones."""
+
+# ╔═╡ 6bb1a9f9-e58f-44d2-a7bb-b2de3ec7ab78
+for T in [Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64,UInt128]
+           println("$(lpad(T,7)): [$(typemin(T)),$(typemax(T))]")
 end
 
-# ╔═╡ 4c48c8d0-1531-4c7b-8c48-036b6664bc00
-d = [0.0000000+0.0000000im, 0.1111111+0.0000000im,
-            0.1666667+0.0962250im, 0.2222222+0.0000000im,
-            0.3333333+0.0000000im, 0.3888889+0.0962250im,
-            0.3333333+0.1924501im, 0.4444444+0.1924501im,
-            0.5000000+0.2886751im, 0.5555556+0.1924501im,
-            0.6666667+0.1924501im, 0.6111111+0.0962250im,
-            0.6666667+0.0000000im, 0.7777778+0.0000000im,
-            0.8333333+0.0962250im, 0.8888889+0.0000000im,
-            1.0000000+0.0000000im]
+# ╔═╡ ea4dcc2c-a9d0-4cc0-b237-4da665193461
+md""" 
+## Punto Flotante
+El punto flotante es un formato de representación numérica utilizado para expresar números reales que no pueden ser representados con precisión mediante enteros debido a su tamaño o a la necesidad de representar fracciones. En particular, la representación usando un bit para el signo, $s_0\in \{0,1\}$, con 
+$s=(-1)^{1-s_0}$, 
+$k$ bits para el exponente
+
+$m=(b_{k-1}b_{k-2}\dots b_1b_0)_{\mbox{expfp}(k)} = b_0+b_1 2^1+b_22^2+\cdots+b_{k-1}2^{k-1}-(2^{k-1}-1).$ 
+con $e_i\in\{0,1\}$, y $p$ bits de precisión para el significando 
+
+$q=(1. a_1a_2\dots a_p)_2 = 1 + a_12^{-1}+a_22^{-2}+\dots+a_p2^{-p}$ 
+está dada por 
+
+$x=s\times q\times 2^m.$
+"""
+
+# ╔═╡ 046c0f75-035b-4c64-8143-59cbd008b2eb
+md"""*Ejemplo:*
+Para $x = 0.5$ en el formato Float32, tenemos un bit para el signo $s = 0$, 8 bits para el exponente $m = (01111110)_{\text{expfp}(8)} = -1$, y 23 bits para el significando $q = (1.00000000000000000000000)_2$. Así tenemos lo siguiente.
+"""
+
+# ╔═╡ a6104904-a238-48c6-9551-18f687889d1e
+bitstring(Float32(0.5))
+
+# ╔═╡ 99071fb5-e84b-4e78-a0c3-1b2d1a03aa15
+begin
+	bs=bitstring(Float32(0.5));
+	println("signo=",bs[1],"\t exp=",bs[2:9],"\t significand=",bs[19:32])	     
+end
+
+# ╔═╡ 077f063a-aca3-4e6d-ac9c-37992ed15df5
+md""" Otros formatos disponibles en Julia son los siguientes."""
+
+# ╔═╡ 6fa9dfab-33b0-4e52-9cd7-8bbbdaa8417c
+@bind x Slider(-10:0.1:10, show_value=true, default=1)
+
+# ╔═╡ 0398322b-535f-4298-bc59-71faa33b6284
+begin
+	x16=Float16(x)
+	println("x16=\t",bitstring(x16))
+	x32=Float32(x)
+	println("x32=\t",bitstring(x32))
+	x64=Float64(x)
+	println("x64=\t",bitstring(x64))
+end
+
+# ╔═╡ 913e9ff8-8e73-4246-80e7-009d18bc91a2
+md"""Podemos consultar por el de la maquina y el rango representado, de la siguiente forma. """
+
+# ╔═╡ 41234ab6-5496-4976-b040-ffe72e25f0b2
+for Ft in [Float16,Float32,Float64,BigFloat]
+           println("$(lpad(Ft,7)): [$(floatmin(Ft)),$(floatmax(Ft))]")
+end
+
+# ╔═╡ bcfe3730-0c0f-4b44-9605-05287169a1eb
+md"""## Números complejos
+
+Los números complejos se representan utilizando el tipo $\texttt{Complex}$. Un número complejo tiene la forma $a + bi$, donde $a$ es la parte real y $b$ es la parte imaginaria. Tanto $a$ como $b$ pueden ser de cualquier tipo numérico, aunque comúnmente se utilizan tipos de punto flotante como $\texttt{Float64}$ (por defecto)."""
+
+# ╔═╡ 9d9758f4-cf5d-4c49-ba3d-38ee4501cd9f
+md"""*Ejemplo:* Consideremos el siguiente número"""
+
+# ╔═╡ 99c4a7d9-4bc7-4b22-b100-eee0df8b31c4
+z = 3 + 5im
+
+# ╔═╡ e0e3548a-79f5-4b3d-9bc6-4b19b6867458
+typeof(z)
+
+# ╔═╡ f59d03a1-e52b-4ca4-9b96-47683bb8b86b
+md"""Esto nos indica que $z$ es un número complejo con entradas tipo $\texttt{Int64}$"""
+
+# ╔═╡ 5d08dc87-5a14-41d5-bf1f-435c05c7142f
+md"""*Ejemplo:*"""
+
+# ╔═╡ 80672dff-08fa-4e22-8bfe-529d1478feac
+z₂ = 3.0 + 5.0im
+
+# ╔═╡ 9bc6a86f-6b60-42fc-a486-b8875d4f82b6
+typeof(z₂)
+
+# ╔═╡ d877aef1-2fdf-45e6-b2c2-4a297d086725
+md"""Observe que $z$ es un número complejo con entradas tipo $\texttt{Float64}$"""
+
+# ╔═╡ 1a2a4c02-c1d4-49b3-8bae-8726dfcae164
+md"""Otra forma de escribir un número complejo es con la función $\texttt{complex(\hspace{0.1cm},\hspace{0.1cm})}.$ Por ejemplo."""
+
+# ╔═╡ 846cef81-1dcd-422c-bab9-558c354208e7
+@bind a Slider(-10:0.1:10, show_value=true, default=1)
+
+# ╔═╡ e29929c7-8c03-45c4-befb-3173efb8a1a8
+@bind b Slider(-10:0.1:10, show_value=true, default=2)
+
+# ╔═╡ 1052e939-d02d-43d6-9d3d-5599403de48a
+complex(a,b)
+
+# ╔═╡ c868c928-82af-42ff-828e-d78799ee8fb9
+md"""Dado que tanto $a$ como $b$ tienen estructura tipo $\texttt{Float64}$, entonces $a+bi$ es"""
+
+# ╔═╡ 8259fb65-dc42-4f01-b6f0-043dacaabe7b
+typeof(complex(a,b))
+
+# ╔═╡ df610d28-3b37-4b2c-adf3-732a0f403e52
+md"""Pero también puede tener otra estructura; esto depende del tipo de dato que sean $a$ y $b$. Por ejemplo:"""
+
+# ╔═╡ be6837f9-9cea-44fa-947f-d6b693ea8298
+begin
+	a₁ = Float16(a)
+	b₁ = Float16(b)
+	typeof(complex(a₁,b₁))
+end
+
+# ╔═╡ d3768a7a-a01c-4398-a76e-89ce219291c2
+md"""# Operaciones con números complejos
+Recordemos que los números complejos se definen como
+
+$\mathbb{C}=\{a+bi:a,b\in\mathbb{R}\}.$
+
+**Nota:**
+- Si $z=a+bi$ y $a=0$ entonces $z=bi$ es un imaginario puro.
+- Si $z=a+bi$ y $b=0$ entonces $z=a$ es un número real.
+-  Si $z = x + yi$, se definen Re$(z) = x$ y Im$(z) = y$ (partes real e imaginaria del complejo).
+- Geométricamente, los números complejos pueden identificarse con los puntos del plano, asignando al complejo $z = x + yi$ el punto de coordenadas $(x, y)$. Así, identificaremos
+
+$z = a + bi \equiv (a, b).$"""
+
+# ╔═╡ 98f96a8c-576c-4b14-8793-527a2f8126a7
+md"""**Ejemplo:**"""
+
+# ╔═╡ 68664fd4-9791-48ee-af9e-ab87d8ab870e
+@bind a₃ Slider(-10:0.1:10, show_value=true, default=5)
+
+# ╔═╡ 60c58cdd-8097-4740-879d-f2c9d900d9a4
+@bind b₃ Slider(-10:0.1:10, show_value=true, default=-2)
+
+# ╔═╡ f842353d-7706-4eba-8485-3cef3d1f9a48
+z₃ = a₃ + b₃*im #numero complejo
+
+# ╔═╡ f63dae67-220b-436b-9c1b-d22b1ecf83a1
+R₃ = real.(z₃) #parte real de z₂
+
+# ╔═╡ d01adc96-7d1b-4519-9ce9-ef6cff8b55e3
+I₃ = imag.(z₃) #parte imaginaria de z₂
+
+# ╔═╡ 466ad593-7450-426d-b244-71830058d7d5
+begin
+	scatter([R₃], [I₃], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
+	scatter!([0], [0], color=:green, label="(0, 0)")
+	plot!([0, R₃], [0, I₃], color=:gray, label="")
+end
+
+# ╔═╡ 3543b3f1-0da7-4c80-a74f-c478f1af018d
+md"""## Suma y producto
+Sean $z_1,z_2$ números complejos, tales que $z_1=a+bi$, $z_2=c+di$, se tiene que 
+
+$z_1+z_2= (a+bi) + (c+di) = (a+c)+ (b+d)i,$
+
+$z_1 \cdot z_2 = (a+bi) \cdot (c+di) = (ac - bd) + (ad + bc)i.$"""
+
+# ╔═╡ b45c33ad-1c21-4df8-bc16-a54e7d27c25b
+md"""*Ejemplo:*
+Consideremos los siguientes números complejos."""
+
+# ╔═╡ 57f56e5e-ff3f-4c40-a631-10c2500a6333
+@bind a₄ Slider(-10:0.1:10, show_value=true, default=1)
+
+# ╔═╡ 4af52084-fd08-4ba1-b65a-3f31eebd7e8c
+@bind b₄ Slider(-10:0.1:10, show_value=true, default=-3)
+
+# ╔═╡ b49f25aa-1436-4cd4-90f8-adcb1dd800fe
+z₄ = complex(a₄, b₄)
+
+# ╔═╡ f33ca5b4-e758-46ad-b17d-90626e2a4a4f
+@bind a₅ Slider(-10:0.1:10, show_value=true, default=-5)
+
+# ╔═╡ ed6579b8-2b7d-4497-82ef-a872f007d3d1
+@bind b₅ Slider(-10:0.1:10, show_value=true, default=4)
+
+# ╔═╡ ade8c070-e552-4f26-b6bc-b99c08fffe44
+z₅ = complex(a₅, b₅)
+
+# ╔═╡ e323b5a0-2e62-4461-a024-10dd7e864db2
+md"""Observe las siguientes operaciones"""
+
+# ╔═╡ 51498fc2-6058-4a73-90c5-a9fdf6d6ac98
+z₄ + z₅ #suma
+
+# ╔═╡ 17304f4b-cc3a-4fd0-b174-d39e7f5f96e2
+z₄ - z₅ #resta
+
+# ╔═╡ cfca9946-cea0-4ff6-a8d4-6093622878e2
+z₄ * z₅ #multiplicación
+
+# ╔═╡ 0a7276d0-45eb-46c1-9d22-ee356a711e88
+5*z₄ #multiplicación por escalar
+
+# ╔═╡ b26b3a34-8ed7-4daa-8f83-642d7878915f
+z₄/z₅ #división
+
+# ╔═╡ 66fad81e-4dba-40eb-bc9e-117c7a8e0c67
+z₄^2 #potenciación
+
+# ╔═╡ 9d947ea6-f506-4f17-a308-9c3c1e3a9330
+md"""## Inverso
+
+Si $z \in \mathbb{C}$ con $z = a + bi \neq 0$, entonces 
+
+$z^{-1} = \frac{a}{a^2 + b^2} - \frac{b}{a^2 + b^2}i.$
+"""
+
+# ╔═╡ 6bcc224b-721b-4c8e-a454-3d98744e7e96
+md"""*Ejemplo:*
+Consideremos el siguiente número complejo."""
+
+# ╔═╡ eb88ba98-ad70-4ba6-9b86-3b0e2cdb5cc5
+@bind a₆ Slider(-10:0.1:10, show_value=true, default=3.5)
+
+# ╔═╡ d0dbe76c-eff2-48d9-9ad6-a50276d5c5ce
+@bind b₆ Slider(-10:0.1:10, show_value=true, default=-1.5)
+
+# ╔═╡ 1fe4b31d-df12-4c7d-9cc9-08c726390a93
+z₆ = complex(a₆, b₆)
+
+# ╔═╡ 0c820aef-d94c-4737-b3a4-bf6738177137
+md"""Así, el inverso es"""
+
+# ╔═╡ 71676a4e-0d3f-4d0c-b82b-ad6f5192f715
+inv(z₆)
+
+# ╔═╡ 3c36397e-151b-44ab-904b-9dab998c5533
+real.(inv(z₆))
+
+# ╔═╡ 5f3ca701-3476-4c9d-963a-68a78f90f135
+begin
+	scatter([real.(z₆)], [imag.(z₆)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
+	scatter!([real.(inv(z₆))], [imag.(inv(z₆))], color=:red, label="z^{-1}")
+	scatter!([0], [0], color=:green, label="(0, 0)")
+	plot!([real.(inv(z₆)), 0], [imag.(inv(z₆)), 0], color=:gray, label="")
+	plot!([0, real.(z₆)], [0, imag.(z₆)], color=:gray, label="")
+end
+
+# ╔═╡ bcc3715f-5659-4575-9d69-afadfedf2e3d
+md"""## Conjugado
+
+El conjugado de un número complejo $z=a+bi$ se define como el número complejo $\overline{z}=a−bi$, donde la parte real permanece igual y la parte imaginaria se invierte de signo."""
+
+# ╔═╡ 7265d23b-2684-47d5-92b7-33dadcfa8f26
+md"""*Ejemplo:*
+Consideremos el siguiente número complejo."""
+
+# ╔═╡ cad7c15b-7c97-46bc-8c92-3302f940c5d3
+@bind a₇ Slider(-10:0.1:10, show_value=true, default=3.5)
+
+# ╔═╡ 344104e7-48e1-4905-afd5-670dc7836338
+@bind b₇ Slider(-10:0.1:10, show_value=true, default=-1.5)
+
+# ╔═╡ 7a47cac5-ba70-4c89-8066-0a1c65fdcbdc
+z₇ = complex(a₇, b₇)
+
+# ╔═╡ 9ab7bfc5-da61-4d5e-8aea-6d278198e318
+md"""Con la función $\texttt{conj}$ hallamos el conjugado."""
+
+# ╔═╡ 1b396d3c-43ab-45eb-a077-fd86e531ff25
+conj(z₇)
+
+# ╔═╡ 713405da-cbea-46ee-93aa-1dbdd36ef8c7
+begin
+	scatter([real.(z₇)], [imag.(z₇)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
+	scatter!([real.(conj(z₇))], [imag.(conj(z₇))], color=:red, label="conj(z)")
+	scatter!([0], [0], color=:green, label="(0, 0)")
+	plot!([real.(conj(z₇)), 0], [imag.(conj(z₇)), 0], color=:gray, label="")
+	plot!([0, real.(z₇)], [0, imag.(z₇)], color=:gray, label="")
+end
+
+# ╔═╡ 72670929-9a89-4b5a-8ac3-6733d35eb6fd
+md"""## Módulo
+
+El módulo de un número complejo $z=a+bi$, denotado como $\| z\|$, se define como la distancia euclidiana desde el origen hasta el punto que representa el número complejo en el plano complejo. El módulo de un número complejo se calcula como:
+
+
+$\| z\|=\sqrt{a^2+b^2}.$"""
+
+# ╔═╡ b43fe760-0f47-4ecd-93f9-7c34a31c712d
+md"""**Observación:** Un número complejo y su conjugado tienen el mismo módulo."""
+
+# ╔═╡ 8e3c66cb-671b-400c-bdcc-e1e74c61203d
+md"""*Ejemplo:* Consideremos"""
+
+# ╔═╡ 3938cba8-c625-43cd-8864-da5772f6c696
+z₇
+
+# ╔═╡ f9c6edd3-bf77-4de7-9ee2-c9b45b3e8c3e
+md"""Su módulo es"""
+
+# ╔═╡ cdbaed43-4b44-4767-a6b2-eb63834d63c4
+abs(z₇)
+
+# ╔═╡ 70c13bfb-a986-4d05-97e4-a1a9077897ff
+md"""Y se verifica que"""
+
+# ╔═╡ 5f0051f7-4222-4575-8a93-a9bfac70bb28
+abs(z₇) == abs(conj(z₇))
+
+# ╔═╡ 0b8155b8-8169-4403-89c2-ca761ad69ac6
+md"""# Forma exponencial
+
+**Definición:** Para $z \in \mathbb{C}$ definimos la forma exponencial de $z$ como
+$z = re^{i\theta}$
+donde $r = |z|$ y $\theta := \text{arg}(z)$ es un ángulo formado por el eje real positivo con el vector $z$.
+"""
+
+# ╔═╡ 08cc42c8-e7eb-4d3c-a5c7-2105bcfb93cd
+md"""*Ejemplo:* Consideremos el siguiente número complejo"""
+
+# ╔═╡ 133baa38-6a4d-4c8a-9d11-561f5febcfe4
+@bind a₈ Slider(-10:0.1:10, show_value=true, default=4)
+
+# ╔═╡ b6e108c1-0986-4530-b7cd-721aaa0d4f88
+@bind b₈ Slider(-10:0.1:10, show_value=true, default=5)
+
+# ╔═╡ bfcbfdb4-07bc-4e8c-ab66-9debcfe84290
+z₈ = complex(a₈, b₈)
+
+# ╔═╡ c16980bb-7693-4f30-936b-0deabc4cc078
+md"""Observe que su módulo es"""
+
+# ╔═╡ 0b47d13e-51d2-4480-b827-149ac9108891
+r = abs(z₈)
+
+# ╔═╡ b31456c3-ccd4-4cfd-9532-3b7d5a2815d5
+md"""Y su argumento es"""
+
+# ╔═╡ 9cb0d8c4-4217-4a23-900e-39be317e9bb8
+θ = angle(z₈)
+
+# ╔═╡ 296972db-069e-4dfd-a6de-5a236e40a527
+md"""Así $z=$"""
+
+# ╔═╡ a55abc2b-517e-4353-a194-ea1f0ef2a84c
+r*exp(θ*im)
+
+# ╔═╡ f0669709-74be-471a-a488-202708dd01b7
+md"""Otra forma de verificar esto es de la siguiente forma"""
+
+# ╔═╡ c6f9314c-cbac-446d-b2e1-5a061c71e7f2
+r*cis(θ)
+
+# ╔═╡ 9b09895f-382e-48d1-8634-5c2b406194f0
+md"""**Nota:** La función $\texttt{cis()}$ es equivalente a $\cos{\theta}+i\sin{\theta}$."""
+
+# ╔═╡ 8e46325a-8d9b-420b-9d2a-db68dbd515bf
+md"""## Formúla de De Moivre
+
+Si $z = r(\cos \theta + i\sin \theta) = re^{i\theta}$ entonces $z^n = r^n(\cos(n\theta) + i\sin(n\theta)) = r^n e^{in\theta}$"""
+
+# ╔═╡ bfa1c52e-c7d7-4cce-b080-38e5920db304
+md"""*Ejemplo:* Consideremos el siguiente número complejo."""
+
+# ╔═╡ 922e4bbf-8ee9-4af1-a66a-87e59afa1095
+z₈
+
+# ╔═╡ b377fae7-0d45-48b4-9a37-64c2270473e8
+md"""Ya vimos que, $r$, $\theta$ son"""
+
+# ╔═╡ 59f9f091-9bda-467c-aa40-37df5cd89d5c
+r, θ
+
+# ╔═╡ 4084ca08-1790-40cd-8e99-5ce7b7cad927
+md"""Así $z^2$ es el siguiente número complejo."""
+
+# ╔═╡ ee349ac2-9442-40c2-b20e-7e02abacb56e
+@bind n Slider(-10:1:10, show_value=true, default=2)
+
+# ╔═╡ b5db23af-8f59-47d4-b480-785d82adb22f
+typeof(n) #tipo de dato
+
+# ╔═╡ c30376a7-c95f-4e2a-b489-0cdad0357ae4
+bitstring(n)
+
+# ╔═╡ fb62ff9c-6fa0-4c5c-b27d-56a1e67f5237
+length(bitstring(n)) #longitud del entero
+
+# ╔═╡ 1c1767ce-28f1-4f94-9e28-f61ddb41ef45
+bitstring(Int8(n))
+
+# ╔═╡ 4c74036a-79ec-4f53-a717-b089b39e2d0a
+bitstring(UInt8(n))
+
+# ╔═╡ 5851bdf2-cf91-45a1-a34d-34b1ef4588ea
+zn = r^n * cis(n * θ)
+
+# ╔═╡ 7280ebd8-7dd9-4961-8280-89925beabe94
+z₈^n
+
+# ╔═╡ 268f7dd9-c21a-425d-8562-cffd0e77033c
+md"""**Nota:** Note que el resultado no es exacto, es decir no es exactamente el mismo que al realizar $z^3$. Esto se debe a que estamos trabajando con números de punto flotante."""
+
+# ╔═╡ 38db4a8e-61b4-4ccd-896b-8d92b8acd332
+begin
+	scatter([real.(z₈)], [imag.(z₈)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
+	scatter!([real.(zn)], [imag.(zn)], color=:red, label="z^$n")
+	scatter!([0], [0], color=:green, label="(0, 0)")
+	plot!([0, real.(z₈)], [0, imag.(z₈)], color=:gray, label="")
+	plot!([0, real.(zn)], [0, imag.(zn)], color=:gray, label="")
+end
+
+# ╔═╡ 1110da58-1c8e-420e-a9c3-d90f6787d219
+md"""Otra forma de graficar esto, es de la siguiente forma:"""
+
+# ╔═╡ 8c684d61-0015-44c3-9659-1dd151d6a2ed
+begin
+	plot([0,angle(zn)], [0,abs(zn)], proj = :polar, m = 2, legend=false, title="Plano complejo")
+	plot!([0,θ], [0,r], proj = :polar, m = 2, legend=false)
+end
+
+# ╔═╡ 64e9c3fc-a2de-4ea7-8d9a-5a8ab55cf1e4
+md"""# Raíces
+
+Las raíces $n$-ésimas de un complejo fijo $z_0 = r_0 e^{i\theta_0}$ son números complejos distintos dados por
+
+$c_k = \sqrt[n]{r_0} e^{i\left(\frac{\theta_0}{n}+\frac{2\pi k}{n}\right)},$
+
+Donde $c_k$ es una de las raíces distintas, $k=1,2,\cdots, n$, $r_0$ es el módulo de $z_0$, $\theta_0$ es el argumento de $z_0$, y $\sqrt[n]{\cdot}$ denota la raíz $n$-ésima principal.
+"""
+
+# ╔═╡ 5d2ea548-64b6-40de-bc8f-c34d1ee35187
+md"""Con la siguiente función podemos hallar las raíces $n$-ésimas de un número complejo."""
+
+# ╔═╡ b3c922fc-70ce-408a-9f60-81df0061863c
+function raices_nesimas(z0::Complex{T}, n::Integer) where T<:Real
+    r0 = abs(z0)
+    theta0 = angle(z0)
+    
+    raices = Complex{T}[]
+    for k in 1:n
+        ck = (r0^(1/n)) * cis(theta0/n + 2π*k/n)
+        push!(raices, ck)
+    end
+    return raices
+end
+
+# ╔═╡ 3e25d3dc-b39a-4d2f-b6b1-a2b6ed85a4c5
+md"""*Ejemplo:* Consideremos el siguiente número y hallemos sus raíces 4-ésimas."""
+
+# ╔═╡ 23ae3b93-f81a-4397-923b-6475da8d1177
+@bind a₉ Slider(-10:0.1:10, show_value=true, default=1)
+
+# ╔═╡ 6f53849d-5805-4bfd-a013-dffd81a09255
+@bind b₉ Slider(-10:0.1:10, show_value=true, default=1)
+
+# ╔═╡ 7b9f32ec-5f3d-4f45-bef6-986c08aca0d3
+z₉ = complex(a₉, b₉) #número complejo
+
+# ╔═╡ 50da9eb7-90bc-4e38-9eb4-9f9747cf27b8
+@bind n₁ Slider(-10:10, show_value=true, default=4) #n=4
+
+# ╔═╡ 64c2271e-cbb2-4834-9b35-2e08f4814f6c
+md"""Así las raíces son:"""
+
+# ╔═╡ 592e6311-50aa-4a71-a376-fd9396423faa
+rn = raices_nesimas(z₉, n₁)
+
+# ╔═╡ f8f8bba7-f0b6-46e5-9995-e78b7318addc
+begin
+	zc = (abs(z₉)^(1/n₁))*cispi.(2*(0:400) / 400);
+	plot(@. Polar(zc))
+	for i in 1:n₁
+    	plot!([0, angle(rn[i])], [0, abs(rn[i])], proj=:polar, m=2, label="c_$i")
+	end
+	title!("Raíces $n₁ -ésimas")
+end
+
+# ╔═╡ 60ec3b6a-a571-4a10-8aa1-b71b5145b1a4
+md"""# Curva de Koch
+La curva de Koch es una de las primeras curvas fractales descubiertas y es importante debido a que ilustra la presencia de formas fractales en la naturaleza. Por ejemplo, se puede observar esta curva en los copos de nieve y en las ramificaciones de los rayos de tormentas eléctricas.
+
+Para construir la curva de Koch, comenzamos con un segmento de línea recta, definido por los puntos extremos $A$ y $B$, debemos seguir los siguientes pasos:
+- El primer paso en cada iteración es dividir el segmento original $AB$ en tres segmentos iguales. Así obtenemos 2 nuevos puntos dentro de la recta:
+
+$C = \frac{2A + B}{3}$
+
+$D = \frac{A + 2B}{3}$
+
+- Ahora, construimos un triángulo equilátero con la base $CD$. El nuevo vértice del triángulo, $E$, se coloca de manera que forme un ángulo de $60^\circ$ con la línea original, lo cual se puede lograr usando números complejos:
+
+$E = C + (D - C) \cdot e^{i\pi/3}$
+
+- El segmento original $AB$ ahora se reemplaza con cuatro segmentos: $AC$, $CE$, $ED$, y $DB$. Esta sustitución es lo que crea la forma fractal.
+
+Para repetir este proceso de forma recursiva es necesario considerar a cada uno de los nuevos segmentos ($AC$, $CE$, $ED$, y $DB$) como el segmento $AB$ sobre el cual se repite el mismo proceso de subdivisión y construcción de un triángulo.
+
+La siguiente función muestra este proceso."""
+
+# ╔═╡ 1af186c0-8335-4ddf-ae92-51f72cbab6ea
+function koch_curve(p1, p2, depth)
+    if depth == 0
+        return [p1, p2]
+    else
+        # Calcular los puntos intermedios
+        s = (2*p1 + p2) / 3
+        t = (p1 + 2*p2) / 3
+        u = s + (t - s) * exp(im * π / 3)
+
+        # Recursivamente generar las subdivisiones
+        return vcat(koch_curve(p1, s, depth-1),
+                    koch_curve(s, u, depth-1)[2:end],
+                    koch_curve(u, t, depth-1)[2:end],
+                    koch_curve(t, p2, depth-1)[2:end])
+    end
+end
+
+# ╔═╡ c5437c5b-038b-4774-a483-f910e179716d
+md"""Con 3 iteraciones en el intervalo $[0,1]$,"""
+
+# ╔═╡ d82483d4-30ab-41a1-ad47-34b398055fb0
+@bind m Slider(0:1:10, show_value=true, default=3)
+
+# ╔═╡ 3fa547e2-8d56-40dc-9168-016fe1198508
+md"""se obtienen los siguientes puntos sobre el plano complejo"""
+
+# ╔═╡ e18feade-7936-44ac-ad33-6a3022c28152
+d= koch_curve(0, 1, m)
+
+# ╔═╡ 28c0ae19-5d46-4ac2-b15f-cb888bba9841
+md"""Graficando, obtenemos la siguiente curva."""
 
 # ╔═╡ aa3c031b-07a7-4769-9b08-f0c8803c1f31
-plot(real(d),imag(d))
+plot(real(d),imag(d),label=false, title="Curva de Koch, m=$m")
 
 # ╔═╡ 6d32fe79-daeb-44dd-adc4-74484d3ced01
-md"""# Referencias"""
+md"""# Referencias
+
+[1] McGraw-Hill. (2009). Complex variables and applications (8th ed.). McGraw-Hill Companies.
+
+[2] ComplexPlots.jl Documentation. (n.d.). Retrieved May 19, 2024, from https://docs.juliahub.com/General/ComplexPlots/0.1.0/plots/
+
+[3] Julia Documentation. (n.d.). Integers and floating-point numbers. Retrieved May 19, 2024, from https://web.mit.edu/julia_v0.6.2/julia/share/doc/julia/html/en/manual/integers-and-floating-point-numbers.html
+
+[4] Kigami, J. (2001). *Analysis on fractals* (Vol. 143). Cambridge University Press."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+ComplexPlots = "1fd36721-02e5-4f31-ac70-029fcd7253d3"
+ComplexValues = "41a84b80-6cf2-11e9-379d-9df124847946"
+Interact = "c601a237-2ae4-5e1e-952c-7a85b0c7eef1"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-Plots = "~1.39.0"
+ComplexPlots = "~0.1.0"
+ComplexValues = "~0.3.0"
+Interact = "~0.10.5"
+Plots = "~1.40.4"
 PlutoUI = "~0.7.58"
 """
 
@@ -72,7 +645,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "52934e2881e5b365a298a28396240865a5fc2a3c"
+project_hash = "84f95a1db76d6e004ef301e138fb3389d77766dc"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -86,6 +659,12 @@ version = "1.1.1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+
+[[deps.AssetRegistry]]
+deps = ["Distributed", "JSON", "Pidfile", "SHA", "Test"]
+git-tree-sha1 = "b25e88db7944f98789130d7b503276bc34bc098e"
+uuid = "bf4720bc-e11a-5d0c-854e-bdca1663c893"
+version = "0.1.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -101,6 +680,12 @@ git-tree-sha1 = "9e2a6b69137e6969bab0152632dcb3bc108c8bdd"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+1"
 
+[[deps.CSSUtil]]
+deps = ["Colors", "JSON", "Markdown", "Measures", "WebIO"]
+git-tree-sha1 = "b9fb4b464ec10e860abe251b91d4d049934f7399"
+uuid = "70588ee8-6100-5070-97c1-3cb50ed05fe8"
+version = "0.1.1"
+
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
 git-tree-sha1 = "a4c43f59baa34011e303e76f5c8c91bf58415aaf"
@@ -115,9 +700,9 @@ version = "0.7.4"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "67c1f244b991cad9b0aa4b7540fb758c2488b129"
+git-tree-sha1 = "4b270d6465eb21ae89b732182c20dc165f8bf9f2"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.24.0"
+version = "3.25.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -130,24 +715,28 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.10.0"
+weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
     SpecialFunctionsExt = "SpecialFunctions"
 
-    [deps.ColorVectorSpace.weakdeps]
-    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
+git-tree-sha1 = "362a287c3aa50601b0bc359053d5c2468f0e7ce0"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.12.10"
+version = "0.12.11"
+
+[[deps.CommonSubexpressions]]
+deps = ["MacroTools", "Test"]
+git-tree-sha1 = "7b8a93dba8af7e3b42fecabf646260105ac373f7"
+uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
+version = "0.3.0"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "c955881e3c981181362ae4088b35995446298b80"
+git-tree-sha1 = "b1c55339b7c6c350ee89f2c1604299660525b248"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.14.0"
+version = "4.15.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -157,6 +746,23 @@ weakdeps = ["Dates", "LinearAlgebra"]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "1.1.1+0"
+
+[[deps.ComplexPlots]]
+deps = ["ColorSchemes", "Colors", "ComplexRegions", "ComplexValues", "LinearAlgebra", "Requires"]
+git-tree-sha1 = "69cdf5e2339f64a4c9e4d586176f2eacb9da24bc"
+uuid = "1fd36721-02e5-4f31-ac70-029fcd7253d3"
+version = "0.1.0"
+
+[[deps.ComplexRegions]]
+deps = ["ComplexValues", "Dierckx", "ForwardDiff", "LinearAlgebra", "Reexport", "StaticArrays", "Statistics"]
+git-tree-sha1 = "5b026f7341e6287644316abd4e13c94fbe757653"
+uuid = "c64915e2-6c82-11e9-38e9-1f159a780463"
+version = "0.2.0"
+
+[[deps.ComplexValues]]
+git-tree-sha1 = "fd024bf60a8e871deb58c692e53b1349c247571f"
+uuid = "41a84b80-6cf2-11e9-379d-9df124847946"
+version = "0.3.0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
@@ -176,9 +782,9 @@ version = "1.16.0"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "0f4b5d62a88d8f59003e43c25a8a90de9eb76317"
+git-tree-sha1 = "1d0a14036acb104d9e89698bd408f63ab58cdc82"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.18"
+version = "0.18.20"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -189,6 +795,34 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
+
+[[deps.Dierckx]]
+deps = ["Dierckx_jll"]
+git-tree-sha1 = "d1ea9f433781bb6ff504f7d3cb70c4782c504a3a"
+uuid = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
+version = "0.5.3"
+
+[[deps.Dierckx_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "6596b96fe1caff3db36415eeb6e9d3b50bfe40ee"
+uuid = "cd4c43a9-7502-52ba-aa6d-59fb2a88580b"
+version = "0.1.0+0"
+
+[[deps.DiffResults]]
+deps = ["StaticArraysCore"]
+git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
+uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
+version = "1.1.0"
+
+[[deps.DiffRules]]
+deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
+git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
+uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
+version = "1.15.1"
+
+[[deps.Distributed]]
+deps = ["Random", "Serialization", "Sockets"]
+uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -215,9 +849,9 @@ version = "0.1.10"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "4558ab818dcceaab612d1bb8c19cee87eda2b83c"
+git-tree-sha1 = "1c6317308b9dc757616f0b5cb379db10494443a7"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.5.0+0"
+version = "2.6.2+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -241,15 +875,25 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.8.4"
 
 [[deps.Fontconfig_jll]]
-deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "21efd19106a55620a188615da6d3d06cd7f6ee03"
+deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
+git-tree-sha1 = "db16beca600632c95fc8aca29890d83788dd8b23"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.13.93+0"
+version = "2.13.96+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
+
+[[deps.ForwardDiff]]
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
+git-tree-sha1 = "cf0fe81336da9fb90944683b8c41984b08793dad"
+uuid = "f6369f11-7733-5829-9624-2563aa707210"
+version = "0.10.36"
+weakdeps = ["StaticArrays"]
+
+    [deps.ForwardDiff.extensions]
+    ForwardDiffStaticArraysExt = "StaticArrays"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -258,10 +902,16 @@ uuid = "d7e528f0-a631-5988-bf34-fe36492bcfd7"
 version = "2.13.1+0"
 
 [[deps.FriBidi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "aa31987c2ba8704e23c6c8ba8a4f769d5d7e4f91"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "1ed150b39aebcc805c26b93a8d0122c940f64ce2"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
-version = "1.0.10+0"
+version = "1.0.14+0"
+
+[[deps.FunctionalCollections]]
+deps = ["Test"]
+git-tree-sha1 = "04cb9cfaa6ba5311973994fe3496ddec19b6292a"
+uuid = "de31a74c-ac4f-5751-b3fd-e18cd04993ca"
+version = "0.5.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll"]
@@ -270,16 +920,16 @@ uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.9+0"
 
 [[deps.GR]]
-deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "27442171f28c952804dede8ff72828a96f2bfc1f"
+deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
+git-tree-sha1 = "ddda044ca260ee324c5fc07edb6d7cf3f0b9c350"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.72.10"
+version = "0.73.5"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "025d171a2847f616becc0f84c8dc62fe18f0f6dd"
+git-tree-sha1 = "278e5e0f820178e8a26df3184fcb2280717c79b1"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.72.10+0"
+version = "0.73.5+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -289,9 +939,9 @@ version = "0.21.0+0"
 
 [[deps.Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "359a1ba2e320790ddbe4ee8b4d54a305c0ea2aff"
+git-tree-sha1 = "7c82e6a6cd34e9d935e9aa4051b66c6ff3af59ba"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.80.0+0"
+version = "2.80.2+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -306,9 +956,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "8e59b47b9dc525b70550ca082ce85bcd7f5477cd"
+git-tree-sha1 = "d1d712be3164d61d1fb98e7ce9bcbc6cc06b45ed"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.5"
+version = "1.10.8"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -334,6 +984,18 @@ git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.4"
 
+[[deps.Interact]]
+deps = ["CSSUtil", "InteractBase", "JSON", "Knockout", "Observables", "OrderedCollections", "Reexport", "WebIO", "Widgets"]
+git-tree-sha1 = "c5091992248c7134af7c90554305c600d5d9012b"
+uuid = "c601a237-2ae4-5e1e-952c-7a85b0c7eef1"
+version = "0.10.5"
+
+[[deps.InteractBase]]
+deps = ["Base64", "CSSUtil", "Colors", "Dates", "JSExpr", "JSON", "Knockout", "Observables", "OrderedCollections", "Random", "WebIO", "Widgets"]
+git-tree-sha1 = "aa5daeff326db0a9126a225b58ca04ae12f57259"
+uuid = "d3863d7c-f0c8-5437-a7b4-3ae773c01009"
+version = "0.10.10"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -355,6 +1017,12 @@ git-tree-sha1 = "7e5d6779a1e09a36db2a7b6cff50942a0a7d0fca"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
 version = "1.5.0"
 
+[[deps.JSExpr]]
+deps = ["JSON", "MacroTools", "Observables", "WebIO"]
+git-tree-sha1 = "b413a73785b98474d8af24fd4c8a975e31df3658"
+uuid = "97c1335a-c9c5-57fe-bc5d-ec35cebe8660"
+version = "0.5.4"
+
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
@@ -363,15 +1031,21 @@ version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3336abae9a713d2210bb57ab484b1e065edd7d23"
+git-tree-sha1 = "c84a835e1a09b289ffcd2271bf2a337bbdda6637"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.0.2+0"
+version = "3.0.3+0"
+
+[[deps.Knockout]]
+deps = ["JSExpr", "JSON", "Observables", "Test", "WebIO"]
+git-tree-sha1 = "91835de56d816864f1c38fb5e3fad6eb1e741271"
+uuid = "bcebb21b-c2e3-54f8-a781-646b90f6d2cc"
+version = "0.2.6"
 
 [[deps.LAME_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.1+0"
+version = "3.100.2+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -386,10 +1060,10 @@ uuid = "1d63c593-3942-5779-bab2-d838dc0a180e"
 version = "15.0.7+0"
 
 [[deps.LZO_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "70c5da094887fd2cae843b8db33920bac4b6f07d"
 uuid = "dd4b983a-f0e5-5f8d-a1b7-129d4a5fb1ac"
-version = "2.10.1+0"
+version = "2.10.2+0"
 
 [[deps.LaTeXStrings]]
 git-tree-sha1 = "50901ebc375ed41dbf8058da26f9de442febbbec"
@@ -398,9 +1072,9 @@ version = "1.3.1"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cad560042a7cc108f5a4c24ea1431a9221f22c1b"
+git-tree-sha1 = "e0b5cd21dc1b44ec6e64f351976f961e6f31d6c4"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.2"
+version = "0.16.3"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -444,10 +1118,10 @@ uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
 version = "3.2.2+1"
 
 [[deps.Libgcrypt_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll", "Pkg"]
-git-tree-sha1 = "64613c82a59c120435c067c2b809fc61cf5166ae"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll"]
+git-tree-sha1 = "9fd170c4bbfd8b935fdc5f8b7aa33532c991a673"
 uuid = "d4300ac3-e22c-5743-9152-c294e39db1e4"
-version = "1.8.7+0"
+version = "1.8.11+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -456,10 +1130,10 @@ uuid = "7e76a0d4-f3c7-5321-8279-8d96eeed0f29"
 version = "1.6.0+0"
 
 [[deps.Libgpg_error_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "c333716e46366857753e273ce6a69ee0945a6db9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "fbb1f2bef882392312feb1ede3615ddc1e9b99ed"
 uuid = "7add5ba3-2f88-524e-9cd5-f83b8a55f7b8"
-version = "1.42.0+0"
+version = "1.49.0+0"
 
 [[deps.Libiconv_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -469,9 +1143,9 @@ version = "1.17.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "dae976433497a2f841baadea93d27e68f1a12a97"
+git-tree-sha1 = "0c4f9c4f1a50d8f35048fa0532dabbadf702f81e"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.39.3+0"
+version = "2.40.1+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -481,9 +1155,9 @@ version = "4.5.1+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "0a04a1318df1bf510beb2562cf90fb0c386f58c4"
+git-tree-sha1 = "5ee6203157c120d79034c748a2acba45b82b8807"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.39.3+1"
+version = "2.40.1+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -547,9 +1221,9 @@ version = "0.3.2"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
-git-tree-sha1 = "f66bdc5de519e8f8ae43bdc598782d35a25b1272"
+git-tree-sha1 = "ec4f7fbeab05d7747bdf98eb74d130a2a2ed298d"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
@@ -567,6 +1241,11 @@ version = "1.0.2"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
+
+[[deps.Observables]]
+git-tree-sha1 = "7438a59546cf62428fc9d1bc94729146d37a7225"
+uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
+version = "0.5.5"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -586,15 +1265,21 @@ version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "af81a32750ebc831ee28bdaaba6e1067decef51e"
+git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.2"
+version = "1.4.3"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "3da7367955dcc5c54c1ba4d402ccdc09a1a3e046"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "3.0.13+1"
+
+[[deps.OpenSpecFun_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "13652491f6856acfd2db29360e1bbcd4565d04f1"
+uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
+version = "0.5.5+0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -618,6 +1303,12 @@ git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.1"
 
+[[deps.Pidfile]]
+deps = ["FileWatching", "Test"]
+git-tree-sha1 = "2d8aaf8ee10df53d0dfb9b8ee44ae7c04ced2b03"
+uuid = "fa939f87-e72e-5be4-a000-7fc836dbe307"
+version = "1.3.0"
+
 [[deps.Pipe]]
 git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
 uuid = "b98c9c47-44ae-5843-9183-064241ee97a0"
@@ -625,9 +1316,9 @@ version = "1.3.0"
 
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
-git-tree-sha1 = "64779bc4c9784fee475689a1752ef4d5747c5e87"
+git-tree-sha1 = "35621f10a7531bc8fa58f74610b1bfb70a3cfc6b"
 uuid = "30392449-352a-5448-841d-b1acce4e97dc"
-version = "0.42.2+0"
+version = "0.43.4+0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
@@ -647,10 +1338,10 @@ uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "1.4.1"
 
 [[deps.Plots]]
-deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Preferences", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "ccee59c6e48e6f2edf8a5b64dc817b6729f99eb5"
+deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
+git-tree-sha1 = "442e1e7ac27dd5ff8825c3fa62fbd1e86397974b"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.39.0"
+version = "1.40.4"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -769,6 +1460,37 @@ deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.10.0"
 
+[[deps.SpecialFunctions]]
+deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
+git-tree-sha1 = "2f5d4697f21388cbe1ff299430dd169ef97d7e14"
+uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
+version = "2.4.0"
+
+    [deps.SpecialFunctions.extensions]
+    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
+
+    [deps.SpecialFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+
+[[deps.StaticArrays]]
+deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
+git-tree-sha1 = "bf074c045d3d5ffd956fa0a461da38a44685d6b2"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "1.9.3"
+
+    [deps.StaticArrays.extensions]
+    StaticArraysChainRulesCoreExt = "ChainRulesCore"
+    StaticArraysStatisticsExt = "Statistics"
+
+    [deps.StaticArrays.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[[deps.StaticArraysCore]]
+git-tree-sha1 = "36b3d696ce6366023a0ea192b4cd442268995a0d"
+uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
+version = "1.4.2"
+
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
@@ -812,9 +1534,9 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
+git-tree-sha1 = "5d54d076465da49d6746c647022f3b3674e64156"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.7"
+version = "0.10.8"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
@@ -845,9 +1567,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "3c793be6df9dd77a0cf49d80984ef9ff996948fa"
+git-tree-sha1 = "352edac1ad17e018186881b051960bfca78a075a"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.19.0"
+version = "1.19.1"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -886,6 +1608,24 @@ git-tree-sha1 = "93f43ab61b16ddfb2fd3bb13b3ce241cafb0e6c9"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
 version = "1.31.0+0"
 
+[[deps.WebIO]]
+deps = ["AssetRegistry", "Base64", "Distributed", "FunctionalCollections", "JSON", "Logging", "Observables", "Pkg", "Random", "Requires", "Sockets", "UUIDs", "WebSockets", "Widgets"]
+git-tree-sha1 = "0eef0765186f7452e52236fa42ca8c9b3c11c6e3"
+uuid = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
+version = "0.8.21"
+
+[[deps.WebSockets]]
+deps = ["Base64", "Dates", "HTTP", "Logging", "Sockets"]
+git-tree-sha1 = "4162e95e05e79922e44b9952ccbc262832e4ad07"
+uuid = "104b5d7c-a370-577a-8038-80a2059c5097"
+version = "1.6.0"
+
+[[deps.Widgets]]
+deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
+git-tree-sha1 = "fcdae142c1cfc7d89de2d11e08721d0f2f86c98a"
+uuid = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
+version = "0.6.6"
+
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
 git-tree-sha1 = "532e22cf7be8462035d092ff21fada7527e2c488"
@@ -905,16 +1645,16 @@ uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
 version = "5.4.6+0"
 
 [[deps.Xorg_libICE_jll]]
-deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "e5becd4411063bdcac16be8b66fc2f9f6f1e8fe5"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "326b4fea307b0b39892b3e85fa451692eda8d46c"
 uuid = "f67eecfb-183a-506d-b269-f58e52b52d7c"
-version = "1.0.10+1"
+version = "1.1.1+0"
 
 [[deps.Xorg_libSM_jll]]
-deps = ["Libdl", "Pkg", "Xorg_libICE_jll"]
-git-tree-sha1 = "4a9d9e4c180e1e8119b5ffc224a7b59d3a7f7e18"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libICE_jll"]
+git-tree-sha1 = "3796722887072218eabafb494a13c963209754ce"
 uuid = "c834827a-8449-5923-a945-d239c165b7dd"
-version = "1.2.3+0"
+version = "1.2.4+0"
 
 [[deps.Xorg_libX11_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xtrans_jll"]
@@ -941,10 +1681,10 @@ uuid = "a3789734-cfe1-5b06-b2d0-1dd0d9d62d05"
 version = "1.1.4+0"
 
 [[deps.Xorg_libXext_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
-git-tree-sha1 = "b7c0aa8c376b31e4852b360222848637f481f8c3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
+git-tree-sha1 = "d2d1a5c49fae4ba39983f63de6afcbea47194e85"
 uuid = "1082639a-0dae-5f34-9b06-72781eeb8cb3"
-version = "1.3.4+4"
+version = "1.3.6+0"
 
 [[deps.Xorg_libXfixes_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
@@ -971,10 +1711,10 @@ uuid = "ec84b674-ba8e-5d96-8ba1-2a689ba10484"
 version = "1.5.2+4"
 
 [[deps.Xorg_libXrender_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
-git-tree-sha1 = "19560f30fd49f4d4efbe7002a1037f8c43d43b96"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
+git-tree-sha1 = "47e45cd78224c53109495b3e324df0c37bb61fbe"
 uuid = "ea2f1a96-1ddc-540d-b46f-429655e07cfa"
-version = "0.9.10+4"
+version = "0.9.11+0"
 
 [[deps.Xorg_libpthread_stubs_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1167,9 +1907,140 @@ version = "1.4.1+1"
 # ╟─fe274212-e2f3-4604-b746-109576d79f5e
 # ╠═d675dc10-eae6-11ee-096c-a184ec597d1f
 # ╟─2dbac2d7-681a-49a3-a105-5e551f9a5089
-# ╠═f3aa6a8a-8307-4294-ba63-f4f082deec40
-# ╠═4c48c8d0-1531-4c7b-8c48-036b6664bc00
-# ╠═aa3c031b-07a7-4769-9b08-f0c8803c1f31
+# ╟─88181bfd-223d-4b2d-b913-bf3daad7baf2
+# ╠═e4f9582a-9e9c-41e9-bb91-ef7aa5386235
+# ╠═b5db23af-8f59-47d4-b480-785d82adb22f
+# ╟─995bfd52-77ac-4703-ae15-2f3ce22dc369
+# ╠═c30376a7-c95f-4e2a-b489-0cdad0357ae4
+# ╠═fb62ff9c-6fa0-4c5c-b27d-56a1e67f5237
+# ╟─1e2a9f02-94b7-4ead-b073-540e1607cc51
+# ╠═1c1767ce-28f1-4f94-9e28-f61ddb41ef45
+# ╟─3f89cd72-92fe-4565-92f5-b01720689369
+# ╟─9619f81f-e38a-40d5-8dce-843662bcf875
+# ╠═4c74036a-79ec-4f53-a717-b089b39e2d0a
+# ╟─7f1782a0-2b5c-4687-b0b7-39057b9cb6cc
+# ╟─3889b1c4-2466-45d5-9c87-0fa72b014164
+# ╠═6bb1a9f9-e58f-44d2-a7bb-b2de3ec7ab78
+# ╟─ea4dcc2c-a9d0-4cc0-b237-4da665193461
+# ╟─046c0f75-035b-4c64-8143-59cbd008b2eb
+# ╠═a6104904-a238-48c6-9551-18f687889d1e
+# ╟─99071fb5-e84b-4e78-a0c3-1b2d1a03aa15
+# ╟─077f063a-aca3-4e6d-ac9c-37992ed15df5
+# ╠═6fa9dfab-33b0-4e52-9cd7-8bbbdaa8417c
+# ╠═0398322b-535f-4298-bc59-71faa33b6284
+# ╟─913e9ff8-8e73-4246-80e7-009d18bc91a2
+# ╠═41234ab6-5496-4976-b040-ffe72e25f0b2
+# ╟─bcfe3730-0c0f-4b44-9605-05287169a1eb
+# ╟─9d9758f4-cf5d-4c49-ba3d-38ee4501cd9f
+# ╠═99c4a7d9-4bc7-4b22-b100-eee0df8b31c4
+# ╠═e0e3548a-79f5-4b3d-9bc6-4b19b6867458
+# ╟─f59d03a1-e52b-4ca4-9b96-47683bb8b86b
+# ╟─5d08dc87-5a14-41d5-bf1f-435c05c7142f
+# ╠═80672dff-08fa-4e22-8bfe-529d1478feac
+# ╠═9bc6a86f-6b60-42fc-a486-b8875d4f82b6
+# ╟─d877aef1-2fdf-45e6-b2c2-4a297d086725
+# ╟─1a2a4c02-c1d4-49b3-8bae-8726dfcae164
+# ╠═846cef81-1dcd-422c-bab9-558c354208e7
+# ╠═e29929c7-8c03-45c4-befb-3173efb8a1a8
+# ╠═1052e939-d02d-43d6-9d3d-5599403de48a
+# ╟─c868c928-82af-42ff-828e-d78799ee8fb9
+# ╠═8259fb65-dc42-4f01-b6f0-043dacaabe7b
+# ╟─df610d28-3b37-4b2c-adf3-732a0f403e52
+# ╠═be6837f9-9cea-44fa-947f-d6b693ea8298
+# ╟─d3768a7a-a01c-4398-a76e-89ce219291c2
+# ╟─98f96a8c-576c-4b14-8793-527a2f8126a7
+# ╠═68664fd4-9791-48ee-af9e-ab87d8ab870e
+# ╠═60c58cdd-8097-4740-879d-f2c9d900d9a4
+# ╠═f842353d-7706-4eba-8485-3cef3d1f9a48
+# ╠═f63dae67-220b-436b-9c1b-d22b1ecf83a1
+# ╠═d01adc96-7d1b-4519-9ce9-ef6cff8b55e3
+# ╟─466ad593-7450-426d-b244-71830058d7d5
+# ╟─3543b3f1-0da7-4c80-a74f-c478f1af018d
+# ╟─b45c33ad-1c21-4df8-bc16-a54e7d27c25b
+# ╠═57f56e5e-ff3f-4c40-a631-10c2500a6333
+# ╠═4af52084-fd08-4ba1-b65a-3f31eebd7e8c
+# ╠═b49f25aa-1436-4cd4-90f8-adcb1dd800fe
+# ╠═f33ca5b4-e758-46ad-b17d-90626e2a4a4f
+# ╠═ed6579b8-2b7d-4497-82ef-a872f007d3d1
+# ╠═ade8c070-e552-4f26-b6bc-b99c08fffe44
+# ╟─e323b5a0-2e62-4461-a024-10dd7e864db2
+# ╠═51498fc2-6058-4a73-90c5-a9fdf6d6ac98
+# ╠═17304f4b-cc3a-4fd0-b174-d39e7f5f96e2
+# ╠═cfca9946-cea0-4ff6-a8d4-6093622878e2
+# ╠═0a7276d0-45eb-46c1-9d22-ee356a711e88
+# ╠═b26b3a34-8ed7-4daa-8f83-642d7878915f
+# ╠═66fad81e-4dba-40eb-bc9e-117c7a8e0c67
+# ╟─9d947ea6-f506-4f17-a308-9c3c1e3a9330
+# ╟─6bcc224b-721b-4c8e-a454-3d98744e7e96
+# ╠═eb88ba98-ad70-4ba6-9b86-3b0e2cdb5cc5
+# ╠═d0dbe76c-eff2-48d9-9ad6-a50276d5c5ce
+# ╠═1fe4b31d-df12-4c7d-9cc9-08c726390a93
+# ╟─0c820aef-d94c-4737-b3a4-bf6738177137
+# ╠═71676a4e-0d3f-4d0c-b82b-ad6f5192f715
+# ╠═3c36397e-151b-44ab-904b-9dab998c5533
+# ╟─5f3ca701-3476-4c9d-963a-68a78f90f135
+# ╟─bcc3715f-5659-4575-9d69-afadfedf2e3d
+# ╟─7265d23b-2684-47d5-92b7-33dadcfa8f26
+# ╠═cad7c15b-7c97-46bc-8c92-3302f940c5d3
+# ╠═344104e7-48e1-4905-afd5-670dc7836338
+# ╠═7a47cac5-ba70-4c89-8066-0a1c65fdcbdc
+# ╟─9ab7bfc5-da61-4d5e-8aea-6d278198e318
+# ╠═1b396d3c-43ab-45eb-a077-fd86e531ff25
+# ╟─713405da-cbea-46ee-93aa-1dbdd36ef8c7
+# ╟─72670929-9a89-4b5a-8ac3-6733d35eb6fd
+# ╟─b43fe760-0f47-4ecd-93f9-7c34a31c712d
+# ╟─8e3c66cb-671b-400c-bdcc-e1e74c61203d
+# ╠═3938cba8-c625-43cd-8864-da5772f6c696
+# ╟─f9c6edd3-bf77-4de7-9ee2-c9b45b3e8c3e
+# ╠═cdbaed43-4b44-4767-a6b2-eb63834d63c4
+# ╟─70c13bfb-a986-4d05-97e4-a1a9077897ff
+# ╠═5f0051f7-4222-4575-8a93-a9bfac70bb28
+# ╟─0b8155b8-8169-4403-89c2-ca761ad69ac6
+# ╟─08cc42c8-e7eb-4d3c-a5c7-2105bcfb93cd
+# ╠═133baa38-6a4d-4c8a-9d11-561f5febcfe4
+# ╠═b6e108c1-0986-4530-b7cd-721aaa0d4f88
+# ╠═bfcbfdb4-07bc-4e8c-ab66-9debcfe84290
+# ╟─c16980bb-7693-4f30-936b-0deabc4cc078
+# ╠═0b47d13e-51d2-4480-b827-149ac9108891
+# ╟─b31456c3-ccd4-4cfd-9532-3b7d5a2815d5
+# ╠═9cb0d8c4-4217-4a23-900e-39be317e9bb8
+# ╟─296972db-069e-4dfd-a6de-5a236e40a527
+# ╠═a55abc2b-517e-4353-a194-ea1f0ef2a84c
+# ╟─f0669709-74be-471a-a488-202708dd01b7
+# ╠═c6f9314c-cbac-446d-b2e1-5a061c71e7f2
+# ╟─9b09895f-382e-48d1-8634-5c2b406194f0
+# ╟─8e46325a-8d9b-420b-9d2a-db68dbd515bf
+# ╟─bfa1c52e-c7d7-4cce-b080-38e5920db304
+# ╠═922e4bbf-8ee9-4af1-a66a-87e59afa1095
+# ╟─b377fae7-0d45-48b4-9a37-64c2270473e8
+# ╠═59f9f091-9bda-467c-aa40-37df5cd89d5c
+# ╟─4084ca08-1790-40cd-8e99-5ce7b7cad927
+# ╠═ee349ac2-9442-40c2-b20e-7e02abacb56e
+# ╠═5851bdf2-cf91-45a1-a34d-34b1ef4588ea
+# ╠═7280ebd8-7dd9-4961-8280-89925beabe94
+# ╟─268f7dd9-c21a-425d-8562-cffd0e77033c
+# ╟─38db4a8e-61b4-4ccd-896b-8d92b8acd332
+# ╟─1110da58-1c8e-420e-a9c3-d90f6787d219
+# ╟─8c684d61-0015-44c3-9659-1dd151d6a2ed
+# ╟─64e9c3fc-a2de-4ea7-8d9a-5a8ab55cf1e4
+# ╟─5d2ea548-64b6-40de-bc8f-c34d1ee35187
+# ╠═b3c922fc-70ce-408a-9f60-81df0061863c
+# ╟─3e25d3dc-b39a-4d2f-b6b1-a2b6ed85a4c5
+# ╠═23ae3b93-f81a-4397-923b-6475da8d1177
+# ╠═6f53849d-5805-4bfd-a013-dffd81a09255
+# ╠═7b9f32ec-5f3d-4f45-bef6-986c08aca0d3
+# ╠═50da9eb7-90bc-4e38-9eb4-9f9747cf27b8
+# ╟─64c2271e-cbb2-4834-9b35-2e08f4814f6c
+# ╠═592e6311-50aa-4a71-a376-fd9396423faa
+# ╟─f8f8bba7-f0b6-46e5-9995-e78b7318addc
+# ╟─60ec3b6a-a571-4a10-8aa1-b71b5145b1a4
+# ╠═1af186c0-8335-4ddf-ae92-51f72cbab6ea
+# ╟─c5437c5b-038b-4774-a483-f910e179716d
+# ╟─d82483d4-30ab-41a1-ad47-34b398055fb0
+# ╟─3fa547e2-8d56-40dc-9168-016fe1198508
+# ╠═e18feade-7936-44ac-ad33-6a3022c28152
+# ╟─28c0ae19-5d46-4ac2-b15f-cb888bba9841
+# ╟─aa3c031b-07a7-4769-9b08-f0c8803c1f31
 # ╟─6d32fe79-daeb-44dd-adc4-74484d3ced01
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
