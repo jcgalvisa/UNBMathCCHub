@@ -4,623 +4,274 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ b763cd10-d1e7-4613-b738-9fb1c1cfa1e5
+# ╔═╡ d609638c-3d16-4595-9778-ec88427e055e
 using PlutoUI
 
-# ╔═╡ d675dc10-eae6-11ee-096c-a184ec597d1f
-using Plots, ComplexPlots, ComplexValues
+# ╔═╡ b297988d-0157-4894-8b2b-9c90c1747144
+using Plots, ComplexPlots, ComplexValues, SymPy
 
-# ╔═╡ a7d3298e-0138-4149-a189-0b5a92cfa0e7
-PlutoUI.TableOfContents(title="Conceptos básicos", aside=true)
+# ╔═╡ b18f0f08-49cc-4268-a7ce-da2f34848f02
+PlutoUI.TableOfContents(title="Funciones Complejas", aside=true)
 
-# ╔═╡ 5a638263-06dd-4f61-b2af-40e5eeb2b9c6
+# ╔═╡ c47e305f-6972-4aac-b36a-0cbc3c4f8789
 md"""Este cuaderno esta en construcción y puede ser modificado en el futuro para mejorar su contenido. En caso de comentarios o sugerencias por favor escribir a jcgalvisa@unal.edu.co
 
 Tu participación es fundamental para hacer de este curso una experiencia aún mejor."""
 
-# ╔═╡ e34f8a45-6a22-45f8-b54e-8a15f96c89c9
+# ╔═╡ f9e88351-a23f-47e8-9a92-d136782da380
 md"""Elaborado por Juan Galvis, Francisco Gómez y Yessica Trujillo. 
 """
 
-# ╔═╡ fe274212-e2f3-4604-b746-109576d79f5e
+# ╔═╡ e1fdb8d5-c3a7-4652-8286-7842bc5123a7
 md"""Usaremos las siguientes librerías:"""
 
-# ╔═╡ 2dbac2d7-681a-49a3-a105-5e551f9a5089
-md"""
-# Representación de datos
-A continuación se mostrará la representación de números enteros y de punto flotante,  así como los límites de representación para distintos tipos de números."""
+# ╔═╡ 5a96d201-e31c-4562-8187-23e7430fb7db
+md"""# Introducción"""
 
-# ╔═╡ 88181bfd-223d-4b2d-b913-bf3daad7baf2
-md"""## Enteros 
-Presentamos ejemplos sencillos de la representación de los datos enteros en Julia.
-En particular, un entero de $k$ bits biene representado de la forma
+# ╔═╡ 657093ea-e4e8-4e60-ac5c-8a33a93181d5
+md"""La visualización de funciones es una herramienta valiosa para identificar diversos comportamientos de estas. Generalmente, esto se logra mediante gráficos que permiten observar aspectos como la relación entre valores de entrada y salida, puntos de máximos y mínimos, y la concavidad o convexidad de la función. Sin embargo, esta técnica está limitada a espacios tridimensionales, dificultando la representación de funciones de variable compleja, que requerirían un espacio de cuatro dimensiones.
 
-$n=(b_{k-1}b_{k-2}\cdots b_2 b_1b_0)_2=b_0+b_1 2^1+b_22^2+\cdots+b_{k-2}2^{k-2}-b_{k-1}2^{k-1}.$ 
+Para superar esta limitación, se han propuesto otras técnicas, como el Domain Coloring. Este método utiliza tonos, brillo y saturación para codificar los valores de una función, proporcionando una visión general rápida y detalles significativos al observar más de cerca. Aunque útil, esta técnica también tiene sus restricciones, y su beneficio depende de los aspectos específicos de la función compleja que se desean estudiar.
 
-Donde $b_i\in\{0,1\}$.
+La función $\texttt{zplot}$ utiliza el método de Domain Coloring para representar funciones de variable compleja. Se usan diferentes colores y niveles de brillo y saturación para codificar información sobre los valores de la función, lo que permite identificar rápidamente características importantes como singularidades y la estructura global de la función."""
 
-Acontinuación se muestran ejemplos de esto.
+# ╔═╡ d2801310-a500-4836-80ce-741a7c2d59a3
+md"""# Graficas de funciones complejas
+
+Consideremos un conjunto $S$ de números complejos. Una función $f$ definida en $S$ es una regla que asigna a cada elemento $z$ en $S$ un número complejo $w$. A este número $w$ se le llama el valor de $f$ en $z$ y se denota como $f(z)$; es decir, $w = f(z)$.
+
+Supongamos que $w = u + iv$ representa el valor de la función $f$ en $z = x + iy$, lo que implica que $u + iv = f(x + iy)$.
+
+Cada uno de los números reales $u$ y $v$ depende de las variables reales $x$ y $y$, lo que nos lleva a que $f(z)$ pueda expresarse en términos de un par de funciones de valores reales de las variables $x$ y $y$:
+
+$f(z) = u(x, y) + iv(x, y).$
 """
 
-# ╔═╡ e4f9582a-9e9c-41e9-bb91-ef7aa5386235
-# ╠═╡ disabled = true
-#=╠═╡
-@bind n Slider(-50:50, show_value=true, default=0)
-  ╠═╡ =#
+# ╔═╡ 5b97add9-e375-46f4-87bf-563ace0bba0c
+md"""### Ejemplo 1:
 
-# ╔═╡ 995bfd52-77ac-4703-ae15-2f3ce22dc369
-md"""La representación como un entero de 64 bits es la siguiente"""
+Consideremos la función $f(z)=\sin{z}$, hallemos su parte real y su parte imaginaria.
 
-# ╔═╡ 1e2a9f02-94b7-4ead-b073-540e1607cc51
-md"""De la siguiente forma podemos representar a $n$ como un entero de 8 bits."""
+Para esto vamos a cosiderar las siguientes variables simbólicas."""
 
-# ╔═╡ 3f89cd72-92fe-4565-92f5-b01720689369
-md"""**Nota:** La función $\texttt{Int8}$ representa números enteros con signo de 8 bits, el rango de valores que puede almacenar es de -128 a 127. Puede representar números negativos."""
+# ╔═╡ a46945e5-7437-45d7-a322-5a47db66deb7
+@syms x, y
 
-# ╔═╡ 9619f81f-e38a-40d5-8dce-843662bcf875
-md"""También podemos representar a $n$ como un entero de 8 bits, de la siguiente forma."""
+# ╔═╡ bdc857d8-62d1-4a49-bb2e-7a1fdef6cb47
+md"""Definimos la función:"""
 
-# ╔═╡ 7f1782a0-2b5c-4687-b0b7-39057b9cb6cc
-md"""**Nota:** La función $\texttt{UInt8}$ representa números enteros sin signo de 8 bits, el rango de valores que puede almacenar es de 0 a 255. No puede representar números negativos."""
+# ╔═╡ 6daaf8ba-4e00-4f7d-b49a-0fa77e8b33a4
+f(z) = sin(z)
 
-# ╔═╡ 3889b1c4-2466-45d5-9c87-0fa72b014164
-md"""Este tipo de representaciones tiene varias consecuencias, como la existencia de un número finito de valores enteros que se pueden representar.
+# ╔═╡ d2b67283-7b8d-43a1-914e-187e142969cf
+md"""La parte real $Re(f(z))$ es la siguiente:"""
 
-En Julia podemos ver explícitamente los límites para cada uno de los tipos de representaciones."""
-
-# ╔═╡ 6bb1a9f9-e58f-44d2-a7bb-b2de3ec7ab78
-for T in [Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64,UInt128]
-           println("$(lpad(T,7)): [$(typemin(T)),$(typemax(T))]")
+# ╔═╡ f0c0aa93-81ce-44c4-93fc-6298ecca04e9
+begin
+	eq = real( f(x+y*im) )
+	eq1 = eq(imag(x) => 0)
+	eq2 = eq1(imag(y) => 0)
+	eq3 = eq2(real(x) => x)
+	eq4 = eq3(real(y) => y)
 end
 
-# ╔═╡ ea4dcc2c-a9d0-4cc0-b237-4da665193461
-md""" 
-## Punto Flotante
-El punto flotante es un formato de representación numérica utilizado para expresar números reales que no pueden ser representados con precisión mediante enteros debido a su tamaño o a la necesidad de representar fracciones. En particular, la representación usando un bit para el signo, $s_0\in \{0,1\}$, con 
-$s=(-1)^{1-s_0}$, 
-$k$ bits para el exponente
+# ╔═╡ 489eec2a-6ec9-4a92-9f0c-cd0bd11f798d
+md"""Visualicemos la función $Re(f(z)).$"""
 
-$m=(b_{k-1}b_{k-2}\dots b_1b_0)_{\mbox{expfp}(k)} = b_0+b_1 2^1+b_22^2+\cdots+b_{k-1}2^{k-1}-(2^{k-1}-1).$ 
-con $e_i\in\{0,1\}$, y $p$ bits de precisión para el significando 
+# ╔═╡ 58b21d7d-9288-4787-b59b-6a17921a1e4a
+begin
+	xs₁ = range(-2π, stop=2π, length=100)
+	ys₁ = range(-2π, stop=2π, length=100)
+	f₁(x,y) = eq4(x,y)
+	surface(xs₁, ys₁, f₁, xlabel="x", ylabel="y", zlabel="z")
+end
 
-$q=(1. a_1a_2\dots a_p)_2 = 1 + a_12^{-1}+a_22^{-2}+\dots+a_p2^{-p}$ 
-está dada por 
+# ╔═╡ 27aee2de-675d-4821-8917-da3488c88474
+md"""Ahora con la función $\texttt{contourf}$ vamos a crear un gráfico de las curvas de contorno (curvas de nivel) relleno a partir de datos bidimensionales."""
 
-$x=s\times q\times 2^m.$
+# ╔═╡ a1a910f2-6db6-4721-b68b-6875982456bb
+begin
+	contourf(xs₁, ys₁, f₁, aspect_ratio=:equal, xlabel="x", ylabel="y", title="Re(f(z))")
+end
+
+# ╔═╡ 29486a83-5054-466c-96b6-18f8aae2fc1b
+md"""Realizaremos lo mismo para la parte imaginaria, note que $Im(f(z))$ es:"""
+
+# ╔═╡ 18069a13-92db-4dd5-b269-9a0ae2701b7a
+begin
+	Eq = imag( f(x+y*im) )
+	Eq1 = Eq(real(x) => 0)
+	Eq2 = Eq1(real(y) => 0)
+	Eq3 = Eq2(imag(x) => x)
+	Eq4 = Eq3(imag(y) => y)
+end
+
+# ╔═╡ 5cc9f1f2-0646-48f4-977e-1ec8229d9e4b
+md"""La visualización de la función $Im(f(z))$ es la que se muestra a continuación"""
+
+# ╔═╡ a4ceb7d3-ca49-4d91-a3ff-8421fceaa1cd
+begin
+	xs₂ = range(-2π, stop=2π, length=100)
+	ys₂ = range(-2π, stop=2π, length=100)
+	f₂(x,y) = Eq4(x,y)
+	surface(xs₂, ys₂, f₂, xlabel="x", ylabel="y", zlabel="z")
+end
+
+# ╔═╡ a37c1e9a-7cac-438e-94a5-e342f5613c6b
+md"""El gráfico de las curvas de contorno relleno:"""
+
+# ╔═╡ 41e778a4-b362-48ce-8ba2-5aba75128278
+begin
+	contourf(xs₂, ys₂, f₂, aspect_ratio=:equal, xlabel="x", ylabel="y", title="Im(f(z))")
+end
+
+# ╔═╡ 135db7ca-533a-47b9-ac9d-a1769875f8b7
+md"""Otra representación que podemos obtener de la función $f(z)$ en $\mathbb{R}^3$, es colocando el módulo en el eje independiente. $|f(z)|$ representa el módulo del número complejo $z$. Esto se muestra a continuación.
 """
 
-# ╔═╡ 046c0f75-035b-4c64-8143-59cbd008b2eb
-md"""*Ejemplo:*
-Para $x = 0.5$ en el formato Float32, tenemos un bit para el signo $s = 0$, 8 bits para el exponente $m = (01111110)_{\text{expfp}(8)} = -1$, y 23 bits para el significando $q = (1.00000000000000000000000)_2$. Así tenemos lo siguiente.
+# ╔═╡ 91def84f-c450-4f86-9fd4-0e43f206f4ba
+begin 
+	plotly()  # Configura PlotlyJS como backend
+
+	xs₃ = -2π:0.1:2π
+	ys₃ = -2π:0.1:2π
+	zs₃ = [Complex(xi, yi) for xi in xs₃, yi in ys₃]
+	f_z₃ = sin.(zs₃)
+	norm_f_z₃ = abs.(f_z₃)
+
+	# Convertir los datos para la gráfica
+	x_vals₃ = real.(zs₃)
+	y_vals₃ = imag.(zs₃)
+	z_vals₃ = norm_f_z₃
+	
+	plot(x_vals₃, y_vals₃, z_vals₃, st = :surface, title = "Módulo de f(z)", xlabel = "Re(z)", ylabel = "Im(z)", zlabel = "|f(z)|")
+end
+
+# ╔═╡ 452dcdd7-4a15-45b8-b5e3-c7af97dd473b
+md"""El gráfico de las curvas de contorno relleno es el siguiente"""
+
+# ╔═╡ 25f66189-80d0-435e-8fef-fcd08d65723a
+begin
+	contourf(xs₃, ys₃, z_vals₃, aspect_ratio=:equal, xlabel="x", ylabel="y", title="f(z)")
+end
+
+# ╔═╡ a29b392f-3195-41f6-95b1-5f55fb2da564
+md"""Por último, veamos otra representación de la función $f(z)$ en $\mathbb{R}^3$, pero colocando el argumento en el eje independiente. $Arg(f(z))$ representa el argumento del número complejo $z$, y se halla con la función $\texttt{angle}$. Esto se muestra a continuación.
 """
 
-# ╔═╡ a6104904-a238-48c6-9551-18f687889d1e
-bitstring(Float32(0.5))
+# ╔═╡ 4675928d-d1ae-4c43-81f0-a6d3029fc95d
+begin 
+	plotly()  # Configura PlotlyJS como backend
 
-# ╔═╡ 99071fb5-e84b-4e78-a0c3-1b2d1a03aa15
+	xs₄ = -2π:0.1:2π
+	ys₄ = -2π:0.1:2π
+	zs₄ = [Complex(xi, yi) for xi in xs₄, yi in ys₄]
+	f_z₄ = sin.(zs₄)
+	angle_f_z₄ = angle.(f_z₄)
+
+	# Convertir los datos para la gráfica
+	x_vals₄ = real.(zs₄)
+	y_vals₄ = imag.(zs₄)
+	z_vals₄ = angle_f_z₄
+	
+	plot(x_vals₄, y_vals₄, z_vals₄, st = :surface, title = "Arg de sin(z)", xlabel = "Re(z)", ylabel = "Im(z)", zlabel = "Arg(sin(z))")
+end
+
+# ╔═╡ 7d3525d8-ba29-486d-9bda-82657a853a33
+md"""El gráfico de las curvas de contorno relleno es el siguiente"""
+
+# ╔═╡ 61e22180-bfa3-432a-a373-3e3ff60e7d57
 begin
-	bs=bitstring(Float32(0.5));
-	println("signo=",bs[1],"\t exp=",bs[2:9],"\t significand=",bs[19:32])	     
+	contourf(xs₄, ys₄, z_vals₄, aspect_ratio=:equal, xlabel="x", ylabel="y", title="f(z)")
 end
 
-# ╔═╡ 077f063a-aca3-4e6d-ac9c-37992ed15df5
-md""" Otros formatos disponibles en Julia son los siguientes."""
+# ╔═╡ efcef8a1-5164-49fd-82f8-698607ccb701
+zplot(z -> f(z))
 
-# ╔═╡ 6fa9dfab-33b0-4e52-9cd7-8bbbdaa8417c
-@bind x Slider(-10:0.1:10, show_value=true, default=1)
+# ╔═╡ 9f177352-2b11-490a-9bf7-450fdcbdfc15
+md"""### Ejemplo 2"""
 
-# ╔═╡ 0398322b-535f-4298-bc59-71faa33b6284
-begin
-	x16=Float16(x)
-	println("x16=\t",bitstring(x16))
-	x32=Float32(x)
-	println("x32=\t",bitstring(x32))
-	x64=Float64(x)
-	println("x64=\t",bitstring(x64))
+# ╔═╡ 864b3cd7-aea8-4cff-8eb3-0665dce59db8
+let
+	f(z) = 1/sqrt(z)
+	
+	eq = real( f(x+y*im) )
+	eq1 = eq(imag(x) => 0)
+	eq2 = eq1(imag(y) => 0)
+	eq3 = eq2(real(x) => x)
+	eq4 = eq3(real(y) => y)
+
+	xs₁ = range(-2π, stop=2π, length=100)
+	ys₁ = range(-2π, stop=2π, length=100)
+	f₁(x,y) = eq4(x,y)
+	p1 = surface(xs₁, ys₁, f₁, xlabel="x", ylabel="y", zlabel="z")
+	
+	p2 = contourf(xs₁, ys₁, f₁, aspect_ratio=:equal, xlabel="x", ylabel="y", title="Re(f(z))")
+
+	Eq = imag( f(x+y*im) )
+	Eq1 = Eq(real(x) => 0)
+	Eq2 = Eq1(real(y) => 0)
+	Eq3 = Eq2(imag(x) => x)
+	Eq4 = Eq3(imag(y) => y)
+
+	xs₂ = range(-2π, stop=2π, length=100)
+	ys₂ = range(-2π, stop=2π, length=100)
+	f₂(x,y) = Eq4(x,y)
+	p3 = surface(xs₂, ys₂, f₂, xlabel="x", ylabel="y", zlabel="z")
+
+	p4 = contourf(xs₂, ys₂, f₂, aspect_ratio=:equal, xlabel="x", ylabel="y", title="Im(f(z))")
+
+	plot(p1, p2, p3, p4, layout = 4, size = (800, 600))
 end
 
-# ╔═╡ 913e9ff8-8e73-4246-80e7-009d18bc91a2
-md"""Podemos consultar por el de la maquina y el rango representado, de la siguiente forma. """
+# ╔═╡ 7a922368-18bb-44ba-8b1a-ce51da560cf3
+let
+	f(z) = 1/sqrt(z)
+	plotly()  # Configura PlotlyJS como backend
 
-# ╔═╡ 41234ab6-5496-4976-b040-ffe72e25f0b2
-for Ft in [Float16,Float32,Float64,BigFloat]
-           println("$(lpad(Ft,7)): [$(floatmin(Ft)),$(floatmax(Ft))]")
+	xs₃ = -2π:0.1:2π
+	ys₃ = -2π:0.1:2π
+	zs₃ = [Complex(xi, yi) for xi in xs₃, yi in ys₃]
+	f_z₃ = f.(zs₃)
+	norm_f_z₃ = abs.(f_z₃)
+
+	# Convertir los datos para la gráfica
+	x_vals₃ = real.(zs₃)
+	y_vals₃ = imag.(zs₃)
+	z_vals₃ = norm_f_z₃
+	
+	p1 = plot(x_vals₃, y_vals₃, z_vals₃, st = :surface, title = "Módulo de f(z)", xlabel = "Re(z)", ylabel = "Im(z)", zlabel = "|f(z)|")
+
+	p2 = contourf(xs₃, ys₃, z_vals₃, aspect_ratio=:equal, xlabel="x", ylabel="y", title="f(z)")
+
+	plot(p1, p2, layout = (1,2), size = (800, 600))
 end
 
-# ╔═╡ bcfe3730-0c0f-4b44-9605-05287169a1eb
-md"""## Números complejos
+# ╔═╡ 58e44ab7-3516-47f6-b396-dc65d042567e
+let 
+	f(z) = 1/sqrt(z)
+	plotly()  # Configura PlotlyJS como backend
 
-Los números complejos se representan utilizando el tipo $\texttt{Complex}$. Un número complejo tiene la forma $a + bi$, donde $a$ es la parte real y $b$ es la parte imaginaria. Tanto $a$ como $b$ pueden ser de cualquier tipo numérico, aunque comúnmente se utilizan tipos de punto flotante como $\texttt{Float64}$ (por defecto)."""
+	xs₄ = -2π:0.1:2π
+	ys₄ = -2π:0.1:2π
+	zs₄ = [Complex(xi, yi) for xi in xs₄, yi in ys₄]
+	f_z₄ = f.(zs₄)
+	angle_f_z₄ = angle.(f_z₄)
 
-# ╔═╡ 9d9758f4-cf5d-4c49-ba3d-38ee4501cd9f
-md"""*Ejemplo:* Consideremos el siguiente número"""
+	# Convertir los datos para la gráfica
+	x_vals₄ = real.(zs₄)
+	y_vals₄ = imag.(zs₄)
+	z_vals₄ = angle_f_z₄
+	
+	p1 = plot(x_vals₄, y_vals₄, z_vals₄, st = :surface, title = "Arg de f(z)", xlabel = "Re(z)", ylabel = "Im(z)", zlabel = "Arg(f(z))")
+	
+	p2 = contourf(xs₄, ys₄, z_vals₄, aspect_ratio=:equal, xlabel="x", ylabel="y", title="f(z)")
 
-# ╔═╡ 99c4a7d9-4bc7-4b22-b100-eee0df8b31c4
-z = 3 + 5im
-
-# ╔═╡ e0e3548a-79f5-4b3d-9bc6-4b19b6867458
-typeof(z)
-
-# ╔═╡ f59d03a1-e52b-4ca4-9b96-47683bb8b86b
-md"""Esto nos indica que $z$ es un número complejo con entradas tipo $\texttt{Int64}$"""
-
-# ╔═╡ 5d08dc87-5a14-41d5-bf1f-435c05c7142f
-md"""*Ejemplo:*"""
-
-# ╔═╡ 80672dff-08fa-4e22-8bfe-529d1478feac
-z₂ = 3.0 + 5.0im
-
-# ╔═╡ 9bc6a86f-6b60-42fc-a486-b8875d4f82b6
-typeof(z₂)
-
-# ╔═╡ d877aef1-2fdf-45e6-b2c2-4a297d086725
-md"""Observe que $z$ es un número complejo con entradas tipo $\texttt{Float64}$"""
-
-# ╔═╡ 1a2a4c02-c1d4-49b3-8bae-8726dfcae164
-md"""Otra forma de escribir un número complejo es con la función $\texttt{complex(\hspace{0.1cm},\hspace{0.1cm})}.$ Por ejemplo."""
-
-# ╔═╡ 846cef81-1dcd-422c-bab9-558c354208e7
-@bind a Slider(-10:0.1:10, show_value=true, default=1)
-
-# ╔═╡ e29929c7-8c03-45c4-befb-3173efb8a1a8
-@bind b Slider(-10:0.1:10, show_value=true, default=2)
-
-# ╔═╡ 1052e939-d02d-43d6-9d3d-5599403de48a
-complex(a,b)
-
-# ╔═╡ c868c928-82af-42ff-828e-d78799ee8fb9
-md"""Dado que tanto $a$ como $b$ tienen estructura tipo $\texttt{Float64}$, entonces $a+bi$ es"""
-
-# ╔═╡ 8259fb65-dc42-4f01-b6f0-043dacaabe7b
-typeof(complex(a,b))
-
-# ╔═╡ df610d28-3b37-4b2c-adf3-732a0f403e52
-md"""Pero también puede tener otra estructura; esto depende del tipo de dato que sean $a$ y $b$. Por ejemplo:"""
-
-# ╔═╡ be6837f9-9cea-44fa-947f-d6b693ea8298
-begin
-	a₁ = Float16(a)
-	b₁ = Float16(b)
-	typeof(complex(a₁,b₁))
+	plot(p1, p2, layout = (1,2), size = (800, 600))
 end
 
-# ╔═╡ d3768a7a-a01c-4398-a76e-89ce219291c2
-md"""# Operaciones con números complejos
-Recordemos que los números complejos se definen como
-
-$\mathbb{C}=\{a+bi:a,b\in\mathbb{R}\}.$
-
-**Nota:**
-- Si $z=a+bi$ y $a=0$ entonces $z=bi$ es un imaginario puro.
-- Si $z=a+bi$ y $b=0$ entonces $z=a$ es un número real.
--  Si $z = x + yi$, se definen Re$(z) = x$ y Im$(z) = y$ (partes real e imaginaria del complejo).
-- Geométricamente, los números complejos pueden identificarse con los puntos del plano, asignando al complejo $z = x + yi$ el punto de coordenadas $(x, y)$. Así, identificaremos
-
-$z = a + bi \equiv (a, b).$"""
-
-# ╔═╡ 98f96a8c-576c-4b14-8793-527a2f8126a7
-md"""**Ejemplo:**"""
-
-# ╔═╡ 68664fd4-9791-48ee-af9e-ab87d8ab870e
-@bind a₃ Slider(-10:0.1:10, show_value=true, default=5)
-
-# ╔═╡ 60c58cdd-8097-4740-879d-f2c9d900d9a4
-@bind b₃ Slider(-10:0.1:10, show_value=true, default=-2)
-
-# ╔═╡ f842353d-7706-4eba-8485-3cef3d1f9a48
-z₃ = a₃ + b₃*im #numero complejo
-
-# ╔═╡ f63dae67-220b-436b-9c1b-d22b1ecf83a1
-R₃ = real.(z₃) #parte real de z₂
-
-# ╔═╡ d01adc96-7d1b-4519-9ce9-ef6cff8b55e3
-I₃ = imag.(z₃) #parte imaginaria de z₂
-
-# ╔═╡ 466ad593-7450-426d-b244-71830058d7d5
-begin
-	scatter([R₃], [I₃], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
-	scatter!([0], [0], color=:green, label="(0, 0)")
-	plot!([0, R₃], [0, I₃], color=:gray, label="")
-end
-
-# ╔═╡ 3543b3f1-0da7-4c80-a74f-c478f1af018d
-md"""## Suma y producto
-Sean $z_1,z_2$ números complejos, tales que $z_1=a+bi$, $z_2=c+di$, se tiene que 
-
-$z_1+z_2= (a+bi) + (c+di) = (a+c)+ (b+d)i,$
-
-$z_1 \cdot z_2 = (a+bi) \cdot (c+di) = (ac - bd) + (ad + bc)i.$"""
-
-# ╔═╡ b45c33ad-1c21-4df8-bc16-a54e7d27c25b
-md"""*Ejemplo:*
-Consideremos los siguientes números complejos."""
-
-# ╔═╡ 57f56e5e-ff3f-4c40-a631-10c2500a6333
-@bind a₄ Slider(-10:0.1:10, show_value=true, default=1)
-
-# ╔═╡ 4af52084-fd08-4ba1-b65a-3f31eebd7e8c
-@bind b₄ Slider(-10:0.1:10, show_value=true, default=-3)
-
-# ╔═╡ b49f25aa-1436-4cd4-90f8-adcb1dd800fe
-z₄ = complex(a₄, b₄)
-
-# ╔═╡ f33ca5b4-e758-46ad-b17d-90626e2a4a4f
-@bind a₅ Slider(-10:0.1:10, show_value=true, default=-5)
-
-# ╔═╡ ed6579b8-2b7d-4497-82ef-a872f007d3d1
-@bind b₅ Slider(-10:0.1:10, show_value=true, default=4)
-
-# ╔═╡ ade8c070-e552-4f26-b6bc-b99c08fffe44
-z₅ = complex(a₅, b₅)
-
-# ╔═╡ e323b5a0-2e62-4461-a024-10dd7e864db2
-md"""Observe las siguientes operaciones"""
-
-# ╔═╡ 51498fc2-6058-4a73-90c5-a9fdf6d6ac98
-z₄ + z₅ #suma
-
-# ╔═╡ 17304f4b-cc3a-4fd0-b174-d39e7f5f96e2
-z₄ - z₅ #resta
-
-# ╔═╡ cfca9946-cea0-4ff6-a8d4-6093622878e2
-z₄ * z₅ #multiplicación
-
-# ╔═╡ 0a7276d0-45eb-46c1-9d22-ee356a711e88
-5*z₄ #multiplicación por escalar
-
-# ╔═╡ b26b3a34-8ed7-4daa-8f83-642d7878915f
-z₄/z₅ #división
-
-# ╔═╡ 66fad81e-4dba-40eb-bc9e-117c7a8e0c67
-z₄^2 #potenciación
-
-# ╔═╡ 9d947ea6-f506-4f17-a308-9c3c1e3a9330
-md"""## Inverso
-
-Si $z \in \mathbb{C}$ con $z = a + bi \neq 0$, entonces 
-
-$z^{-1} = \frac{a}{a^2 + b^2} - \frac{b}{a^2 + b^2}i.$
-"""
-
-# ╔═╡ 6bcc224b-721b-4c8e-a454-3d98744e7e96
-md"""*Ejemplo:*
-Consideremos el siguiente número complejo."""
-
-# ╔═╡ eb88ba98-ad70-4ba6-9b86-3b0e2cdb5cc5
-@bind a₆ Slider(-10:0.1:10, show_value=true, default=3.5)
-
-# ╔═╡ d0dbe76c-eff2-48d9-9ad6-a50276d5c5ce
-@bind b₆ Slider(-10:0.1:10, show_value=true, default=-1.5)
-
-# ╔═╡ 1fe4b31d-df12-4c7d-9cc9-08c726390a93
-z₆ = complex(a₆, b₆)
-
-# ╔═╡ 0c820aef-d94c-4737-b3a4-bf6738177137
-md"""Así, el inverso es"""
-
-# ╔═╡ 71676a4e-0d3f-4d0c-b82b-ad6f5192f715
-inv(z₆)
-
-# ╔═╡ 3c36397e-151b-44ab-904b-9dab998c5533
-real.(inv(z₆))
-
-# ╔═╡ 5f3ca701-3476-4c9d-963a-68a78f90f135
-begin
-	scatter([real.(z₆)], [imag.(z₆)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
-	scatter!([real.(inv(z₆))], [imag.(inv(z₆))], color=:red, label="z^{-1}")
-	scatter!([0], [0], color=:green, label="(0, 0)")
-	plot!([real.(inv(z₆)), 0], [imag.(inv(z₆)), 0], color=:gray, label="")
-	plot!([0, real.(z₆)], [0, imag.(z₆)], color=:gray, label="")
-end
-
-# ╔═╡ bcc3715f-5659-4575-9d69-afadfedf2e3d
-md"""## Conjugado
-
-El conjugado de un número complejo $z=a+bi$ se define como el número complejo $\overline{z}=a−bi$, donde la parte real permanece igual y la parte imaginaria se invierte de signo."""
-
-# ╔═╡ 7265d23b-2684-47d5-92b7-33dadcfa8f26
-md"""*Ejemplo:*
-Consideremos el siguiente número complejo."""
-
-# ╔═╡ cad7c15b-7c97-46bc-8c92-3302f940c5d3
-@bind a₇ Slider(-10:0.1:10, show_value=true, default=3.5)
-
-# ╔═╡ 344104e7-48e1-4905-afd5-670dc7836338
-@bind b₇ Slider(-10:0.1:10, show_value=true, default=-1.5)
-
-# ╔═╡ 7a47cac5-ba70-4c89-8066-0a1c65fdcbdc
-z₇ = complex(a₇, b₇)
-
-# ╔═╡ 9ab7bfc5-da61-4d5e-8aea-6d278198e318
-md"""Con la función $\texttt{conj}$ hallamos el conjugado."""
-
-# ╔═╡ 1b396d3c-43ab-45eb-a077-fd86e531ff25
-conj(z₇)
-
-# ╔═╡ 713405da-cbea-46ee-93aa-1dbdd36ef8c7
-begin
-	scatter([real.(z₇)], [imag.(z₇)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
-	scatter!([real.(conj(z₇))], [imag.(conj(z₇))], color=:red, label="conj(z)")
-	scatter!([0], [0], color=:green, label="(0, 0)")
-	plot!([real.(conj(z₇)), 0], [imag.(conj(z₇)), 0], color=:gray, label="")
-	plot!([0, real.(z₇)], [0, imag.(z₇)], color=:gray, label="")
-end
-
-# ╔═╡ 72670929-9a89-4b5a-8ac3-6733d35eb6fd
-md"""## Módulo
-
-El módulo de un número complejo $z=a+bi$, denotado como $\| z\|$, se define como la distancia euclidiana desde el origen hasta el punto que representa el número complejo en el plano complejo. El módulo de un número complejo se calcula como:
-
-
-$\| z\|=\sqrt{a^2+b^2}.$"""
-
-# ╔═╡ b43fe760-0f47-4ecd-93f9-7c34a31c712d
-md"""**Observación:** Un número complejo y su conjugado tienen el mismo módulo."""
-
-# ╔═╡ 8e3c66cb-671b-400c-bdcc-e1e74c61203d
-md"""*Ejemplo:* Consideremos"""
-
-# ╔═╡ 3938cba8-c625-43cd-8864-da5772f6c696
-z₇
-
-# ╔═╡ f9c6edd3-bf77-4de7-9ee2-c9b45b3e8c3e
-md"""Su módulo es"""
-
-# ╔═╡ cdbaed43-4b44-4767-a6b2-eb63834d63c4
-abs(z₇)
-
-# ╔═╡ 70c13bfb-a986-4d05-97e4-a1a9077897ff
-md"""Y se verifica que"""
-
-# ╔═╡ 5f0051f7-4222-4575-8a93-a9bfac70bb28
-abs(z₇) == abs(conj(z₇))
-
-# ╔═╡ 0b8155b8-8169-4403-89c2-ca761ad69ac6
-md"""# Forma exponencial
-
-**Definición:** Para $z \in \mathbb{C}$ definimos la forma exponencial de $z$ como
-$z = re^{i\theta}$
-donde $r = |z|$ y $\theta := \text{arg}(z)$ es un ángulo formado por el eje real positivo con el vector $z$.
-"""
-
-# ╔═╡ 08cc42c8-e7eb-4d3c-a5c7-2105bcfb93cd
-md"""*Ejemplo:* Consideremos el siguiente número complejo"""
-
-# ╔═╡ 133baa38-6a4d-4c8a-9d11-561f5febcfe4
-@bind a₈ Slider(-10:0.1:10, show_value=true, default=4)
-
-# ╔═╡ b6e108c1-0986-4530-b7cd-721aaa0d4f88
-@bind b₈ Slider(-10:0.1:10, show_value=true, default=5)
-
-# ╔═╡ bfcbfdb4-07bc-4e8c-ab66-9debcfe84290
-z₈ = complex(a₈, b₈)
-
-# ╔═╡ c16980bb-7693-4f30-936b-0deabc4cc078
-md"""Observe que su módulo es"""
-
-# ╔═╡ 0b47d13e-51d2-4480-b827-149ac9108891
-r = abs(z₈)
-
-# ╔═╡ b31456c3-ccd4-4cfd-9532-3b7d5a2815d5
-md"""Y su argumento es"""
-
-# ╔═╡ 9cb0d8c4-4217-4a23-900e-39be317e9bb8
-θ = angle(z₈)
-
-# ╔═╡ 296972db-069e-4dfd-a6de-5a236e40a527
-md"""Así $z=$"""
-
-# ╔═╡ a55abc2b-517e-4353-a194-ea1f0ef2a84c
-r*exp(θ*im)
-
-# ╔═╡ f0669709-74be-471a-a488-202708dd01b7
-md"""Otra forma de verificar esto es de la siguiente forma"""
-
-# ╔═╡ c6f9314c-cbac-446d-b2e1-5a061c71e7f2
-r*cis(θ)
-
-# ╔═╡ 9b09895f-382e-48d1-8634-5c2b406194f0
-md"""**Nota:** La función $\texttt{cis()}$ es equivalente a $\cos{\theta}+i\sin{\theta}$."""
-
-# ╔═╡ 8e46325a-8d9b-420b-9d2a-db68dbd515bf
-md"""## Formúla de De Moivre
-
-Si $z = r(\cos \theta + i\sin \theta) = re^{i\theta}$ entonces $z^n = r^n(\cos(n\theta) + i\sin(n\theta)) = r^n e^{in\theta}$"""
-
-# ╔═╡ bfa1c52e-c7d7-4cce-b080-38e5920db304
-md"""*Ejemplo:* Consideremos el siguiente número complejo."""
-
-# ╔═╡ 922e4bbf-8ee9-4af1-a66a-87e59afa1095
-z₈
-
-# ╔═╡ b377fae7-0d45-48b4-9a37-64c2270473e8
-md"""Ya vimos que, $r$, $\theta$ son"""
-
-# ╔═╡ 59f9f091-9bda-467c-aa40-37df5cd89d5c
-r, θ
-
-# ╔═╡ 4084ca08-1790-40cd-8e99-5ce7b7cad927
-md"""Así $z^2$ es el siguiente número complejo."""
-
-# ╔═╡ ee349ac2-9442-40c2-b20e-7e02abacb56e
-@bind n Slider(-10:1:10, show_value=true, default=2)
-
-# ╔═╡ b5db23af-8f59-47d4-b480-785d82adb22f
-typeof(n) #tipo de dato
-
-# ╔═╡ c30376a7-c95f-4e2a-b489-0cdad0357ae4
-bitstring(n)
-
-# ╔═╡ fb62ff9c-6fa0-4c5c-b27d-56a1e67f5237
-length(bitstring(n)) #longitud del entero
-
-# ╔═╡ 1c1767ce-28f1-4f94-9e28-f61ddb41ef45
-bitstring(Int8(n))
-
-# ╔═╡ 4c74036a-79ec-4f53-a717-b089b39e2d0a
-bitstring(UInt8(n))
-
-# ╔═╡ 5851bdf2-cf91-45a1-a34d-34b1ef4588ea
-zn = r^n * cis(n * θ)
-
-# ╔═╡ 7280ebd8-7dd9-4961-8280-89925beabe94
-z₈^n
-
-# ╔═╡ 268f7dd9-c21a-425d-8562-cffd0e77033c
-md"""**Nota:** Note que el resultado no es exacto, es decir no es exactamente el mismo que al realizar $z^3$. Esto se debe a que estamos trabajando con números de punto flotante."""
-
-# ╔═╡ 38db4a8e-61b4-4ccd-896b-8d92b8acd332
-begin
-	scatter([real.(z₈)], [imag.(z₈)], color=:pink, label="z", aspect_ratio=:equal, xlabel="Parte Real", ylabel="Parte Imaginaria", title="Plano complejo")
-	scatter!([real.(zn)], [imag.(zn)], color=:red, label="z^$n")
-	scatter!([0], [0], color=:green, label="(0, 0)")
-	plot!([0, real.(z₈)], [0, imag.(z₈)], color=:gray, label="")
-	plot!([0, real.(zn)], [0, imag.(zn)], color=:gray, label="")
-end
-
-# ╔═╡ 1110da58-1c8e-420e-a9c3-d90f6787d219
-md"""Otra forma de graficar esto, es de la siguiente forma:"""
-
-# ╔═╡ 8c684d61-0015-44c3-9659-1dd151d6a2ed
-begin
-	plot([0,angle(zn)], [0,abs(zn)], proj = :polar, m = 2, legend=false, title="Plano complejo")
-	plot!([0,θ], [0,r], proj = :polar, m = 2, legend=false)
-end
-
-# ╔═╡ 64e9c3fc-a2de-4ea7-8d9a-5a8ab55cf1e4
-md"""# Raíces
-
-Las raíces $n$-ésimas de un complejo fijo $z_0 = r_0 e^{i\theta_0}$ son números complejos distintos dados por
-
-$c_k = \sqrt[n]{r_0} e^{i\left(\frac{\theta_0}{n}+\frac{2\pi k}{n}\right)},$
-
-Donde $c_k$ es una de las raíces distintas, $k=1,2,\cdots, n$, $r_0$ es el módulo de $z_0$, $\theta_0$ es el argumento de $z_0$, y $\sqrt[n]{\cdot}$ denota la raíz $n$-ésima principal.
-"""
-
-# ╔═╡ 5d2ea548-64b6-40de-bc8f-c34d1ee35187
-md"""Con la siguiente función podemos hallar las raíces $n$-ésimas de un número complejo."""
-
-# ╔═╡ b3c922fc-70ce-408a-9f60-81df0061863c
-function raices_nesimas(z0::Complex{T}, n::Integer) where T<:Real
-    r0 = abs(z0)
-    theta0 = angle(z0)
-    
-    raices = Complex{T}[]
-    for k in 1:n
-        ck = (r0^(1/n)) * cis(theta0/n + 2π*k/n)
-        push!(raices, ck)
-    end
-    return raices
-end
-
-# ╔═╡ 3e25d3dc-b39a-4d2f-b6b1-a2b6ed85a4c5
-md"""*Ejemplo:* Consideremos el siguiente número y hallemos sus raíces 4-ésimas."""
-
-# ╔═╡ 23ae3b93-f81a-4397-923b-6475da8d1177
-@bind a₉ Slider(-10:0.1:10, show_value=true, default=1)
-
-# ╔═╡ 6f53849d-5805-4bfd-a013-dffd81a09255
-@bind b₉ Slider(-10:0.1:10, show_value=true, default=1)
-
-# ╔═╡ 7b9f32ec-5f3d-4f45-bef6-986c08aca0d3
-z₉ = complex(a₉, b₉) #número complejo
-
-# ╔═╡ 50da9eb7-90bc-4e38-9eb4-9f9747cf27b8
-@bind n₁ Slider(1:10, show_value=true, default=4) #n=4
-
-# ╔═╡ 64c2271e-cbb2-4834-9b35-2e08f4814f6c
-md"""Así las raíces son:"""
-
-# ╔═╡ 592e6311-50aa-4a71-a376-fd9396423faa
-rn = raices_nesimas(z₉, n₁)
-
-# ╔═╡ f8f8bba7-f0b6-46e5-9995-e78b7318addc
-begin
-	zc = (abs(z₉)^(1/n₁))*cispi.(2*(0:400) / 400);
-	plot(@. Polar(zc))
-	for i in 1:n₁
-    	plot!([0, angle(rn[i])], [0, abs(rn[i])], proj=:polar, m=2, label="c_$i")
-	end
-	title!("Raíces $n₁ -ésimas")
-end
-
-# ╔═╡ 60ec3b6a-a571-4a10-8aa1-b71b5145b1a4
-md"""# Curva de Koch
-La curva de Koch es una de las primeras curvas fractales descubiertas y es importante debido a que ilustra la presencia de formas fractales en la naturaleza. Por ejemplo, se puede observar esta curva en los copos de nieve y en las ramificaciones de los rayos de tormentas eléctricas.
-
-Para construir la curva de Koch, comenzamos con un segmento de línea recta, definido por los puntos extremos $A$ y $B$, debemos seguir los siguientes pasos:
-- El primer paso en cada iteración es dividir el segmento original $AB$ en tres segmentos iguales. Así obtenemos 2 nuevos puntos dentro de la recta:
-
-$C = \frac{2A + B}{3}$
-
-$D = \frac{A + 2B}{3}$
-
-- Ahora, construimos un triángulo equilátero con la base $CD$. El nuevo vértice del triángulo, $E$, se coloca de manera que forme un ángulo de $60^\circ$ con la línea original, lo cual se puede lograr usando números complejos:
-
-$E = C + (D - C) \cdot e^{i\pi/3}$
-
-- El segmento original $AB$ ahora se reemplaza con cuatro segmentos: $AC$, $CE$, $ED$, y $DB$. Esta sustitución es lo que crea la forma fractal.
-
-Para repetir este proceso de forma recursiva es necesario considerar a cada uno de los nuevos segmentos ($AC$, $CE$, $ED$, y $DB$) como el segmento $AB$ sobre el cual se repite el mismo proceso de subdivisión y construcción de un triángulo.
-
-La siguiente función muestra este proceso."""
-
-# ╔═╡ 1af186c0-8335-4ddf-ae92-51f72cbab6ea
-function koch_curve(p1, p2, depth)
-    if depth == 0
-        return [p1, p2]
-    else
-        # Calcular los puntos intermedios
-        s = (2*p1 + p2) / 3
-        t = (p1 + 2*p2) / 3
-        u = s + (t - s) * exp(im * π / 3)
-
-        # Recursivamente generar las subdivisiones
-        return vcat(koch_curve(p1, s, depth-1),
-                    koch_curve(s, u, depth-1)[2:end],
-                    koch_curve(u, t, depth-1)[2:end],
-                    koch_curve(t, p2, depth-1)[2:end])
-    end
-end
-
-# ╔═╡ c5437c5b-038b-4774-a483-f910e179716d
-md"""Con 3 iteraciones en el intervalo $[0,1]$,"""
-
-# ╔═╡ d82483d4-30ab-41a1-ad47-34b398055fb0
-@bind m Slider(0:1:10, show_value=true, default=3)
-
-# ╔═╡ 3fa547e2-8d56-40dc-9168-016fe1198508
-md"""se obtienen los siguientes puntos sobre el plano complejo"""
-
-# ╔═╡ e18feade-7936-44ac-ad33-6a3022c28152
-d= koch_curve(0, 1, m)
-
-# ╔═╡ 28c0ae19-5d46-4ac2-b15f-cb888bba9841
-md"""Graficando, obtenemos la siguiente curva."""
-
-# ╔═╡ aa3c031b-07a7-4769-9b08-f0c8803c1f31
-plot(real(d),imag(d),label=false, title="Curva de Koch, m=$m")
-
-# ╔═╡ 6d32fe79-daeb-44dd-adc4-74484d3ced01
-md"""# Referencias
-
-[1] McGraw-Hill. (2009). Complex variables and applications (8th ed.). McGraw-Hill Companies.
-
-[2] ComplexPlots.jl Documentation. (n.d.). Retrieved May 19, 2024, from https://docs.juliahub.com/General/ComplexPlots/0.1.0/plots/
-
-[3] Julia Documentation. (n.d.). Integers and floating-point numbers. Retrieved May 19, 2024, from https://web.mit.edu/julia_v0.6.2/julia/share/doc/julia/html/en/manual/integers-and-floating-point-numbers.html
-
-[4] Kigami, J. (2001). *Analysis on fractals* (Vol. 143). Cambridge University Press."""
+# ╔═╡ ab6b018a-b613-4794-ab31-d104e09b2fc4
+zplot(z -> 1/sqrt(z))
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -629,12 +280,14 @@ ComplexPlots = "1fd36721-02e5-4f31-ac70-029fcd7253d3"
 ComplexValues = "41a84b80-6cf2-11e9-379d-9df124847946"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 
 [compat]
 ComplexPlots = "~0.1.0"
 ComplexValues = "~0.3.0"
 Plots = "~1.40.4"
-PlutoUI = "~0.7.58"
+PlutoUI = "~0.7.59"
+SymPy = "~2.0.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -643,13 +296,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "dc61a35bc6186d82a863669071ec6c74908e138a"
+project_hash = "9c874bc3bb4215b78e8bd2b1ff7d6bf8d8bb92a9"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "0f748c81756f2e5e6854298f11ad8b2dfae6911a"
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.3.0"
+version = "1.3.2"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -692,9 +345,9 @@ version = "3.25.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "eb7f0f8307f71fac7c606984ea5fb2817275d6e4"
+git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.4"
+version = "0.11.5"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -711,6 +364,16 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "362a287c3aa50601b0bc359053d5c2468f0e7ce0"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.11"
+
+[[deps.CommonEq]]
+git-tree-sha1 = "6b0f0354b8eb954cdba708fb262ef00ee7274468"
+uuid = "3709ef60-1bee-4518-9f2f-acd86f176c50"
+version = "0.2.1"
+
+[[deps.CommonSolve]]
+git-tree-sha1 = "0eee5eb66b1cf62cd6ad1b460238e60e4b09400c"
+uuid = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
+version = "0.2.4"
 
 [[deps.CommonSubexpressions]]
 deps = ["MacroTools", "Test"]
@@ -755,6 +418,12 @@ deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.4.1"
+
+[[deps.Conda]]
+deps = ["Downloads", "JSON", "VersionParsing"]
+git-tree-sha1 = "51cab8e982c5b598eea9c8ceaced4b58d9dd37c9"
+uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+version = "1.10.0"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -852,9 +521,9 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
-git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
+git-tree-sha1 = "05882d6995ae5c12bb5f36dd2ed3f61c98cbb172"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
-version = "0.8.4"
+version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
@@ -1300,9 +969,9 @@ version = "1.40.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "71a22244e352aa8c5f0f2adde4150f62368a3f2e"
+git-tree-sha1 = "ab55ee1510ad2af0ff674dbcced5e94921f867a9"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.58"
+version = "0.7.59"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1319,6 +988,12 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.PyCall]]
+deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
+git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
+uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+version = "1.96.4"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
@@ -1454,6 +1129,24 @@ deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.2.1+1"
 
+[[deps.SymPy]]
+deps = ["CommonEq", "CommonSolve", "LinearAlgebra", "PyCall", "SpecialFunctions", "SymPyCore"]
+git-tree-sha1 = "8d727c118eb31ffad73cce569b7bb29eef5fb9ad"
+uuid = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
+version = "2.0.1"
+
+[[deps.SymPyCore]]
+deps = ["CommonEq", "CommonSolve", "Latexify", "LinearAlgebra", "Markdown", "RecipesBase", "SpecialFunctions"]
+git-tree-sha1 = "d2e8b52c18ad76cc8827eb134b9ba4bb7699ec59"
+uuid = "458b697b-88f0-4a86-b56b-78b75cfb3531"
+version = "0.1.18"
+
+    [deps.SymPyCore.extensions]
+    SymPyCoreSymbolicUtilsExt = "SymbolicUtils"
+
+    [deps.SymPyCore.weakdeps]
+    SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
+
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
@@ -1530,6 +1223,11 @@ version = "1.6.3"
 git-tree-sha1 = "ca0969166a028236229f63514992fc073799bb78"
 uuid = "41fe7b60-77ed-43a1-b4f0-825fd5a5650d"
 version = "0.2.0"
+
+[[deps.VersionParsing]]
+git-tree-sha1 = "58d6e80b4ee071f5efd07fda82cb9fbe17200868"
+uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
+version = "1.3.0"
 
 [[deps.Vulkan_Loader_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Xorg_libX11_jll", "Xorg_libXrandr_jll", "xkbcommon_jll"]
@@ -1823,147 +1521,44 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─b763cd10-d1e7-4613-b738-9fb1c1cfa1e5
-# ╟─a7d3298e-0138-4149-a189-0b5a92cfa0e7
-# ╟─5a638263-06dd-4f61-b2af-40e5eeb2b9c6
-# ╟─e34f8a45-6a22-45f8-b54e-8a15f96c89c9
-# ╟─fe274212-e2f3-4604-b746-109576d79f5e
-# ╠═d675dc10-eae6-11ee-096c-a184ec597d1f
-# ╟─2dbac2d7-681a-49a3-a105-5e551f9a5089
-# ╟─88181bfd-223d-4b2d-b913-bf3daad7baf2
-# ╠═e4f9582a-9e9c-41e9-bb91-ef7aa5386235
-# ╠═b5db23af-8f59-47d4-b480-785d82adb22f
-# ╟─995bfd52-77ac-4703-ae15-2f3ce22dc369
-# ╠═c30376a7-c95f-4e2a-b489-0cdad0357ae4
-# ╠═fb62ff9c-6fa0-4c5c-b27d-56a1e67f5237
-# ╟─1e2a9f02-94b7-4ead-b073-540e1607cc51
-# ╠═1c1767ce-28f1-4f94-9e28-f61ddb41ef45
-# ╟─3f89cd72-92fe-4565-92f5-b01720689369
-# ╟─9619f81f-e38a-40d5-8dce-843662bcf875
-# ╠═4c74036a-79ec-4f53-a717-b089b39e2d0a
-# ╟─7f1782a0-2b5c-4687-b0b7-39057b9cb6cc
-# ╟─3889b1c4-2466-45d5-9c87-0fa72b014164
-# ╠═6bb1a9f9-e58f-44d2-a7bb-b2de3ec7ab78
-# ╟─ea4dcc2c-a9d0-4cc0-b237-4da665193461
-# ╟─046c0f75-035b-4c64-8143-59cbd008b2eb
-# ╠═a6104904-a238-48c6-9551-18f687889d1e
-# ╟─99071fb5-e84b-4e78-a0c3-1b2d1a03aa15
-# ╟─077f063a-aca3-4e6d-ac9c-37992ed15df5
-# ╠═6fa9dfab-33b0-4e52-9cd7-8bbbdaa8417c
-# ╠═0398322b-535f-4298-bc59-71faa33b6284
-# ╟─913e9ff8-8e73-4246-80e7-009d18bc91a2
-# ╠═41234ab6-5496-4976-b040-ffe72e25f0b2
-# ╟─bcfe3730-0c0f-4b44-9605-05287169a1eb
-# ╟─9d9758f4-cf5d-4c49-ba3d-38ee4501cd9f
-# ╠═99c4a7d9-4bc7-4b22-b100-eee0df8b31c4
-# ╠═e0e3548a-79f5-4b3d-9bc6-4b19b6867458
-# ╟─f59d03a1-e52b-4ca4-9b96-47683bb8b86b
-# ╟─5d08dc87-5a14-41d5-bf1f-435c05c7142f
-# ╠═80672dff-08fa-4e22-8bfe-529d1478feac
-# ╠═9bc6a86f-6b60-42fc-a486-b8875d4f82b6
-# ╟─d877aef1-2fdf-45e6-b2c2-4a297d086725
-# ╟─1a2a4c02-c1d4-49b3-8bae-8726dfcae164
-# ╠═846cef81-1dcd-422c-bab9-558c354208e7
-# ╠═e29929c7-8c03-45c4-befb-3173efb8a1a8
-# ╠═1052e939-d02d-43d6-9d3d-5599403de48a
-# ╟─c868c928-82af-42ff-828e-d78799ee8fb9
-# ╠═8259fb65-dc42-4f01-b6f0-043dacaabe7b
-# ╟─df610d28-3b37-4b2c-adf3-732a0f403e52
-# ╠═be6837f9-9cea-44fa-947f-d6b693ea8298
-# ╟─d3768a7a-a01c-4398-a76e-89ce219291c2
-# ╟─98f96a8c-576c-4b14-8793-527a2f8126a7
-# ╠═68664fd4-9791-48ee-af9e-ab87d8ab870e
-# ╠═60c58cdd-8097-4740-879d-f2c9d900d9a4
-# ╠═f842353d-7706-4eba-8485-3cef3d1f9a48
-# ╠═f63dae67-220b-436b-9c1b-d22b1ecf83a1
-# ╠═d01adc96-7d1b-4519-9ce9-ef6cff8b55e3
-# ╟─466ad593-7450-426d-b244-71830058d7d5
-# ╟─3543b3f1-0da7-4c80-a74f-c478f1af018d
-# ╟─b45c33ad-1c21-4df8-bc16-a54e7d27c25b
-# ╠═57f56e5e-ff3f-4c40-a631-10c2500a6333
-# ╠═4af52084-fd08-4ba1-b65a-3f31eebd7e8c
-# ╠═b49f25aa-1436-4cd4-90f8-adcb1dd800fe
-# ╠═f33ca5b4-e758-46ad-b17d-90626e2a4a4f
-# ╠═ed6579b8-2b7d-4497-82ef-a872f007d3d1
-# ╠═ade8c070-e552-4f26-b6bc-b99c08fffe44
-# ╟─e323b5a0-2e62-4461-a024-10dd7e864db2
-# ╠═51498fc2-6058-4a73-90c5-a9fdf6d6ac98
-# ╠═17304f4b-cc3a-4fd0-b174-d39e7f5f96e2
-# ╠═cfca9946-cea0-4ff6-a8d4-6093622878e2
-# ╠═0a7276d0-45eb-46c1-9d22-ee356a711e88
-# ╠═b26b3a34-8ed7-4daa-8f83-642d7878915f
-# ╠═66fad81e-4dba-40eb-bc9e-117c7a8e0c67
-# ╟─9d947ea6-f506-4f17-a308-9c3c1e3a9330
-# ╟─6bcc224b-721b-4c8e-a454-3d98744e7e96
-# ╠═eb88ba98-ad70-4ba6-9b86-3b0e2cdb5cc5
-# ╠═d0dbe76c-eff2-48d9-9ad6-a50276d5c5ce
-# ╠═1fe4b31d-df12-4c7d-9cc9-08c726390a93
-# ╟─0c820aef-d94c-4737-b3a4-bf6738177137
-# ╠═71676a4e-0d3f-4d0c-b82b-ad6f5192f715
-# ╠═3c36397e-151b-44ab-904b-9dab998c5533
-# ╟─5f3ca701-3476-4c9d-963a-68a78f90f135
-# ╟─bcc3715f-5659-4575-9d69-afadfedf2e3d
-# ╟─7265d23b-2684-47d5-92b7-33dadcfa8f26
-# ╠═cad7c15b-7c97-46bc-8c92-3302f940c5d3
-# ╠═344104e7-48e1-4905-afd5-670dc7836338
-# ╠═7a47cac5-ba70-4c89-8066-0a1c65fdcbdc
-# ╟─9ab7bfc5-da61-4d5e-8aea-6d278198e318
-# ╠═1b396d3c-43ab-45eb-a077-fd86e531ff25
-# ╟─713405da-cbea-46ee-93aa-1dbdd36ef8c7
-# ╟─72670929-9a89-4b5a-8ac3-6733d35eb6fd
-# ╟─b43fe760-0f47-4ecd-93f9-7c34a31c712d
-# ╟─8e3c66cb-671b-400c-bdcc-e1e74c61203d
-# ╠═3938cba8-c625-43cd-8864-da5772f6c696
-# ╟─f9c6edd3-bf77-4de7-9ee2-c9b45b3e8c3e
-# ╠═cdbaed43-4b44-4767-a6b2-eb63834d63c4
-# ╟─70c13bfb-a986-4d05-97e4-a1a9077897ff
-# ╠═5f0051f7-4222-4575-8a93-a9bfac70bb28
-# ╟─0b8155b8-8169-4403-89c2-ca761ad69ac6
-# ╟─08cc42c8-e7eb-4d3c-a5c7-2105bcfb93cd
-# ╠═133baa38-6a4d-4c8a-9d11-561f5febcfe4
-# ╠═b6e108c1-0986-4530-b7cd-721aaa0d4f88
-# ╠═bfcbfdb4-07bc-4e8c-ab66-9debcfe84290
-# ╟─c16980bb-7693-4f30-936b-0deabc4cc078
-# ╠═0b47d13e-51d2-4480-b827-149ac9108891
-# ╟─b31456c3-ccd4-4cfd-9532-3b7d5a2815d5
-# ╠═9cb0d8c4-4217-4a23-900e-39be317e9bb8
-# ╟─296972db-069e-4dfd-a6de-5a236e40a527
-# ╠═a55abc2b-517e-4353-a194-ea1f0ef2a84c
-# ╟─f0669709-74be-471a-a488-202708dd01b7
-# ╠═c6f9314c-cbac-446d-b2e1-5a061c71e7f2
-# ╟─9b09895f-382e-48d1-8634-5c2b406194f0
-# ╟─8e46325a-8d9b-420b-9d2a-db68dbd515bf
-# ╟─bfa1c52e-c7d7-4cce-b080-38e5920db304
-# ╠═922e4bbf-8ee9-4af1-a66a-87e59afa1095
-# ╟─b377fae7-0d45-48b4-9a37-64c2270473e8
-# ╠═59f9f091-9bda-467c-aa40-37df5cd89d5c
-# ╟─4084ca08-1790-40cd-8e99-5ce7b7cad927
-# ╠═ee349ac2-9442-40c2-b20e-7e02abacb56e
-# ╠═5851bdf2-cf91-45a1-a34d-34b1ef4588ea
-# ╠═7280ebd8-7dd9-4961-8280-89925beabe94
-# ╟─268f7dd9-c21a-425d-8562-cffd0e77033c
-# ╟─38db4a8e-61b4-4ccd-896b-8d92b8acd332
-# ╟─1110da58-1c8e-420e-a9c3-d90f6787d219
-# ╟─8c684d61-0015-44c3-9659-1dd151d6a2ed
-# ╟─64e9c3fc-a2de-4ea7-8d9a-5a8ab55cf1e4
-# ╟─5d2ea548-64b6-40de-bc8f-c34d1ee35187
-# ╠═b3c922fc-70ce-408a-9f60-81df0061863c
-# ╟─3e25d3dc-b39a-4d2f-b6b1-a2b6ed85a4c5
-# ╠═23ae3b93-f81a-4397-923b-6475da8d1177
-# ╠═6f53849d-5805-4bfd-a013-dffd81a09255
-# ╠═7b9f32ec-5f3d-4f45-bef6-986c08aca0d3
-# ╠═50da9eb7-90bc-4e38-9eb4-9f9747cf27b8
-# ╟─64c2271e-cbb2-4834-9b35-2e08f4814f6c
-# ╠═592e6311-50aa-4a71-a376-fd9396423faa
-# ╟─f8f8bba7-f0b6-46e5-9995-e78b7318addc
-# ╟─60ec3b6a-a571-4a10-8aa1-b71b5145b1a4
-# ╠═1af186c0-8335-4ddf-ae92-51f72cbab6ea
-# ╟─c5437c5b-038b-4774-a483-f910e179716d
-# ╟─d82483d4-30ab-41a1-ad47-34b398055fb0
-# ╟─3fa547e2-8d56-40dc-9168-016fe1198508
-# ╠═e18feade-7936-44ac-ad33-6a3022c28152
-# ╟─28c0ae19-5d46-4ac2-b15f-cb888bba9841
-# ╟─aa3c031b-07a7-4769-9b08-f0c8803c1f31
-# ╟─6d32fe79-daeb-44dd-adc4-74484d3ced01
+# ╟─d609638c-3d16-4595-9778-ec88427e055e
+# ╟─b18f0f08-49cc-4268-a7ce-da2f34848f02
+# ╟─c47e305f-6972-4aac-b36a-0cbc3c4f8789
+# ╟─f9e88351-a23f-47e8-9a92-d136782da380
+# ╟─e1fdb8d5-c3a7-4652-8286-7842bc5123a7
+# ╠═b297988d-0157-4894-8b2b-9c90c1747144
+# ╟─5a96d201-e31c-4562-8187-23e7430fb7db
+# ╟─657093ea-e4e8-4e60-ac5c-8a33a93181d5
+# ╟─d2801310-a500-4836-80ce-741a7c2d59a3
+# ╟─5b97add9-e375-46f4-87bf-563ace0bba0c
+# ╠═a46945e5-7437-45d7-a322-5a47db66deb7
+# ╟─bdc857d8-62d1-4a49-bb2e-7a1fdef6cb47
+# ╠═6daaf8ba-4e00-4f7d-b49a-0fa77e8b33a4
+# ╟─d2b67283-7b8d-43a1-914e-187e142969cf
+# ╠═f0c0aa93-81ce-44c4-93fc-6298ecca04e9
+# ╟─489eec2a-6ec9-4a92-9f0c-cd0bd11f798d
+# ╟─58b21d7d-9288-4787-b59b-6a17921a1e4a
+# ╟─27aee2de-675d-4821-8917-da3488c88474
+# ╟─a1a910f2-6db6-4721-b68b-6875982456bb
+# ╟─29486a83-5054-466c-96b6-18f8aae2fc1b
+# ╠═18069a13-92db-4dd5-b269-9a0ae2701b7a
+# ╠═5cc9f1f2-0646-48f4-977e-1ec8229d9e4b
+# ╟─a4ceb7d3-ca49-4d91-a3ff-8421fceaa1cd
+# ╠═a37c1e9a-7cac-438e-94a5-e342f5613c6b
+# ╟─41e778a4-b362-48ce-8ba2-5aba75128278
+# ╟─135db7ca-533a-47b9-ac9d-a1769875f8b7
+# ╟─91def84f-c450-4f86-9fd4-0e43f206f4ba
+# ╟─452dcdd7-4a15-45b8-b5e3-c7af97dd473b
+# ╟─25f66189-80d0-435e-8fef-fcd08d65723a
+# ╟─a29b392f-3195-41f6-95b1-5f55fb2da564
+# ╟─4675928d-d1ae-4c43-81f0-a6d3029fc95d
+# ╟─7d3525d8-ba29-486d-9bda-82657a853a33
+# ╟─61e22180-bfa3-432a-a373-3e3ff60e7d57
+# ╠═efcef8a1-5164-49fd-82f8-698607ccb701
+# ╠═9f177352-2b11-490a-9bf7-450fdcbdfc15
+# ╠═864b3cd7-aea8-4cff-8eb3-0665dce59db8
+# ╠═7a922368-18bb-44ba-8b1a-ce51da560cf3
+# ╠═58e44ab7-3516-47f6-b396-dc65d042567e
+# ╠═ab6b018a-b613-4794-ab31-d104e09b2fc4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
